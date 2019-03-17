@@ -1,17 +1,34 @@
-@(form: Form[User], postUrl: Call)
+@import play.mvc.Http.Request
+@(form: Form[User])(implicit request: Request, messages: play.i18n.Messages)
 
-@main("User register") {
+@main("Register") {
 
-    <h1>User register</h1>
+    <h1>Register</h1>
 
-    @* “'id” in these elements is the css `id` field that will be shown *@
-    @helper.form(routes.AuthController.index()) {
+    @* Flash shows updates to a page *@
+    @request.flash.asScala().data.map { case (name, value) =>
+    <div class="@name">@value</div>
+    }
+
+    <hr/>
+
+    @* Global errors are not tied to any particular form field *@
+    @if(form.hasGlobalErrors) {
+        @form.globalErrors.asScala.map { error: play.data.validation.ValidationError =>
+            <div>
+                @error.key: @error.message
+            </div>
+        }
+    }
+
+    @helper.form(routes.AuthController.register()) {
         @helper.CSRF.formField
 
-        @helper.inputText(form("email"), 'size -> 60)
-        @helper.inputText(form("password"), 'size -> 60)
+        @helper.inputText(form("email"))
 
-        <button>Register</button>
+        @helper.inputText(form("password"))
+
+        <button type="submit">Register</button>
     }
 
 }

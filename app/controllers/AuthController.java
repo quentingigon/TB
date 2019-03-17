@@ -3,13 +3,17 @@ package controllers;
 import models.User;
 import models.repositories.UserRepository;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
-import views.html.auth;
 
 import javax.inject.Inject;
 
 public class AuthController extends Controller {
+
+	@Inject
+	private MessagesApi messagesApi;
 
 	@Inject
 	private FormFactory formFactory;
@@ -17,8 +21,8 @@ public class AuthController extends Controller {
 	@Inject
 	UserRepository userRepository;
 
-	public Result index() {
-		return ok(auth.render("test"));
+	public Result index(Http.Request request) {
+		return ok(views.html.register.render(formFactory.form(User.class), request, messagesApi.preferred(request)));
 	}
 
 	public Result register() {
@@ -31,7 +35,7 @@ public class AuthController extends Controller {
 			return redirect(routes.HomeController.index());
 		}
 		else {
-			return index();
+			return redirect(routes.AuthController.index());
 		}
 	}
 

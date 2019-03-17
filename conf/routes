@@ -9,7 +9,9 @@ GET     /events                     controllers.EventSourceController.index
 
 GET     /eventsource                controllers.EventSourceController.events
 
-GET     /register                   controllers.AuthController.index
+GET     /auth                       controllers.AuthController.index(request: Request)
+
+POST     /register                  controllers.AuthController.register
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -23,7 +23,7 @@ public class EventSourceController extends Controller implements JavaTicker {
     }
 
     public Result events() {
-        final Source<EventSource.Event, ?> eventSource = getStringSource().map(EventSource.Event::event);
+        final Source<EventSource.Event, ?> eventSource = getUrlsSource().map(EventSource.Event::event);
 
         return ok().chunked(eventSource.via(EventSource.flow())).as(Http.MimeTypes.EVENT_STREAM);
     }
