@@ -1,0 +1,17 @@
+@(form: Form[User], postUrl: Call)
+
+@main("User register") {
+
+    <h1>User register</h1>
+
+    @* “'id” in these elements is the css `id` field that will be shown *@
+    @helper.form(routes.AuthController.index()) {
+        @helper.CSRF.formField
+
+        @helper.inputText(form("email"), 'size -> 60)
+        @helper.inputText(form("password"), 'size -> 60)
+
+        <button>Register</button>
+    }
+
+}
