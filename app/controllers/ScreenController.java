@@ -6,6 +6,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.eventsource;
+import views.html.index;
 
 import javax.inject.Inject;
 
@@ -22,17 +23,12 @@ public class ScreenController extends Controller {
 
 		Screen newScreen = new Screen(macAdr);
 
-		// screenRepository.add(newScreen);
-
-		String[] macAdresses = new String[] {macAdr, "test"};
-
-		// set the concerned mac addresses in the cookie
-		// Http.Cookie macCookie = Http.Cookie.builder("mac", String.join(",", macAdresses)).build();
-
-		request.session().adding("mac", String.join(",", macAdresses));
-
-		Result result = ok(eventsource.render());
-		// result.session(request).adding("mac", String.join(",", macAdresses));
-		return result;
+		if (screenRepository.getByMacAddress(macAdr) == null) {
+			// screenRepository.add(newScreen);
+			return ok(index.render("not in db"));
+		}
+		else {
+			return ok(eventsource.render());
+		}
 	}
 }

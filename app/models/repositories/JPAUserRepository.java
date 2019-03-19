@@ -25,6 +25,6 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	private User get(EntityManager em, String email) {
-		return em.createQuery("select from User where email == " + email, User.class).getSingleResult();
+		return em.createQuery("select from User where email = " + email, User.class).getSingleResult();
 	}
 }
