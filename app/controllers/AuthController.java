@@ -2,6 +2,7 @@ package controllers;
 
 import models.User;
 import models.repositories.UserRepository;
+import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Controller;
@@ -25,18 +26,17 @@ public class AuthController extends Controller {
 		return ok(views.html.register.render(formFactory.form(User.class), request, messagesApi.preferred(request)));
 	}
 
-	public Result register() {
-		User newUser = new User(formFactory.form().get("email"),
-			formFactory.form().get("password"));
+	public Result register(Http.Request request) {
+		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 
-		if (userRepository.getByEmail(newUser.getEmail()) != null) {
-			userRepository.add(newUser);
+		User newUser = new User(boundForm.get("email"),
+			boundForm.get("password"));
 
-			return redirect(routes.HomeController.index());
-		}
-		else {
-			return redirect(routes.AuthController.index());
-		}
+		userRepository.create(newUser);
+
+		return redirect(routes.HomeController.index());
+		//return userRepository.add(newUser)
+		//	.thenApplyAsync(u -> redirect(routes.HomeController.index()));
 	}
 
 }

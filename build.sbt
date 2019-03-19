@@ -20,7 +20,7 @@ libraryDependencies += guice
 
 libraryDependencies ++= Seq(
   javaJpa,
-  "org.hibernate" % "hibernate-entitymanager" % "5.1.0.Final",
+  "org.hibernate" % "hibernate-entitymanager" % "5.4.0.Final",
   "org.postgresql" % "postgresql" % "9.4.1208.jre7",
   javaWs
 )
@@ -32,3 +32,5 @@ libraryDependencies += "org.awaitility" % "awaitility" % "3.1.3" % Test
 
 // Make verbose tests
 testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v"))
+
+PlayKeys.externalizeResourcesExcludes += baseDirectory.value / "conf" / "META-INF" / "persistence.xml"
