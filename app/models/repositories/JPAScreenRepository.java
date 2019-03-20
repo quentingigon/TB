@@ -18,7 +18,9 @@ public class JPAScreenRepository implements ScreenRepository {
 	@Override
 	public Screen getByMacAddress(String address) {
 		return jpaApi.withTransaction(entityManager -> {
-			Query query = entityManager.createNativeQuery("SELECT * FROM screens WHERE mac = " + address);
+			String macAdr = "'" + address + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM screens WHERE mac = " + macAdr, Screen.class);
 			return (Screen) query.getSingleResult();
 		});
 	}

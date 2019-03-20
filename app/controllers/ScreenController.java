@@ -1,6 +1,5 @@
 package controllers;
 
-import models.Screen;
 import models.repositories.ScreenRepository;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -19,15 +18,16 @@ public class ScreenController extends Controller {
 
 		String macAdr = request.queryString().get("mac")[0];
 
-		// TODO check if screen is already logged in
-
-		Screen newScreen = new Screen(macAdr);
-
+		// screen not registered
 		if (screenRepository.getByMacAddress(macAdr) == null) {
-			// screenRepository.add(newScreen);
+			// TODO change index to send code for registering
 			return ok(index.render("not in db"));
 		}
+		// screen registered
 		else {
+			// TODO check if screen is already logged in, if so redirects it directly to eventsource
+			// else log it in first
+			// TODO add mac addr to list of activated screens
 			return ok(eventsource.render());
 		}
 	}
