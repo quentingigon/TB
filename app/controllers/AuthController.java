@@ -32,11 +32,21 @@ public class AuthController extends Controller {
 		User newUser = new User(boundForm.get("email"),
 			boundForm.get("password"));
 
-		userRepository.create(newUser);
+		// email is unique
+		if (userRepository.getByEmail(newUser.getEmail()) == null) {
+			userRepository.create(newUser);
+
+			return redirect(routes.HomeController.index());
+		}
+		else {
+			// user must choose a new email
+			return index(request);
+		}
+	}
+
+	public Result login(Http.Request request) {
 
 		return redirect(routes.HomeController.index());
-		//return userRepository.add(newUser)
-		//	.thenApplyAsync(u -> redirect(routes.HomeController.index()));
 	}
 
 }

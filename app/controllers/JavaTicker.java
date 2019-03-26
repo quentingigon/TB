@@ -19,7 +19,7 @@ public interface JavaTicker {
         urls.add("http://www.heig-vd.ch");
         urls.add("http://www.hes-so.ch");
 
-        String[] macAdresses = new String[] {"test", "test2"};
+        String[] macAdresses = new String[] {"test", "1234"};
 
         final Random generator = new Random();
         final Source<String, Cancellable> tickSource =

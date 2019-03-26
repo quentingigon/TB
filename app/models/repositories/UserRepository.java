@@ -9,5 +9,6 @@ import models.User;
 @ImplementedBy(JPAUserRepository.class)
 public interface UserRepository {
 
-	void create(User user);
+	User create(User user);
+	User getByEmail(String email);
 }

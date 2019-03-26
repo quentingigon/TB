@@ -4,6 +4,7 @@ import models.Screen;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 public class JPAScreenRepository implements ScreenRepository {
@@ -21,7 +22,12 @@ public class JPAScreenRepository implements ScreenRepository {
 			String macAdr = "'" + address + "'";
 			Query query = entityManager.createNativeQuery(
 				"SELECT * FROM screens WHERE mac = " + macAdr, Screen.class);
-			return (Screen) query.getSingleResult();
+			try {
+				return (Screen) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+
 		});
 	}
 

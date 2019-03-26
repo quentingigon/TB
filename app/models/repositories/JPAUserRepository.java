@@ -5,7 +5,8 @@ import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
 
 @Singleton
 public class JPAUserRepository implements UserRepository{
@@ -18,13 +19,24 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	@Override
-	public void create(User user) {
+	public User create(User user) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(user);
 		});
+		return user;
 	}
 
-	private User get(EntityManager em, String email) {
-		return em.createQuery("select from User where email = " + email, User.class).getSingleResult();
+	@Override
+	public User getByEmail(String email) {
+		return jpaApi.withTransaction(entityManager -> {
+			String mail = "'" + email + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM users WHERE email = " + mail, User.class);
+			try {
+				return (User) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
 	}
 }
