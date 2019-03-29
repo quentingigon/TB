@@ -15,9 +15,9 @@ GET     /events                     controllers.EventSourceController.index
 
 GET     /eventsource                controllers.EventSourceController.events
 
-GET     /users/register             controllers.UserController.index()
+GET     /users/register             controllers.UserController.registerView()
 
-GET     /users/login                controllers.UserController.login(request: Request)
+GET     /users/login                controllers.UserController.loginView()
 
 POST    /users/login                controllers.UserController.login(request: Request)
 

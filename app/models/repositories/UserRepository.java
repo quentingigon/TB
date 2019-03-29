@@ -10,5 +10,6 @@ import models.User;
 public interface UserRepository {
 
 	User create(User user);
+	User get(String email, String password);
 	User getByEmail(String email);
 }

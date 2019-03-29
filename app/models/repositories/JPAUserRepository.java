@@ -27,6 +27,22 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	@Override
+	public User get(String email, String password) {
+		return jpaApi.withTransaction(entityManager -> {
+			String mail = "'" + email + "'";
+			String pw = "'" + password + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM users WHERE email = " + mail
+					+ " and password = " + pw, User.class);
+			try {
+				return (User) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public User getByEmail(String email) {
 		return jpaApi.withTransaction(entityManager -> {
 			String mail = "'" + email + "'";
