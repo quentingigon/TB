@@ -1,0 +1,15 @@
+@(userRegisterForm: Form[String])
+
+
+@main("User Registration") {
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+    @b4.vertical.formCSRF(routes.UserController.register()) { implicit vfc =>
+        @b4.email( userRegisterForm("email"), '_label -> "Email", 'placeholder -> "example@example.com" )
+        @b4.password( userRegisterForm("password"), '_label -> "Password", 'placeholder -> "Password" )
+        @b4.submit('class -> "btn btn-secondary"){ Register }
+    }
+
+    </div>
+}

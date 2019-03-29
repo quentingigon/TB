@@ -18,11 +18,14 @@ crossScalaVersions := Seq("2.11.12", "2.12.7")
 
 libraryDependencies += guice
 
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
 libraryDependencies ++= Seq(
   javaJpa,
   "org.hibernate" % "hibernate-entitymanager" % "5.4.0.Final",
   "org.postgresql" % "postgresql" % "9.4.1208.jre7",
-  javaWs
+  javaWs,
+  "com.adrianhurt" %% "play-bootstrap" % "1.4-P26-B4-SNAPSHOT"
 )
 
 // Testing libraries for dealing with CompletionStage...

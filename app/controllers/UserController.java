@@ -4,17 +4,14 @@ import models.User;
 import models.repositories.UserRepository;
 import play.data.DynamicForm;
 import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import views.html.user_register;
 
 import javax.inject.Inject;
 
-public class AuthController extends Controller {
-
-	@Inject
-	private MessagesApi messagesApi;
+public class UserController extends Controller {
 
 	@Inject
 	private FormFactory formFactory;
@@ -22,8 +19,8 @@ public class AuthController extends Controller {
 	@Inject
 	UserRepository userRepository;
 
-	public Result index(Http.Request request) {
-		return ok(views.html.register.render(formFactory.form(User.class), request, messagesApi.preferred(request)));
+	public Result index() {
+		return ok(user_register.render(formFactory.form(String.class)));
 	}
 
 	public Result register(Http.Request request) {
@@ -40,11 +37,15 @@ public class AuthController extends Controller {
 		}
 		else {
 			// user must choose a new email
-			return index(request);
+			return index();
 		}
 	}
 
 	public Result login(Http.Request request) {
+		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+
+		User newUser = new User(boundForm.get("email"),
+			boundForm.get("password"));
 
 		return redirect(routes.HomeController.index());
 	}

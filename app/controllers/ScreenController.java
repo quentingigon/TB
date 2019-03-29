@@ -1,11 +1,15 @@
 package controllers;
 
+import models.Screen;
 import models.repositories.ScreenRepository;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.eventsource;
 import views.html.screen_code;
+import views.html.screen_register;
 
 import javax.inject.Inject;
 
@@ -13,6 +17,13 @@ public class ScreenController extends Controller {
 
 	@Inject
 	ScreenRepository screenRepository;
+
+	@Inject
+	private FormFactory formFactory;
+
+	public Result index() {
+		return ok(screen_register.render(formFactory.form(String.class)));
+	}
 
 	public Result authentification(Http.Request request) {
 
@@ -33,6 +44,26 @@ public class ScreenController extends Controller {
 				Http.Cookie.builder("mac", macAdr)
 				.withHttpOnly(false)
 				.build());
+		}
+	}
+
+	public Result register(Http.Request request) {
+		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+
+		if (screenRepository.getByMacAddress(boundForm.get("mac")) != null) {
+			// screen is already known
+			// TODO: return error (with error handling)
+			return index();
+		}
+		else {
+			Screen newScreen = new Screen(boundForm.get("mac"));
+			String code = boundForm.get("code");
+
+			// TODO check here code is correct
+
+			screenRepository.add(newScreen);
+
+			return redirect(routes.HomeController.index());
 		}
 	}
 }

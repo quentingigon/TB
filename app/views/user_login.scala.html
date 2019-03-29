@@ -1,0 +1,15 @@
+@(userLoginForm: Form[String])
+
+
+@main("User Login") {
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+    @b4.vertical.formCSRF(routes.UserController.login()) { implicit vfc =>
+        @b4.email( userLoginForm("email"), '_label -> "Email", 'placeholder -> "example@example.com" )
+        @b4.password( userLoginForm("password"), '_label -> "Password", 'placeholder -> "Password" )
+        @b4.submit('class -> "btn btn-secondary"){ Login }
+    }
+
+    </div>
+}

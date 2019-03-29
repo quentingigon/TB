@@ -1,0 +1,16 @@
+@(screenRegisterForm: Form[String])
+
+
+@main("Screen Registration") {
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @b4.vertical.formCSRF(routes.ScreenController.register()) { implicit vfc =>
+            @b4.text( screenRegisterForm("name"), '_label -> "Name", 'placeholder -> "Screen name" )
+            @b4.text( screenRegisterForm("mac"), '_label -> "Mac", 'placeholder -> "MAC address " )
+            @b4.text( screenRegisterForm("code"), '_label -> "Code", 'placeholder -> "1234" )
+            @b4.submit('class -> "btn btn-secondary"){ Register screen }
+        }
+
+    </div>
+}

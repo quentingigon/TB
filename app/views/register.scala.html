@@ -21,7 +21,7 @@
         }
     }
 
-    @helper.form(routes.AuthController.register()) {
+    @helper.form(routes.UserController.register()) {
         @helper.CSRF.formField
 
         @helper.inputText(form("email"))
