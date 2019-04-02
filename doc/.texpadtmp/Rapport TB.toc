@@ -1,0 +1,45 @@
+\select@language {french}
+\contentsline {section}{\numberline {1}Introduction au projet}{3}
+\contentsline {section}{\numberline {2}Cahier des charges}{3}
+\contentsline {subsection}{\numberline {2.1}Contraintes et besoins}{3}
+\contentsline {subsection}{\numberline {2.2}Fonctionnalit\IeC {\'e}s}{3}
+\contentsline {subsection}{\numberline {2.3}Ech\IeC {\'e}ancier}{4}
+\contentsline {section}{\numberline {3}Mockups}{5}
+\contentsline {section}{\numberline {4}Pr\IeC {\'e}sentation des technologies utilis\IeC {\'e}es}{5}
+\contentsline {subsection}{\numberline {4.1}Framework Play!}{5}
+\contentsline {subsection}{\numberline {4.2}EventSource}{5}
+\contentsline {subsection}{\numberline {4.3}PostgreSQL}{5}
+\contentsline {subsection}{\numberline {4.4}JPA}{5}
+\contentsline {subsection}{\numberline {4.5}JWT}{5}
+\contentsline {subsection}{\numberline {4.6}HTML5}{5}
+\contentsline {section}{\numberline {5}R\IeC {\'e}alisation technique}{6}
+\contentsline {subsection}{\numberline {5.1}Controllers}{6}
+\contentsline {subsubsection}{\numberline {5.1.1}EventSource Java}{6}
+\contentsline {subsection}{\numberline {5.2}Views}{6}
+\contentsline {subsubsection}{\numberline {5.2.1}EventSource Javascript}{6}
+\contentsline {section}{\numberline {6}Analyse et Architecture}{7}
+\contentsline {subsection}{\numberline {6.1}Team et site}{7}
+\contentsline {subsubsection}{\numberline {6.1.1}Site}{7}
+\contentsline {subsubsection}{\numberline {6.1.2}Team}{7}
+\contentsline {subsection}{\numberline {6.2}Organisation des flux}{7}
+\contentsline {subsubsection}{\numberline {6.2.1}Flux}{7}
+\contentsline {subsubsection}{\numberline {6.2.2}Schedules}{7}
+\contentsline {subsubsection}{\numberline {6.2.3}Diffuser}{7}
+\contentsline {subsection}{\numberline {6.3}Ecrans}{8}
+\contentsline {subsubsection}{\numberline {6.3.1}Affichage}{8}
+\contentsline {subsubsection}{\numberline {6.3.2}Events}{8}
+\contentsline {subsubsection}{\numberline {6.3.3}Authentification}{8}
+\contentsline {subsubsection}{\numberline {6.3.4}Groupe d'\IeC {\'e}crans}{8}
+\contentsline {section}{\numberline {7}Protocole de communication \IeC {\'e}cran-serveur}{9}
+\contentsline {subsection}{\numberline {7.1}Ecran inconnu du serveur}{9}
+\contentsline {subsection}{\numberline {7.2}Ecran connu du serveur}{10}
+\contentsline {subsection}{\numberline {7.3}Ecran connu - erreurs de connexion}{11}
+\contentsline {section}{\numberline {8}Sch\IeC {\'e}ma de base de donn\IeC {\'e}e}{12}
+\contentsline {section}{\numberline {9}Cas d'utilisation}{13}
+\contentsline {subsection}{\numberline {9.1}Administrateur:}{13}
+\contentsline {subsection}{\numberline {9.2}TeamAdmin:}{15}
+\contentsline {subsection}{\numberline {9.3}TeamMember:}{16}
+\contentsline {section}{\numberline {10}Tests}{17}
+\contentsline {subsection}{\numberline {10.1}Tests JUnit}{17}
+\contentsline {subsection}{\numberline {10.2}Tests fonctionnels}{17}
+\contentsline {section}{\numberline {11}Remarques personnelles et commentaires}{17}
