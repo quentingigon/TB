@@ -8,4 +8,5 @@ public interface ScreenRepository {
 
 	Screen getByMacAddress(String address);
 	void add(Screen screen);
+	void update(Screen screen);
 }

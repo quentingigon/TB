@@ -37,4 +37,11 @@ public class JPAScreenRepository implements ScreenRepository {
 			entityManager.persist(screen);
 		});
 	}
+
+	@Override
+	public void update(Screen screen) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(screen);
+		});
+	}
 }

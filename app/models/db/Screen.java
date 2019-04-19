@@ -14,6 +14,12 @@ public class Screen {
 	@Column(name="mac")
 	private String macAddress;
 
+	@ManyToOne
+	private Site site;
+
+	@Column(name="logged")
+	private boolean logged;
+
 	public Screen(String macAddress) {
 		this.macAddress = macAddress;
 	}
@@ -30,5 +36,21 @@ public class Screen {
 
 	public void setMacAddress(String macAddress) {
 		this.macAddress = macAddress;
+	}
+
+	public Site getSite() {
+		return site;
+	}
+
+	public void setSite(Site site) {
+		this.site = site;
+	}
+
+	public boolean isLogged() {
+		return logged;
+	}
+
+	public void setLogged(boolean logged) {
+		this.logged = logged;
 	}
 }

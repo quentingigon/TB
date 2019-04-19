@@ -21,15 +21,16 @@ public class TeamController extends Controller {
 	public Result create(Http.Request request) {
 		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 
-		Team newTeam = teamRepository.getByName(boundForm.get("name"));
-
-		if (newTeam != null) {
+		if (teamRepository.getByName(boundForm.get("name")) != null) {
 			// team already exists
 			// TODO change
 			return redirect(routes.HomeController.index());
 		}
 		else {
+			Team newTeam = new Team(boundForm.get("name"));
+
 			teamRepository.add(newTeam);
+
 			return redirect(routes.HomeController.index());
 		}
 	}

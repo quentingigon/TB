@@ -1,7 +1,9 @@
 package controllers;
 
 import models.db.Screen;
+import models.db.WaitingScreen;
 import models.repositories.ScreenRepository;
+import models.repositories.WaitingScreenRepository;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -12,11 +14,15 @@ import views.html.screen_code;
 import views.html.screen_register;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 public class ScreenController extends Controller {
 
 	@Inject
 	ScreenRepository screenRepository;
+
+	@Inject
+	WaitingScreenRepository waitingScreenRepository;
 
 	@Inject
 	private FormFactory formFactory;
@@ -29,41 +35,60 @@ public class ScreenController extends Controller {
 
 		String macAdr = request.queryString().get("mac")[0];
 
+		Screen screen = screenRepository.getByMacAddress(macAdr);
+
 		// screen not registered
-		if (screenRepository.getByMacAddress(macAdr) == null) {
-			// TODO change index to send code for registering
-			return ok(screen_code.render("1234"));
+		if (screen == null) {
+			String code = screenRegisterCodeGenerator();
+
+			waitingScreenRepository.add(new WaitingScreen(macAdr, code));
+
+			return ok(screen_code.render(code));
 		}
 		// screen registered
 		else {
-			// TODO check if screen is already logged in, if so redirects it directly to eventsource
-			// else log it in first
-			// TODO add mac addr to list of activated screens
 
-			return ok(eventsource.render()).withCookies(
-				Http.Cookie.builder("mac", macAdr)
-				.withHttpOnly(false)
-				.build());
+			// screen already logged in
+			if (screen.isLogged()) {
+				return ok(eventsource.render());
+			}
+			else {
+				screen.setLogged(true);
+
+				screenRepository.update(screen);
+
+				return ok(eventsource.render()).withCookies(
+					Http.Cookie.builder("mac", macAdr)
+						.withHttpOnly(false)
+						.build());
+			}
 		}
 	}
 
 	public Result register(Http.Request request) {
 		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 
-		if (screenRepository.getByMacAddress(boundForm.get("mac")) != null) {
-			// screen is already known
+		String macAdr = boundForm.get("mac");
+
+		// screen is already known
+		if (screenRepository.getByMacAddress(macAdr) != null) {
 			// TODO: return error (with error handling)
 			return index();
 		}
 		else {
-			Screen newScreen = new Screen(boundForm.get("mac"));
+			Screen newScreen = new Screen(macAdr);
 			String code = boundForm.get("code");
 
-			// TODO check here code is correct
+			// if code is correct
+			if (waitingScreenRepository.getByMac(macAdr).getCode().equals(code)) {
+				screenRepository.add(newScreen);
 
-			screenRepository.add(newScreen);
-
-			return redirect(routes.HomeController.index());
+				return redirect(routes.HomeController.index());
+			}
+			else {
+				// wrong code
+				return index();
+			}
 		}
 	}
 
@@ -81,5 +106,11 @@ public class ScreenController extends Controller {
 			// TODO modify screen here
 			return redirect(routes.HomeController.index());
 		}
+	}
+
+	private String screenRegisterCodeGenerator() {
+		UUID uniqueKey = UUID.randomUUID();
+
+		return uniqueKey.toString().substring(0, 5);
 	}
 }
