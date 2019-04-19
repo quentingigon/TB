@@ -3,6 +3,7 @@ package controllers;
 import models.db.Screen;
 import models.db.WaitingScreen;
 import models.repositories.ScreenRepository;
+import models.repositories.SiteRepository;
 import models.repositories.WaitingScreenRepository;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -17,6 +18,9 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 public class ScreenController extends Controller {
+
+	@Inject
+	SiteRepository siteRepository;
 
 	@Inject
 	ScreenRepository screenRepository;
@@ -81,6 +85,9 @@ public class ScreenController extends Controller {
 
 			// if code is correct
 			if (waitingScreenRepository.getByMac(macAdr).getCode().equals(code)) {
+
+				newScreen.setSite(siteRepository.getByName(boundForm.get("site")));
+
 				screenRepository.add(newScreen);
 
 				return redirect(routes.HomeController.index());

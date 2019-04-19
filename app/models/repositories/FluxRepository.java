@@ -9,4 +9,5 @@ public interface FluxRepository {
 	Flux add(Flux flux);
 	Flux getByName(String name);
 	Flux getByUrl(String url);
+	void update(Flux flux);
 }

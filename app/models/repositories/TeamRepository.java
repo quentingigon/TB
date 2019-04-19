@@ -8,4 +8,5 @@ public interface TeamRepository {
 
 	Team add(Team team);
 	Team getByName(String name);
+	void update(Team team);
 }

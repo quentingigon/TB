@@ -51,4 +51,11 @@ public class JPAFluxRepository implements FluxRepository {
 			}
 		});
 	}
+
+	@Override
+	public void update(Flux flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(flux);
+		});
+	}
 }

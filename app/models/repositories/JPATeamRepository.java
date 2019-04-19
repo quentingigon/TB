@@ -37,4 +37,11 @@ public class JPATeamRepository implements TeamRepository {
 			}
 		});
 	}
+
+	@Override
+	public void update(Team team) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(team);
+		});
+	}
 }

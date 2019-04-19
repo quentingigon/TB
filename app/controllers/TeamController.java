@@ -34,4 +34,23 @@ public class TeamController extends Controller {
 			return redirect(routes.HomeController.index());
 		}
 	}
+
+	public Result update(Http.Request request) {
+		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+
+		Team team = teamRepository.getByName(boundForm.get("name"));
+
+		if (team == null) {
+			// team does not exists
+			// TODO change
+			return redirect(routes.HomeController.index());
+		}
+		else {
+			// TODO update with values from form
+			teamRepository.update(team);
+
+			return redirect(routes.HomeController.index());
+		}
+
+	}
 }
