@@ -239,9 +239,7 @@ Le travail sera divisé en 4 parties :
 	
 Total: env. 13 semaines à partir du 25.02 \newpage
 
-\section{Mockups}
-
-
+\newpage
 \section{Présentation des technologies utilisées}
 
 \subsection{Framework Play!}
@@ -266,15 +264,16 @@ Un JSON Web Token est un standard ouvert permettant l'échange sécurisé de jet
 \subsection{HTML5}
 HTML5 est la dernière version majeure du HTML (octobre 2014). Elle vient avec plein de nouveaux élément, comme la balise \textit{video}, qui permet d'insérer un contenu vidéo en streaming dans un fichier HTML, ou encore \textit{footer}, qui lui permet de facilement afficher du texte en bas de page.
 
-\section{Réalisation technique}
+\newpage
+\section{Schéma de base de donnée}
+Une des directives principales du projet était la représentation en tout temps de l'état actuel du programme en base de données. Le schéma a donc été pensé pour répondre à cette demande. Les limitations voulues pour les différents rôles des utilisateurs et pour les services de la HEIG (COM, Secrétariat, Baleinev, etc) sont toutes représentées en BD, comme par exemple un PhysicalScreen est relié à un site (ce qui limite les flux qu'il peut afficher) et il est également relié à une ou plusieurs Teams (autorise uniquement les membres de cette Team à interagir avec cet écran).
+\newline TODO : explications du schéma une fois celui-ci définitif (ou presque).
 
-\subsection{Controllers}
-
-\subsubsection{EventSource Java}
-
-\subsection{Views}
-
-\subsubsection{EventSource Javascript}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.5]{db_schema}
+		\caption{Schéma de base de données}
+	\end{figure}
 
 \newpage
 \section{Analyse et Architecture}
@@ -302,7 +301,7 @@ Et enfin un flux peut être un flux marketing (un Boolean dans le modèle). Cett
 Pour revenir aux flux gérés par l'application (flux RSS), un template d'affichage générique sera fourni avec l'application afin de pouvoir facilement ajouter de nouveaux flux. Les informations seront récupérées à intervalles réguliers par le serveur afin de garder les flux à jour.
 
 \subsubsection{Schedules}
-Un Schedule représente un horaire de flux, c'est-à-dire une liste de flux, chacun associé à une heure de démarrage. Un Schedule n'est pas assigné à des écrans à sa création mais au moment de son activation pour permettre  une réutilisation plus facile des Schedules créés. Chaque chef d'équipe peut en créer qui seront utilisables par tous les membres de son équipe (modifiable par eux potentiellement ?). Ils sont utilisés pour des flux de type "régulier", donc pas des messages uniques ou promotionnels. \newline
+Un Schedule représente un horaire de flux, c'est-à-dire un cycle de flux. Un Schedule n'est pas assigné à des écrans à sa création mais au moment de son activation pour permettre  une réutilisation plus facile des Schedules créés. Chaque chef d'équipe peut en créer qui seront utilisables par tous les membres de son équipe (modifiable par eux potentiellement ?). Ils sont utilisés pour des flux de type "régulier", donc pas des messages uniques ou promotionnels. \newline
 Un Schedule activé devient un RunningSchedule, une entité temporaire qui existe uniquement tant que le Schedule reste actif. C'est cette entité-ci qui est reliée à des écrans. Et donc chaque fois qu'un flux doit être démarré, le RunningSchedule donne l'ordre d'envoyer un nouvel Event aux écrans concernés (voir section Affichage). 
 
 \subsubsection{Diffuser}
@@ -365,22 +364,32 @@ TODO: refaire les images.\newline
 			
 	Comme précédemment, le fait qu'un écran perde sa connexion au serveur lorsqu'il essaie de s'authentifier ne devrait pas poser de problèmes, car il lui suffit de ré-essayer. \newline
 	Par contre, si l'écran perd sa connexion une fois qu'il s'est identifié auprès du serveur, il faudra le retirer de la liste des écrans concernés par son RunningSchedule jusqu'à ce qu'il se re-connecte. \newpage
+	
+	
+\section{Réalisation technique}
+Exemples de code, explications, problèmes rencontrés, etc
+
+\subsection{Controllers}
+
+\subsubsection{EventSource Java}
+Comment créer un EventSource côté serveur
+
+\subsection{Views}
+Affichage and stuff
+
+\subsubsection{EventSource Javascript}
+Comment créer un EventSource côté client et comment le filtrage des Events est fait
+
+\subsection{Organisation des flux}
+Algorithmes and stuff
+
+\subsubsection{Schedules}
+
+\subsubsection{Diffusers}
 
 	
-\section{Schéma de base de donnée}
-Une des directives principales du projet était la représentation en tout temps de l'état actuel du programme en base de données. Le schéma a donc été pensé pour répondre à cette demande. Les limitations voulues pour les différents rôles des utilisateurs et pour les services de la HEIG (COM, Secrétariat, Baleinev, etc) sont toutes représentées en BD, comme par exemple un PhysicalScreen est relié à un site (ce qui limite les flux qu'il peut afficher) et il est également relié à une ou plusieurs Teams (autorise uniquement les membres de cette Team à interagir avec cet écran).
-\newline TODO : explications du schéma une fois celui-ci définitif (ou presque).
-
-	\begin{figure}[h]
-		\centering
-		\includegraphics[scale=0.5]{db_schema}
-		\caption{Schéma de base de données}
-	\end{figure}
 	
-	
-\newpage	
-
-	
+\newpage		
 \section{Cas d'utilisation}
 Les cas d'utilisation suivants sont regroupé par catégorie d'utilisateurs. Il y en a trois : les administrateurs, les chefs d'équipe (TeamAdmin) et les simples membres d'une équipe (TeamMember). Les admins ne sont associés à aucun écrans tandis que les deux autres sont restreints à certains écrans.
 Toute action possible pour une catégorie l'est également pour celles en dessus. 
@@ -412,7 +421,12 @@ Toute action possible pour une catégorie l'est également pour celles en dessus
 		\textbf{Déroulement:} L'admin se connecte au site et va sur la page des Schedules. Dans la liste des actifs, il sélectionne celui qu'il veut désactiver et confirme son choix.\newline
 		\textbf{Résultat:} L'admin est informé du succès (ou de l'échec) de l'opération et le Schedule est désactivé.\newline
 		
-		\item \textbf{Scénario 6:} Création d'une Team\newline
+		\item \textbf{Scénario 6:} Modération: désactivation de Diffuser\newline
+		\textbf{Pré-requis:} Le Diffuser est activé.\newline
+		\textbf{Déroulement:} L'admin se connecte au site et va sur la page des Diffusers. Dans la liste des actifs, il sélectionne celui qu'il veut désactiver et confirme son choix.\newline
+		\textbf{Résultat:} L'admin est informé du succès (ou de l'échec) de l'opération, le Diffuser est désactivé et son flux est retiré des Schedules correspondants.\newline
+		
+		\item \textbf{Scénario 7:} Création d'une Team\newline
 		\textbf{Déroulement:} L'admin se connecte au site et va sur la page des Teams. Il utilise l'interface fournie pour créer une nouvelle Team. Il doit spécifier à la création le nom de la Team et les écrans accessibles par ses membres. \newline
 		\textbf{Résultat:} L'admin est informé du succès (ou de l'échec) de l'opération et la Team est créée et ajoutée en BD.\newline
 		\textbf{Erreurs potentielles:} 
@@ -420,7 +434,7 @@ Toute action possible pour une catégorie l'est également pour celles en dessus
 				\item Si le nom choisi pour la Team existe déjà, une erreur sera lancée et l'admin devra en choisir un autre. 
 			\end{itemize}
 			
-		\item \textbf{Scénario 7:} Modification d'une Team\newline
+		\item \textbf{Scénario 8:} Modification d'une Team\newline
 		\textbf{Pré-requis:} La Team existe.\newline
 		\textbf{Déroulement:} L'admin se connecte au site et va sur la page des Teams. Il utilise la même interface que pour la création pour mettre à jour les infos souhaitées (nom, membres, admin).\newline
 		\textbf{Résultat:} L'admin est informé du succès (ou de l'échec) de l'opération et la Team est modifiée.\newline
@@ -429,7 +443,7 @@ Toute action possible pour une catégorie l'est également pour celles en dessus
 				\item Si le nom choisi pour la Team existe déjà, une erreur sera lancée et l'admin devra en choisir un autre. \newline
 			\end{itemize}
 		
-		\item \textbf{Scénario 8:} Suppression d'une Team\newline
+		\item \textbf{Scénario 9:} Suppression d'une Team\newline
 		\textbf{Pré-requis:} La Team existe.\newline
 		\textbf{Déroulement:} L'admin se connecte au site et va sur la page des Teams. Il sélectionne dans la liste celle qu'il souhaite supprimer et utilise l'interface fournie pour le faire. \newline
 		\textbf{Résultat:} L'admin est informé du succès (ou de l'échec) de l'opération et la Team est supprimée. Les entités associés avec cette équipe sont également supprimées (Schedules et Diffuser). \newline
@@ -532,6 +546,129 @@ Toute action possible pour une catégorie l'est également pour celles en dessus
 			\textbf{Erreurs potentielles:} Les heures de début des nouveaux flux ne sont pas cohérentes (confirmation alors impossible). \newline
 
 		\end{itemize}
+
+\newpage		
+\section{Mockups}
+Les mockups suivant ne sont pas représentatifs de l'aspect final de l'application mais plutôt des fonctionnalités offertes.
+
+\subsection{Utilisateurs}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_user_register}
+		\caption{Interface d'ajout de nouveaux utilisateurs}
+		\label{fig:userRegister}
+	\end{figure}
+	
+	Cette page en Figure ~\ref{fig:userRegister} sera uniquement accessible aux administrateurs (dans le cadre de mon TB en tout cas).
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_user_login}
+		\caption{Interface de connexion des utilisateurs}
+		\label{fig:userLogin}
+	\end{figure}
+	
+\newpage
+\subsection{Ecrans}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_screens_page}
+		\caption{Page principale des écrans}
+		\label{fig:screenPage}
+	\end{figure}
+	
+	Cette page affiche les écrans accessibles par l'utilisateur actuel, regroupés par site. On a également accès aux groupes d'écrans. 
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_screen_register}
+		\caption{Interface d'ajout de nouvel écran}
+		\label{fig:screenRegister}
+	\end{figure}
+	
+	L'administrateur peut ajouter un nouvel écran au système par le biais de cette interface. Il doit préciser quelques paramètres et surtout donner le code fourni précédemment par le serveur.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_group_creation}
+		\caption{Interface d'ajout de nouveau groupe d'écran}
+		\label{fig:groupCreation}
+	\end{figure}
+	
+\newpage
+\subsection{Teams}
+
+	\begin{figure}[ht!]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_teams_page}
+		\caption{Page principale des teams}
+		\label{fig:teamPage}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_team_creation}
+		\caption{Interface de création de team}
+		\label{fig:teamCreation}
+	\end{figure}
+
+\newpage	
+\subsection{Flux}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_flux_page}
+		\caption{Page principale des flux}
+		\label{fig:fluxPage}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_flux_creation}
+		\caption{Interface de création de flux}
+		\label{fig:fluxCreation}
+	\end{figure}
+	
+\newpage
+\subsection{Schedules}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_schedules_page}
+		\caption{Page principale des schedules}
+		\label{fig:schedulePage}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_schedule_creation}
+		\caption{Interface de création de schedule}
+		\label{fig:scheduleCreation}
+	\end{figure}
+	
+	On choisit les flux principaux qui vont constituer le cycle du Schedule. On peut également définir des flux de fallback qui prendront le relai si le flux actif n'a aucune information à afficher.
+
+\newpage
+\subsection{Diffusers}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_diffusers_page}
+		\caption{Page principale des diffusers}
+		\label{fig:diffuserPage}
+	\end{figure}
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[scale=0.4]{mockup/m_diffuser_creation}
+		\caption{Interface de création de diffuser}
+		\label{fig:diffuserCreation}
+	\end{figure}
+	
+	On spécifie la durée de validité du Diffuser en choisissant une date limite. 
+
 	
 \section{Tests}
 

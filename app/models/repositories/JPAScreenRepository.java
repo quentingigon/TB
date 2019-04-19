@@ -1,6 +1,6 @@
 package models.repositories;
 
-import models.Screen;
+import models.db.Screen;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

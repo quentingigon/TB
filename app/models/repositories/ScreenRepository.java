@@ -1,7 +1,7 @@
 package models.repositories;
 
 import com.google.inject.ImplementedBy;
-import models.Screen;
+import models.db.Screen;
 
 @ImplementedBy(JPAScreenRepository.class)
 public interface ScreenRepository {

@@ -25,7 +25,8 @@ libraryDependencies ++= Seq(
   "org.hibernate" % "hibernate-entitymanager" % "5.4.0.Final",
   "org.postgresql" % "postgresql" % "9.4.1208.jre7",
   javaWs,
-  "com.adrianhurt" %% "play-bootstrap" % "1.4-P26-B4-SNAPSHOT"
+  "com.adrianhurt" %% "play-bootstrap" % "1.4-P26-B4-SNAPSHOT",
+  "org.mockito" % "mockito-core" % "2.10.0" % "test"
 )
 
 // Testing libraries for dealing with CompletionStage...

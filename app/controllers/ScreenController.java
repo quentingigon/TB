@@ -1,6 +1,6 @@
 package controllers;
 
-import models.Screen;
+import models.db.Screen;
 import models.repositories.ScreenRepository;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -63,6 +63,22 @@ public class ScreenController extends Controller {
 
 			screenRepository.add(newScreen);
 
+			return redirect(routes.HomeController.index());
+		}
+	}
+
+	public Result updateScreen(Http.Request request) {
+		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+
+		Screen screen = screenRepository.getByMacAddress(boundForm.get("mac"));
+
+		if (screen == null) {
+			// screen is not known
+			// TODO: return error (with error handling)
+			return index();
+		}
+		else {
+			// TODO modify screen here
 			return redirect(routes.HomeController.index());
 		}
 	}

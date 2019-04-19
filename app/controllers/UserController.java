@@ -1,6 +1,6 @@
 package controllers;
 
-import models.User;
+import models.db.User;
 import models.repositories.UserRepository;
 import play.data.DynamicForm;
 import play.data.FormFactory;

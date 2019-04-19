@@ -15,7 +15,7 @@ function getCookie(name) {
 }
 
 $(document).ready(function () {
-
+    // TODO get eventSource url from server ?
     var evtSource = new EventSource("http://localhost:9000/eventsource", {withCredentials: true});
 
     var macAdress = getCookie("mac");

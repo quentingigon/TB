@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.3.30)  2 APR 2019 17:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.3.30)  5 APR 2019 14:46
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1031,56 +1031,46 @@ Underfull \hbox (badness 10000) in paragraph at lines 237--238
 
 [4]
 LaTeX Font Info:    Font shape `T1/fnc/m/it' will be
-(Font)              scaled to size 9.29993pt on input line 248.
- [5] [6]
-Underfull \hbox (badness 10000) in paragraph at lines 299--301
-
- []
-
-[7] [8] <protocol_v2.pdf, id=34, page=1, 845.0471pt x 597.51233pt>
-File: protocol_v2.pdf Graphic file (type pdf)
- <use protocol_v2.pdf, page 1>
-Package pdftex.def Info: protocol_v2.pdf, page1 used on input line 342.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
-LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
-(Font)              scaled to size 9.29993pt on input line 343.
- [9 <./protocol_v2.pdf>] <protocol_v2.pdf, id=52, page=3, 845.0471pt x 597.51233pt>
-File: protocol_v2.pdf Graphic file (type pdf)
- <use protocol_v2.pdf, page 3>
-Package pdftex.def Info: protocol_v2.pdf, page3 used on input line 352.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
- [10 <./protocol_v2.pdf>] <protocol_v2.pdf, id=70, page=2, 845.0471pt x 597.51233pt>
-File: protocol_v2.pdf Graphic file (type pdf)
- <use protocol_v2.pdf, page 2>
-Package pdftex.def Info: protocol_v2.pdf, page2 used on input line 361.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
- [11 <./protocol_v2.pdf>] <db_schema.pdf, id=88, 845.0471pt x 597.51233pt>
+(Font)              scaled to size 9.29993pt on input line 246.
+ [5] <db_schema.pdf, id=24, 845.0471pt x 597.51233pt>
 File: db_schema.pdf Graphic file (type pdf)
  <use db_schema.pdf>
-Package pdftex.def Info: db_schema.pdf used on input line 376.
+Package pdftex.def Info: db_schema.pdf used on input line 274.
 (pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
- [12 <./db_schema.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 389--390
+LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
+(Font)              scaled to size 9.29993pt on input line 275.
+ [6 <./db_schema.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 298--300
+
+ []
+
+[7] [8] <protocol_v2.pdf, id=49, page=1, 845.0471pt x 597.51233pt>
+File: protocol_v2.pdf Graphic file (type pdf)
+ <use protocol_v2.pdf, page 1>
+Package pdftex.def Info: protocol_v2.pdf, page1 used on input line 341.
+(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
+ [9 <./protocol_v2.pdf>] <protocol_v2.pdf, id=67, page=3, 845.0471pt x 597.51233pt>
+File: protocol_v2.pdf Graphic file (type pdf)
+ <use protocol_v2.pdf, page 3>
+Package pdftex.def Info: protocol_v2.pdf, page3 used on input line 351.
+(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
+ [10 <./protocol_v2.pdf>] <protocol_v2.pdf, id=85, page=2, 845.0471pt x 597.51233pt>
+File: protocol_v2.pdf Graphic file (type pdf)
+ <use protocol_v2.pdf, page 2>
+Package pdftex.def Info: protocol_v2.pdf, page2 used on input line 360.
+(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
+ [11 <./protocol_v2.pdf>] [12]
+Underfull \hbox (badness 10000) in paragraph at lines 398--399
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 391--395
+Underfull \hbox (badness 10000) in paragraph at lines 400--404
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--400
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 401--405
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 406--409
+Underfull \hbox (badness 10000) in paragraph at lines 405--409
 
  []
 
@@ -1089,100 +1079,200 @@ Underfull \hbox (badness 10000) in paragraph at lines 410--414
 
  []
 
-[13]
-Underfull \hbox (badness 10000) in paragraph at lines 429--430
+
+Underfull \hbox (badness 10000) in paragraph at lines 415--418
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 432--436
+Underfull \hbox (badness 10000) in paragraph at lines 419--423
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 424--428
+
+ []
+
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 443--444
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 446--450
 
  []
 
 [14]
-Underfull \hbox (badness 10000) in paragraph at lines 442--443
+Underfull \hbox (badness 10000) in paragraph at lines 456--457
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 451--452
+Underfull \hbox (badness 10000) in paragraph at lines 465--466
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 460--461
+Underfull \hbox (badness 10000) in paragraph at lines 474--475
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 468--469
+Underfull \hbox (badness 10000) in paragraph at lines 482--483
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 478--479
+Underfull \hbox (badness 10000) in paragraph at lines 492--493
 
  []
 
 [15]
-Underfull \hbox (badness 10000) in paragraph at lines 487--488
+Underfull \hbox (badness 10000) in paragraph at lines 501--502
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 494--495
+Underfull \hbox (badness 10000) in paragraph at lines 508--509
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 496--499
+Underfull \hbox (badness 10000) in paragraph at lines 510--513
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 500--504
+Underfull \hbox (badness 10000) in paragraph at lines 514--518
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 505--509
+Underfull \hbox (badness 10000) in paragraph at lines 519--523
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 510--515
+Underfull \hbox (badness 10000) in paragraph at lines 524--529
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 516--521
+Underfull \hbox (badness 10000) in paragraph at lines 530--535
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 522--527
+Underfull \hbox (badness 10000) in paragraph at lines 536--541
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 528--533
+Underfull \hbox (badness 10000) in paragraph at lines 542--547
 
  []
 
-[16] [17] (/Users/quentingigon/Documents/TB/project/TB/doc/.texpadtmp/Rapport TB.aux) ) 
+[16] [17] <mockup/m_user_register.png, id=122, 900.36375pt x 562.1pt>
+File: mockup/m_user_register.png Graphic file (type png)
+ <use mockup/m_user_register.png>
+Package pdftex.def Info: mockup/m_user_register.png used on input line 558.
+(pdftex.def)             Requested size: 360.13911pt x 224.83601pt.
+ <mockup/m_user_login.png, id=124, 899.36pt x 562.1pt>
+File: mockup/m_user_login.png Graphic file (type png)
+ <use mockup/m_user_login.png>
+Package pdftex.def Info: mockup/m_user_login.png used on input line 567.
+(pdftex.def)             Requested size: 359.73763pt x 224.83601pt.
+ [18 <./mockup/m_user_register.png> <./mockup/m_user_login.png>] <mockup/m_screens_page.png, id=131, 899.36pt x 563.10374pt>
+File: mockup/m_screens_page.png Graphic file (type png)
+ <use mockup/m_screens_page.png>
+Package pdftex.def Info: mockup/m_screens_page.png used on input line 577.
+(pdftex.def)             Requested size: 359.73763pt x 225.2375pt.
+ <mockup/m_screen_register.png, id=132, 899.36pt x 562.1pt>
+File: mockup/m_screen_register.png Graphic file (type png)
+ <use mockup/m_screen_register.png>
+Package pdftex.def Info: mockup/m_screen_register.png used on input line 586.
+(pdftex.def)             Requested size: 359.73763pt x 224.83601pt.
+ <mockup/m_group_creation.png, id=133, 931.48pt x 583.17876pt>
+File: mockup/m_group_creation.png Graphic file (type png)
+ <use mockup/m_group_creation.png>
+Package pdftex.def Info: mockup/m_group_creation.png used on input line 595.
+(pdftex.def)             Requested size: 372.5854pt x 233.26736pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[19 <./mockup/m_screens_page.png> <./mockup/m_screen_register.png>] <mockup/m_teams_page.png, id=139, 931.48pt x 582.175pt>
+File: mockup/m_teams_page.png Graphic file (type png)
+ <use mockup/m_teams_page.png>
+Package pdftex.def Info: mockup/m_teams_page.png used on input line 605.
+(pdftex.def)             Requested size: 372.5854pt x 232.86588pt.
+ <mockup/m_team_creation.png, id=140, 930.47626pt x 583.17876pt>
+File: mockup/m_team_creation.png Graphic file (type png)
+ <use mockup/m_team_creation.png>
+Package pdftex.def Info: mockup/m_team_creation.png used on input line 612.
+(pdftex.def)             Requested size: 372.18391pt x 233.26736pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[20 <./mockup/m_group_creation.png> <./mockup/m_teams_page.png>] <mockup/m_flux_page.png, id=146, 930.47626pt x 583.17876pt>
+File: mockup/m_flux_page.png Graphic file (type png)
+ <use mockup/m_flux_page.png>
+Package pdftex.def Info: mockup/m_flux_page.png used on input line 622.
+(pdftex.def)             Requested size: 372.18391pt x 233.26736pt.
+ <mockup/m_flux_creation.png, id=147, 930.47626pt x 582.175pt>
+File: mockup/m_flux_creation.png Graphic file (type png)
+ <use mockup/m_flux_creation.png>
+Package pdftex.def Info: mockup/m_flux_creation.png used on input line 629.
+(pdftex.def)             Requested size: 372.18391pt x 232.86588pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[21 <./mockup/m_team_creation.png> <./mockup/m_flux_page.png>] <mockup/m_schedules_page.png, id=153, 930.47626pt x 582.175pt>
+File: mockup/m_schedules_page.png Graphic file (type png)
+ <use mockup/m_schedules_page.png>
+Package pdftex.def Info: mockup/m_schedules_page.png used on input line 639.
+(pdftex.def)             Requested size: 372.18391pt x 232.86588pt.
+ <mockup/m_schedule_creation.png, id=154, 931.48pt x 586.19pt>
+File: mockup/m_schedule_creation.png Graphic file (type png)
+ <use mockup/m_schedule_creation.png>
+Package pdftex.def Info: mockup/m_schedule_creation.png used on input line 646.
+(pdftex.def)             Requested size: 372.5854pt x 234.47185pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[22 <./mockup/m_flux_creation.png> <./mockup/m_schedules_page.png>] <mockup/m_diffusers_page.png, id=160, 931.48pt x 584.1825pt>
+File: mockup/m_diffusers_page.png Graphic file (type png)
+ <use mockup/m_diffusers_page.png>
+Package pdftex.def Info: mockup/m_diffusers_page.png used on input line 658.
+(pdftex.def)             Requested size: 372.5854pt x 233.66885pt.
+ <mockup/m_diffuser_creation.png, id=161, 932.48375pt x 583.17876pt>
+File: mockup/m_diffuser_creation.png Graphic file (type png)
+ <use mockup/m_diffuser_creation.png>
+Package pdftex.def Info: mockup/m_diffuser_creation.png used on input line 665.
+(pdftex.def)             Requested size: 372.9869pt x 233.26736pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[23 <./mockup/m_schedule_creation.png> <./mockup/m_diffusers_page.png>] [24 <./mockup/m_diffuser_creation.png>] (/Users/quentingigon/Documents/TB/project/TB/doc/.texpadtmp/Rapport TB.aux) ) 
 Here is how much of TeX's memory you used:
- 7263 strings out of 493014
- 102605 string characters out of 6133351
+ 7347 strings out of 493014
+ 104754 string characters out of 6133351
  202866 words of memory out of 5000000
- 10652 multiletter control sequences out of 15000+600000
+ 10721 multiletter control sequences out of 15000+600000
  50493 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,8n,40p,925b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ncntrsbk/uncb8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ncntrsbk/uncr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ncntrsbk/uncri8a.pfb>
-Output written on "/Users/quentingigon/Documents/TB/project/TB/doc/.texpadtmp/Rapport TB.pdf" (18 pages, 162617 bytes).
+Output written on "/Users/quentingigon/Documents/TB/project/TB/doc/.texpadtmp/Rapport TB.pdf" (25 pages, 470392 bytes).
 PDF statistics:
- 135 PDF objects out of 1000 (max. 8388607)
- 91 compressed objects within 1 object stream
+ 186 PDF objects out of 1000 (max. 8388607)
+ 108 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 86 words of extra memory for PDF output out of 10000 (max. 10000000)
 

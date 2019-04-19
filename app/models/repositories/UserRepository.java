@@ -1,7 +1,7 @@
 package models.repositories;
 
 import com.google.inject.ImplementedBy;
-import models.User;
+import models.db.User;
 
 /**
  * This interface provides a non-blocking API for possibly blocking operations.
