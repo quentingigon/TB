@@ -22,6 +22,7 @@ public class Screen {
 
 	public Screen(String macAddress) {
 		this.macAddress = macAddress;
+		logged = false;
 	}
 
 	public Screen() {}

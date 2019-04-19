@@ -3,7 +3,7 @@ package models.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name="fluxs", schema="public")
+@Table(name="fluxes", schema="public")
 public class Flux {
 
 	@Id
@@ -13,6 +13,9 @@ public class Flux {
 
 	@Column(name="name")
 	private String name;
+
+	@Column(name="duration")
+	private int duration;
 
 	@Column(name="url")
 	private String url;
@@ -43,5 +46,13 @@ public class Flux {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
 	}
 }
