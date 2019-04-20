@@ -10,4 +10,5 @@ public interface FluxRepository {
 	Flux getByName(String name);
 	Flux getByUrl(String url);
 	void update(Flux flux);
+	void delete(Flux flux);
 }

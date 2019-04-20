@@ -24,6 +24,11 @@ public class Schedule {
 		fluxes = new ArrayList<>();
 	}
 
+	public Schedule(String name) {
+		this.name = name;
+		fluxes = new ArrayList<>();
+	}
+
 	public Integer getId() {
 		return id;
 	}

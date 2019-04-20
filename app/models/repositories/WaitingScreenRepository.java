@@ -7,5 +7,6 @@ import models.db.WaitingScreen;
 public interface WaitingScreenRepository {
 
 	WaitingScreen add(WaitingScreen waitingScreen);
+	void delete(WaitingScreen waitingScreen);
 	WaitingScreen getByMac(String mac);
 }

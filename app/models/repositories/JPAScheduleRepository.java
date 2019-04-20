@@ -25,6 +25,20 @@ public class JPAScheduleRepository implements ScheduleRepository {
 	}
 
 	@Override
+	public void update(Schedule schedule) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(schedule);
+		});
+	}
+
+	@Override
+	public void delete(Schedule schedule) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(schedule);
+		});
+	}
+
+	@Override
 	public Schedule getByName(String name) {
 		return jpaApi.withTransaction(entityManager -> {
 			String scheduleName = "'" + name + "'";

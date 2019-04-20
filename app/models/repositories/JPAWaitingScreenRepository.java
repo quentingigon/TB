@@ -25,6 +25,13 @@ public class JPAWaitingScreenRepository implements WaitingScreenRepository {
 	}
 
 	@Override
+	public void delete(WaitingScreen waitingScreen) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(waitingScreen);
+		});
+	}
+
+	@Override
 	public WaitingScreen getByMac(String mac) {
 		return jpaApi.withTransaction(entityManager -> {
 			String macAdr = "'" + mac + "'";

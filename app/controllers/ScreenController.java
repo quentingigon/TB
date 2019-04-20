@@ -54,7 +54,10 @@ public class ScreenController extends Controller {
 
 			// screen already logged in
 			if (screen.isLogged()) {
-				return ok(eventsource.render());
+				return ok(eventsource.render()).withCookies(
+					Http.Cookie.builder("mac", macAdr)
+						.withHttpOnly(false)
+						.build());
 			}
 			else {
 				screen.setLogged(true);

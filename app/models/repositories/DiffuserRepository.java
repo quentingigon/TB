@@ -7,5 +7,7 @@ import models.db.Diffuser;
 public interface DiffuserRepository {
 
 	Diffuser add(Diffuser diffuser);
+	void update(Diffuser diffuser);
+	void delete(Diffuser diffuser);
 	Diffuser getByName(String name);
 }

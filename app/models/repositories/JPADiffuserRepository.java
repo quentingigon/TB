@@ -25,6 +25,20 @@ public class JPADiffuserRepository implements DiffuserRepository {
 	}
 
 	@Override
+	public void update(Diffuser diffuser) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(diffuser);
+		});
+	}
+
+	@Override
+	public void delete(Diffuser diffuser) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(diffuser);
+		});
+	}
+
+	@Override
 	public Diffuser getByName(String name) {
 		return jpaApi.withTransaction(entityManager -> {
 			String diffuserName = "'" + name + "'";

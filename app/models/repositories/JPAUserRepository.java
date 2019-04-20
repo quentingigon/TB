@@ -43,6 +43,20 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	@Override
+	public void delete(User user) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(user);
+		});
+	}
+
+	@Override
+	public void update(User user) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(user);
+		});
+	}
+
+	@Override
 	public User getByEmail(String email) {
 		return jpaApi.withTransaction(entityManager -> {
 			String mail = "'" + email + "'";

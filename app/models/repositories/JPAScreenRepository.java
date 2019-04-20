@@ -44,4 +44,11 @@ public class JPAScreenRepository implements ScreenRepository {
 			entityManager.merge(screen);
 		});
 	}
+
+	@Override
+	public void delete(Screen screen) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(screen);
+		});
+	}
 }

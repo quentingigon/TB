@@ -7,4 +7,5 @@ import models.db.Site;
 public interface SiteRepository {
 
 	Site getByName(String name);
+
 }

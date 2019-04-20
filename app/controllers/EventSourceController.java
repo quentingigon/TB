@@ -38,34 +38,44 @@ public class EventSourceController extends Controller implements Observer {
             .withHeader("Access-Control-Allow-Origin", "localhost");
     }
 
-    public Result events() {
-
-        // TODO make that elsewhere
-        List<Screen> screens = new ArrayList<>();
-        screens.add(screenRepository.getByMacAddress("1234"));
-
-        Queue<Flux> fluxes = new LinkedList<>();
-        fluxes.add(fluxRepository.getByName("flux1"));
-
-        ScheduleTicker ticker = new ScheduleTicker(fluxes, screens);
-        ticker.addObserver(this);
-        Thread thread1 = new Thread(ticker, "Thread 1");
-        thread1.start();
-
-        if (source != null) {
-            final Source<EventSource.Event, ?> eventSource = source.map(EventSource.Event::event);
-
-            return ok().chunked(eventSource.via(EventSource.flow())).as(Http.MimeTypes.EVENT_STREAM);
-        }
-        else {
-            // TODO change
-            return redirect(routes.HomeController.index());
-        }
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public void update(Observable o, Object arg) {
         source = (Source<String, Cancellable>) arg;
+    }
+
+    public Result events() {
+
+        // TODO make that elsewhere
+        List<Screen> screens1 = new ArrayList<>();
+        screens1.add(screenRepository.getByMacAddress("1234"));
+
+        Queue<Flux> fluxes1 = new LinkedList<>();
+        fluxes1.add(fluxRepository.getByName("flux1"));
+
+        ScheduleTicker ticker1 = new ScheduleTicker(fluxes1, screens1);
+
+        List<Screen> screens2 = new ArrayList<>();
+        screens2.add(screenRepository.getByMacAddress("test"));
+
+        Queue<Flux> fluxes2 = new LinkedList<>();
+        fluxes2.add(fluxRepository.getByName("flux2"));
+
+        ScheduleTicker ticker2 = new ScheduleTicker(fluxes2, screens2);
+
+        ticker1.addObserver(this);
+        ticker2.addObserver(this);
+        Thread thread1 = new Thread(ticker1, "Thread 1");
+        Thread thread2 = new Thread(ticker2, "Thread 2");
+        thread1.start();
+        thread2.start();
+
+        while (source == null) {
+            // System.out.println("source is null");
+        }
+
+        final Source<EventSource.Event, ?> eventSource = source.map(EventSource.Event::event);
+
+        return ok().chunked(eventSource.via(EventSource.flow())).as(Http.MimeTypes.EVENT_STREAM);
     }
 }

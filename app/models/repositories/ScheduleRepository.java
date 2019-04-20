@@ -7,5 +7,7 @@ import models.db.Schedule;
 public interface ScheduleRepository {
 
 	Schedule add(Schedule schedule);
+	void update(Schedule schedule);
+	void delete(Schedule schedule);
 	Schedule getByName(String name);
 }

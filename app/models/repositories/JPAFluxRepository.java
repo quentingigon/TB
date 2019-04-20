@@ -58,4 +58,11 @@ public class JPAFluxRepository implements FluxRepository {
 			entityManager.merge(flux);
 		});
 	}
+
+	@Override
+	public void delete(Flux flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(flux);
+		});
+	}
 }
