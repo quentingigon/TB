@@ -3,9 +3,7 @@
  */
 package controllers;
 
-import akka.actor.Cancellable;
 import akka.stream.javadsl.Source;
-import models.ScheduleTicker;
 import models.db.Flux;
 import models.db.Screen;
 import models.repositories.FluxRepository;
@@ -14,11 +12,16 @@ import play.libs.EventSource;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.FluxEvent;
+import services.FluxScheduler;
 import views.html.eventsource;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 @Singleton
 public class EventSourceController extends Controller implements Observer {
@@ -29,7 +32,35 @@ public class EventSourceController extends Controller implements Observer {
     @Inject
     ScreenRepository screenRepository;
 
-    private Source<String, Cancellable> source;
+    private Source<String, ?> source;
+    private boolean updated = false;
+
+    @Inject
+    EventSourceController() {
+
+        Screen screen1 = new Screen("1234");
+        Screen screen2 = new Screen("test");
+
+        Flux flux1 = new Flux("flux1", "https://heig-vd.ch/");
+        Flux flux2 = new Flux("flux2", "https://hes-so.ch/");
+
+
+        FluxEvent fe1 = new FluxEvent(flux1, screen1);
+        FluxEvent fe2 = new FluxEvent(flux2, screen2);
+
+        List<FluxEvent> events = new ArrayList<>();
+        events.add(fe1);
+        events.add(fe2);
+
+        FluxScheduler fluxScheduler = new FluxScheduler(events);
+
+        fluxScheduler.addObserver(this);
+
+
+        Thread t = new Thread(fluxScheduler);
+        t.start();
+
+    }
 
     public Result index() {
         return ok(eventsource.render())
@@ -41,11 +72,13 @@ public class EventSourceController extends Controller implements Observer {
     @Override
     @SuppressWarnings("unchecked")
     public void update(Observable o, Object arg) {
-        source = (Source<String, Cancellable>) arg;
+        source = (Source<String, ?>) arg;
+        updated = true;
     }
 
     public Result events() {
 
+        /*
         // TODO make that elsewhere
         List<Screen> screens1 = new ArrayList<>();
         screens1.add(screenRepository.getByMacAddress("1234"));
@@ -65,14 +98,14 @@ public class EventSourceController extends Controller implements Observer {
 
         ticker1.addObserver(this);
         ticker2.addObserver(this);
-        Thread thread1 = new Thread(ticker1, "Thread 1");
-        Thread thread2 = new Thread(ticker2, "Thread 2");
-        thread1.start();
-        thread2.start();
+
+        ticker1.run();
+        ticker2.run();
 
         while (source == null) {
             // System.out.println("source is null");
         }
+        */
 
         final Source<EventSource.Event, ?> eventSource = source.map(EventSource.Event::event);
 
