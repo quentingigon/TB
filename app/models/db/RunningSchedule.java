@@ -8,7 +8,7 @@ public class RunningSchedule extends Schedule {
 	private Flux currentFlux;
 
 	public RunningSchedule() {
-		currentFlux = getFluxes().get(0);
+		super();
 	}
 
 	public List<Screen> getScreens() {

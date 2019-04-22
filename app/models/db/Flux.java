@@ -25,6 +25,12 @@ public class Flux {
 		this.url = url;
 	}
 
+	public Flux(String name, int duration, String url) {
+		this.name = name;
+		this.duration = duration;
+		this.url = url;
+	}
+
 	public Flux() {
 	}
 
