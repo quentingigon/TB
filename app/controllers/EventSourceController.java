@@ -82,9 +82,10 @@ public class EventSourceController extends Controller implements Observer {
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
+
         executorService.execute(fluxManager);
-        executorService.execute(service1);
-        executorService.execute(service2);
+        /*executorService.execute(service1);
+        executorService.execute(service2);*/
     }
 
     public Result index() {

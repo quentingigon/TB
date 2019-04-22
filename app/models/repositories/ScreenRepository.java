@@ -7,6 +7,7 @@ import models.db.Screen;
 public interface ScreenRepository {
 
 	Screen getByMacAddress(String address);
+	Screen getById(int id);
 	void add(Screen screen);
 	void update(Screen screen);
 	void delete(Screen screen);

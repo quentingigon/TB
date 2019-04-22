@@ -3,27 +3,29 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
+GET     /                               controllers.HomeController.index
 
-GET     /screens/auth               controllers.ScreenController.authentification(request: Request)
+GET     /screens/auth                   controllers.ScreenController.authentification(request: Request)
 
-GET     /screens/register           controllers.ScreenController.indexRegister
+GET     /screens/register               controllers.ScreenController.indexRegister
 
-POST    /screens/register           controllers.ScreenController.register(request: Request)
+POST    /screens/register               controllers.ScreenController.register(request: Request)
 
-GET     /events                     controllers.EventSourceController.index
+GET     /events                         controllers.EventSourceController.index
 
-GET     /eventsource                controllers.EventSourceController.events
+GET     /eventsource                    controllers.EventSourceController.events
 
-GET     /users/register             controllers.UserController.registerView()
+GET     /users/register                 controllers.UserController.registerView()
 
-GET     /users/login                controllers.UserController.loginView()
+GET     /users/login                    controllers.UserController.loginView()
 
-POST    /users/login                controllers.UserController.login(request: Request)
+POST    /users/login                    controllers.UserController.login(request: Request)
 
-POST    /users/register             controllers.UserController.register(request: Request)
+POST    /users/register                 controllers.UserController.register(request: Request)
 
-POST    /runningSchedules/delete/:name     controllers.ScheduleController.delete(name: String)
+POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
+
+POST    /schedules/activate/:name       controllers.ScheduleController.activate(name: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)

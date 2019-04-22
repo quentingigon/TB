@@ -16,9 +16,6 @@ import javax.inject.Inject;
 public class UserController extends Controller {
 
 	@Inject
-	private FormFactory formFactory;
-
-	@Inject
 	UserRepository userRepository;
 
 	private final Form<UserData> form;

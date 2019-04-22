@@ -29,9 +29,6 @@ public class ScreenController extends Controller {
 	@Inject
 	WaitingScreenRepository waitingScreenRepository;
 
-	@Inject
-	private FormFactory formFactory;
-
 	private Form<ScreenData> form;
 
 	@Inject

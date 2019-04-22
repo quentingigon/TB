@@ -14,11 +14,11 @@ public class Schedule {
 	private Integer id;
 
 	@Column(name="name")
-	private String name;
+	protected String name;
 
 	@OneToMany
 	@Column(name="fluxes")
-	private List<Flux> fluxes;
+	protected List<Flux> fluxes;
 
 	public Schedule() {
 		fluxes = new ArrayList<>();

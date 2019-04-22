@@ -2,17 +2,21 @@ package services;
 
 import akka.stream.javadsl.Source;
 
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+@Singleton
 public class FluxManager extends Observable implements Runnable, Observer {
 
 	private FluxEvent currentFlux;
 	private List<FluxEvent> fluxEvents;
 
 	private boolean running;
+
+	private static final FluxManager instance = new FluxManager();
 
 	public FluxManager() {
 		fluxEvents = new ArrayList<>();
@@ -29,6 +33,12 @@ public class FluxManager extends Observable implements Runnable, Observer {
 	private void deactivate() {
 		running = false;
 	}
+
+	public static final FluxManager getInstance()
+	{
+		return instance;
+	}
+
 
 	@Override
 	public synchronized void update(Observable o, Object arg) {

@@ -32,6 +32,21 @@ public class JPAScreenRepository implements ScreenRepository {
 	}
 
 	@Override
+	public Screen getById(int id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String ID = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM screens WHERE id = " + ID, Screen.class);
+			try {
+				return (Screen) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+
+		});
+	}
+
+	@Override
 	public void add(Screen screen) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(screen);

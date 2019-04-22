@@ -1,5 +1,6 @@
 package models.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RunningSchedule extends Schedule {
@@ -9,6 +10,12 @@ public class RunningSchedule extends Schedule {
 
 	public RunningSchedule() {
 		super();
+	}
+
+	public RunningSchedule(Schedule schedule) {
+		this.name = schedule.getName();
+		this.fluxes = schedule.getFluxes();
+		this.screens = new ArrayList<>();
 	}
 
 	public List<Screen> getScreens() {

@@ -14,9 +14,6 @@ import javax.inject.Inject;
 public class TeamController extends Controller {
 
 	@Inject
-	private FormFactory formFactory;
-
-	@Inject
 	TeamRepository teamRepository;
 
 	private Form<TeamData> form;

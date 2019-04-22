@@ -1,5 +1,6 @@
 package models.repositories;
 
+import models.db.RunningSchedule;
 import models.db.Schedule;
 import play.db.jpa.JPAApi;
 
@@ -49,6 +50,13 @@ public class JPAScheduleRepository implements ScheduleRepository {
 			} catch (NoResultException e) {
 				return null;
 			}
+		});
+	}
+
+	@Override
+	public void activate(RunningSchedule schedule) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(schedule);
 		});
 	}
 }
