@@ -1,8 +1,9 @@
 package controllers;
 
 import models.db.Team;
+import models.entities.TeamData;
 import models.repositories.TeamRepository;
-import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -18,16 +19,24 @@ public class TeamController extends Controller {
 	@Inject
 	TeamRepository teamRepository;
 
-	public Result create(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+	private Form<TeamData> form;
 
-		if (teamRepository.getByName(boundForm.get("name")) != null) {
+	@Inject
+	public TeamController(FormFactory formFactory) {
+		this.form = formFactory.form(TeamData.class);
+	}
+
+	public Result create(Http.Request request) {
+		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<TeamData> boundForm = form.bindFromRequest(request);
+
+		if (teamRepository.getByName(boundForm.get().getName()) != null) {
 			// team already exists
 			// TODO change
 			return redirect(routes.HomeController.index());
 		}
 		else {
-			Team newTeam = new Team(boundForm.get("name"));
+			Team newTeam = new Team(boundForm.get().getName());
 
 			teamRepository.add(newTeam);
 
@@ -36,9 +45,10 @@ public class TeamController extends Controller {
 	}
 
 	public Result update(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		//final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<TeamData> boundForm = form.bindFromRequest(request);
 
-		Team team = teamRepository.getByName(boundForm.get("name"));
+		Team team = teamRepository.getByName(boundForm.get().getName());
 
 		if (team == null) {
 			// team does not exists

@@ -2,10 +2,11 @@ package controllers;
 
 import models.db.Screen;
 import models.db.WaitingScreen;
+import models.entities.ScreenData;
 import models.repositories.ScreenRepository;
 import models.repositories.SiteRepository;
 import models.repositories.WaitingScreenRepository;
-import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -31,8 +32,15 @@ public class ScreenController extends Controller {
 	@Inject
 	private FormFactory formFactory;
 
-	public Result index() {
-		return ok(screen_register.render(formFactory.form(String.class)));
+	private Form<ScreenData> form;
+
+	@Inject
+	public ScreenController(FormFactory formFactory) {
+		this.form = formFactory.form(ScreenData.class);
+	}
+
+	public Result indexRegister() {
+		return ok(screen_register.render(form));
 	}
 
 	public Result authentification(Http.Request request) {
@@ -73,23 +81,24 @@ public class ScreenController extends Controller {
 	}
 
 	public Result register(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		//final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 
-		String macAdr = boundForm.get("mac");
+		String macAdr = boundForm.get().getMac();
 
 		// screen is already known
 		if (screenRepository.getByMacAddress(macAdr) != null) {
 			// TODO: return error (with error handling)
-			return index();
+			return indexRegister();
 		}
 		else {
 			Screen newScreen = new Screen(macAdr);
-			String code = boundForm.get("code");
+			String code = boundForm.get().getCode();
 
 			// if code is correct
 			if (waitingScreenRepository.getByMac(macAdr).getCode().equals(code)) {
 
-				newScreen.setSite(siteRepository.getByName(boundForm.get("site")));
+				newScreen.setSite(siteRepository.getByName(boundForm.get().getSiteName()));
 
 				screenRepository.add(newScreen);
 
@@ -97,20 +106,21 @@ public class ScreenController extends Controller {
 			}
 			else {
 				// wrong code
-				return index();
+				return indexRegister();
 			}
 		}
 	}
 
 	public Result updateScreen(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 
-		Screen screen = screenRepository.getByMacAddress(boundForm.get("mac"));
+		Screen screen = screenRepository.getByMacAddress(boundForm.get().getMac());
 
 		if (screen == null) {
 			// screen is not known
 			// TODO: return error (with error handling)
-			return index();
+			return indexRegister();
 		}
 		else {
 			// TODO modify screen here

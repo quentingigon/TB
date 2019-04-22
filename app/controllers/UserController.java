@@ -1,13 +1,14 @@
 package controllers;
 
 import models.db.User;
+import models.entities.UserData;
 import models.repositories.UserRepository;
-import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.user_login;
+import views.html.login_test;
 import views.html.user_register;
 
 import javax.inject.Inject;
@@ -20,19 +21,27 @@ public class UserController extends Controller {
 	@Inject
 	UserRepository userRepository;
 
+	private final Form<UserData> form;
+
+	@Inject
+	public UserController(FormFactory formFactory) {
+		this.form = formFactory.form(UserData.class);
+	}
+
 	public Result registerView() {
-		return ok(user_register.render(formFactory.form(String.class)));
+		return ok(user_register.render(form));
 	}
 
 	public Result loginView() {
-		return ok(user_login.render(formFactory.form(String.class)));
+		return ok(login_test.render(form));
 	}
 
 	public Result register(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<UserData> boundForm = form.bindFromRequest(request);
 
-		User newUser = new User(boundForm.get("email"),
-			boundForm.get("password"));
+		User newUser = new User(boundForm.get().getEmail(),
+			boundForm.get().getPassword());
 
 		// email is unique
 		if (userRepository.getByEmail(newUser.getEmail()) == null) {
@@ -47,9 +56,12 @@ public class UserController extends Controller {
 	}
 
 	public Result login(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<UserData> boundForm = form.bindFromRequest(request);
 
-		User user = userRepository.get(boundForm.get("email"), boundForm.get("password"));
+		UserData data = boundForm.get();
+
+		User user = userRepository.get(data.getEmail(), data.getPassword());
 
 		if (user == null) {
 			// TODO send error

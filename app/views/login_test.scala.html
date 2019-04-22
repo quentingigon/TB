@@ -33,11 +33,20 @@
                         @helper.form(routes.UserController.login()) {
                             @helper.CSRF.formField
 
-                            @helper.inputText(userLoginForm("email"), '_id -> "inputEmail", '_label -> "Email address")
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    @helper.inputText(userLoginForm("email"), '_id -> "inputEmail", '_type -> "email", '_class -> "form-control",
+                                         '_placeholder -> "Email address", '_label -> "Email address")
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    @helper.inputText(userLoginForm("password"), '_id -> "inputPassword", '_type -> "password", '_class -> "form-control",
+                                        '_placeholder -> "Password", '_label -> "Password")
+                                </div>
+                            </div>
 
-                            @helper.inputText(userLoginForm("password"), '_id -> "inputPassword", '_label -> "Password")
-
-                            <button type="submit">Login</button>
+                            <button type="submit">Create widget</button>
                         }
                         <div class="text-center">
                             <a class="d-block small mt-3" href="register.html">Register an Account</a>

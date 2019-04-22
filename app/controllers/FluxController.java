@@ -1,8 +1,9 @@
 package controllers;
 
 import models.db.Flux;
+import models.entities.FluxData;
 import models.repositories.FluxRepository;
-import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -15,16 +16,21 @@ public class FluxController extends Controller {
 	@Inject
 	FluxRepository fluxRepository;
 
+	private Form<FluxData> form;
+
 	@Inject
-	private FormFactory formFactory;
+	public FluxController(FormFactory formFactory) {
+		this.form = formFactory.form(FluxData.class);
+	}
 
 	public Result create(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<FluxData> boundForm = form.bindFromRequest(request);
 
-		Flux newFlux = new Flux(boundForm.get("name"), boundForm.get("url"));
+		Flux newFlux = new Flux(boundForm.get().getName(), boundForm.get().getUrl());
 
 		// flux already exists
-		if (fluxRepository.getByName(boundForm.get("name")) != null) {
+		if (fluxRepository.getByName(boundForm.get().getName()) != null) {
 			// TODO error + correct redirect
 			return redirect(routes.HomeController.index());
 		}
@@ -36,12 +42,13 @@ public class FluxController extends Controller {
 	}
 
 	public Result update(Http.Request request) {
-		final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
+		final Form<FluxData> boundForm = form.bindFromRequest(request);
 
-		Flux flux = fluxRepository.getByName(boundForm.get("name"));
+		Flux flux = fluxRepository.getByName(boundForm.get().getName());
 
 		// flux does not exist
-		if (fluxRepository.getByName(boundForm.get("name")) == null) {
+		if (fluxRepository.getByName(boundForm.get().getName()) == null) {
 			// TODO error + correct redirect
 			return redirect(routes.HomeController.index());
 		}

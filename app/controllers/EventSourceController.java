@@ -37,7 +37,6 @@ public class EventSourceController extends Controller implements Observer {
     ScreenRepository screenRepository;
 
     private Source<String, ?> source;
-    private boolean updated = false;
 
     @Inject
     EventSourceController() {
@@ -56,7 +55,6 @@ public class EventSourceController extends Controller implements Observer {
         fluxes1.add(flux1);
         fluxes1.add(flux2);
         fluxes2.add(flux2);
-
 
         FluxEvent fe1 = new FluxEvent(flux1, screen1);
         FluxEvent fe2 = new FluxEvent(flux2, screen2);
@@ -100,10 +98,13 @@ public class EventSourceController extends Controller implements Observer {
     @SuppressWarnings("unchecked")
     public void update(Observable o, Object arg) {
         source = (Source<String, ?>) arg;
-        updated = true;
     }
 
     public Result events() {
+
+        while (source == null) {
+            // System.out.println("source is null");
+        }
 
         final Source<EventSource.Event, ?> eventSource = source.map(EventSource.Event::event);
 

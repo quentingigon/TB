@@ -7,7 +7,7 @@ GET     /                           controllers.HomeController.index
 
 GET     /screens/auth               controllers.ScreenController.authentification(request: Request)
 
-GET     /screens/register           controllers.ScreenController.index
+GET     /screens/register           controllers.ScreenController.indexRegister
 
 POST    /screens/register           controllers.ScreenController.register(request: Request)
 
