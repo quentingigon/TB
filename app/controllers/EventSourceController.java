@@ -4,24 +4,17 @@
 package controllers;
 
 import akka.stream.javadsl.Source;
-import models.db.Flux;
-import models.db.RunningSchedule;
-import models.db.Screen;
 import models.repositories.FluxRepository;
 import models.repositories.ScreenRepository;
 import play.libs.EventSource;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.FluxEvent;
 import services.FluxManager;
-import services.RunningScheduleService;
 import views.html.eventsource;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -39,50 +32,12 @@ public class EventSourceController extends Controller implements Observer {
     @Inject
     EventSourceController() {
 
-        Screen screen1 = new Screen("1234");
-        Screen screen2 = new Screen("test");
-        List<Screen> screens1 = new ArrayList<>();
-        List<Screen> screens2 = new ArrayList<>();
-        screens1.add(screen1);
-        screens2.add(screen2);
-
-        Flux flux1 = new Flux("flux1", 10000, "https://heig-vd.ch/");
-        Flux flux2 = new Flux("flux2", 10000, "https://hes-so.ch/");
-        List<Flux> fluxes1 = new ArrayList<>();
-        List<Flux> fluxes2 = new ArrayList<>();
-        fluxes1.add(flux1);
-        // fluxes1.add(flux2);
-        fluxes2.add(flux2);
-
-        FluxEvent fe1 = new FluxEvent(flux1, screen1);
-        FluxEvent fe2 = new FluxEvent(flux2, screen2);
-
-        List<FluxEvent> events = new ArrayList<>();
-        events.add(fe1);
-        events.add(fe2);
-
-        FluxManager fluxManager = new FluxManager();
+        FluxManager fluxManager = FluxManager.getInstance();
         fluxManager.addObserver(this);
 
-        RunningSchedule rs1 = new RunningSchedule();
-        rs1.setScreens(screens1);
-        rs1.setFluxes(fluxes1);
-
-        RunningSchedule rs2 = new RunningSchedule();
-        rs2.setScreens(screens2);
-        rs2.setFluxes(fluxes2);
-
-        RunningScheduleService service1 = new RunningScheduleService(rs1);
-        service1.addObserver(fluxManager);
-
-        RunningScheduleService service2 = new RunningScheduleService(rs2);
-        service2.addObserver(fluxManager);
-
+        // TODO maybe optimize ?
         Thread t = new Thread(fluxManager);
         t.start();
-
-        // executorService.execute(service1);
-        // executorService.execute(service2);
     }
 
     public Result index() {
@@ -100,7 +55,7 @@ public class EventSourceController extends Controller implements Observer {
 
     public Result events() {
 
-        while (source == null) {
+        if (source == null) {
             // System.out.println("source is null");
         }
 

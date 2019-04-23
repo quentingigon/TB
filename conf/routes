@@ -33,7 +33,7 @@ POST    /teams/new                      controllers.TeamController.create(reques
 
 POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
 
-POST    /schedules/activate/:name       controllers.ScheduleController.activate(name: String)
+GET    /schedules/activate/:name        controllers.ScheduleController.activate(name: String)
 
 GET     /schedules/new                  controllers.ScheduleController.createView()
 

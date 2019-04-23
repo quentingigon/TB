@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.FluxManager;
 import services.RunningScheduleService;
+import services.RunningScheduleServiceManager;
 import views.html.schedule_creation;
 
 import javax.inject.Inject;
@@ -75,7 +76,9 @@ public class ScheduleController extends Controller {
 			RunningScheduleService service = new RunningScheduleService(rs);
 			service.addObserver(FluxManager.getInstance());
 
-			executorService.execute(service);
+			// the schedule is activated
+			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
+			manager.addRunningSchedule(service);
 
 			// TODO fix -> need to make a correct subclass (weak entity) from Schedule
 			// scheduleRepository.add(rs);
