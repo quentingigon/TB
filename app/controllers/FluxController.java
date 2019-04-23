@@ -25,7 +25,7 @@ public class FluxController extends Controller {
 	}
 
 	public Result createView() {
-		return ok(flux_creation.render(form));
+		return ok(flux_creation.render(form, null));
 	}
 
 	public Result create(Http.Request request) {
@@ -36,8 +36,8 @@ public class FluxController extends Controller {
 
 		// flux already exists
 		if (fluxRepository.getByName(boundForm.get().getName()) != null) {
-			// TODO error + correct redirect
-			return redirect(routes.HomeController.index());
+			// with error message
+			return badRequest(flux_creation.render(form, "Flux already exists"));
 		}
 		else {
 
@@ -55,7 +55,7 @@ public class FluxController extends Controller {
 		// flux does not exist
 		if (fluxRepository.getByName(boundForm.get().getName()) == null) {
 			// TODO error + correct redirect
-			return redirect(routes.HomeController.index());
+			return status(440, "Flux name does not exist");
 		}
 		else {
 

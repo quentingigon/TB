@@ -53,7 +53,7 @@ public class ScheduleController extends Controller {
 		// incorrect name
 		if (scheduleToActivate == null) {
 			// TODO error + redirect
-			return redirect(routes.HomeController.index());
+			return status(440, "Schedule does not exist");
 		}
 		else {
 
@@ -93,8 +93,8 @@ public class ScheduleController extends Controller {
 
 		// schedule already exists
 		if (scheduleRepository.getByName(boundForm.get().getName()) != null) {
-			// TODO error + redirect
-			return redirect(routes.HomeController.index());
+			// TODO error
+			return status(440, "Flux already exists");
 		}
 		else {
 			Schedule schedule = new Schedule(boundForm.get().getName());

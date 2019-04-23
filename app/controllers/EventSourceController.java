@@ -55,6 +55,7 @@ public class EventSourceController extends Controller implements Observer {
 
     public Result events() {
 
+        // TODO error page
         if (source == null) {
             // System.out.println("source is null");
         }

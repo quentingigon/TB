@@ -36,7 +36,7 @@ public class ScreenController extends Controller {
 		this.form = formFactory.form(ScreenData.class);
 	}
 
-	public Result indexRegister() {
+	public Result registerView() {
 		return ok(screen_register.render(form));
 	}
 
@@ -52,6 +52,7 @@ public class ScreenController extends Controller {
 
 			waitingScreenRepository.add(new WaitingScreen(macAdr, code));
 
+			// send code
 			return ok(screen_code.render(code));
 		}
 		// screen registered
@@ -86,7 +87,7 @@ public class ScreenController extends Controller {
 		// screen is already known
 		if (screenRepository.getByMacAddress(macAdr) != null) {
 			// TODO: return error (with error handling)
-			return indexRegister();
+			return registerView();
 		}
 		else {
 			Screen newScreen = new Screen(macAdr);
@@ -103,7 +104,7 @@ public class ScreenController extends Controller {
 			}
 			else {
 				// wrong code
-				return indexRegister();
+				return registerView();
 			}
 		}
 	}
@@ -117,7 +118,7 @@ public class ScreenController extends Controller {
 		if (screen == null) {
 			// screen is not known
 			// TODO: return error (with error handling)
-			return indexRegister();
+			return registerView();
 		}
 		else {
 			// TODO modify screen here

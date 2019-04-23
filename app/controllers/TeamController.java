@@ -38,8 +38,8 @@ public class TeamController extends Controller {
 
 		if (teamRepository.getByName(boundForm.get().getName()) != null) {
 			// team already exists
-			// TODO change
-			return redirect(routes.HomeController.index());
+			// TODO error
+			return createView();
 		}
 		else {
 			Team newTeam = new Team(boundForm.get().getName());
@@ -58,7 +58,7 @@ public class TeamController extends Controller {
 
 		if (team == null) {
 			// team does not exists
-			// TODO change
+			// TODO error
 			return redirect(routes.HomeController.index());
 		}
 		else {

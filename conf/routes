@@ -11,7 +11,7 @@ POST    /fluxes/new                     controllers.FluxController.create(reques
 
 GET     /screens/auth                   controllers.ScreenController.authentification(request: Request)
 
-GET     /screens/register               controllers.ScreenController.indexRegister
+GET     /screens/register               controllers.ScreenController.registerView
 
 POST    /screens/register               controllers.ScreenController.register(request: Request)
 
