@@ -14,10 +14,13 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.FluxManager;
 import services.RunningScheduleService;
+import views.html.schedule_creation;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ScheduleController extends Controller {
 
@@ -27,11 +30,18 @@ public class ScheduleController extends Controller {
 	@Inject
 	ScreenRepository screenRepository;
 
+	ExecutorService executorService;
+
 	private Form<ScheduleData> form;
 
 	@Inject
 	public ScheduleController(FormFactory formFactory) {
 		this.form = formFactory.form(ScheduleData.class);
+		this.executorService = Executors.newFixedThreadPool(10);
+	}
+
+	public Result createView() {
+		return ok(schedule_creation.render(form));
 	}
 
 	// TODO maybe do it with entities (Data)
@@ -65,11 +75,10 @@ public class ScheduleController extends Controller {
 			RunningScheduleService service = new RunningScheduleService(rs);
 			service.addObserver(FluxManager.getInstance());
 
-			Thread t = new Thread(service);
-			t.start();
+			executorService.execute(service);
 
 			// TODO fix -> need to make a correct subclass (weak entity) from Schedule
-			scheduleRepository.add(rs);
+			// scheduleRepository.add(rs);
 
 			return redirect(routes.HomeController.index());
 		}

@@ -8,6 +8,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import views.html.flux_creation;
 
 import javax.inject.Inject;
 
@@ -21,6 +22,10 @@ public class FluxController extends Controller {
 	@Inject
 	public FluxController(FormFactory formFactory) {
 		this.form = formFactory.form(FluxData.class);
+	}
+
+	public Result createView() {
+		return ok(flux_creation.render(form));
 	}
 
 	public Result create(Http.Request request) {

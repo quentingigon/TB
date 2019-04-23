@@ -1,7 +1,9 @@
 package controllers;
 
+import models.db.TeamMember;
 import models.db.User;
 import models.entities.UserData;
+import models.repositories.TeamRepository;
 import models.repositories.UserRepository;
 import play.data.Form;
 import play.data.FormFactory;
@@ -17,6 +19,9 @@ public class UserController extends Controller {
 
 	@Inject
 	UserRepository userRepository;
+
+	@Inject
+	TeamRepository teamRepository;
 
 	private final Form<UserData> form;
 
@@ -42,9 +47,24 @@ public class UserController extends Controller {
 
 		// email is unique
 		if (userRepository.getByEmail(newUser.getEmail()) == null) {
-			userRepository.create(newUser);
 
-			return redirect(routes.HomeController.index());
+			// user created is part of a team
+			if (boundForm.get().getTeam() != null) {
+				TeamMember newMember = new TeamMember(newUser);
+
+				// set team
+				newMember.setTeam(teamRepository.getByName(boundForm.get().getTeam()));
+
+				userRepository.createMember(newMember);
+			}
+			else {
+				userRepository.create(newUser);
+			}
+
+			return redirect(routes.HomeController.index()).withCookies(
+				Http.Cookie.builder("logged", "true")
+					.withHttpOnly(false)
+					.build());
 		}
 		else {
 			// user must choose a new email
@@ -65,8 +85,10 @@ public class UserController extends Controller {
 			return loginView();
 		}
 		else {
-			return redirect(routes.HomeController.index()).withHeader(
-				"JWT", JwtUtils.getJWT());
+			return redirect(routes.HomeController.index()).withCookies(
+				Http.Cookie.builder("logged", "true")
+					.withHttpOnly(false)
+					.build());
 		}
 	}
 }

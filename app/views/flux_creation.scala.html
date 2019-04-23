@@ -1,0 +1,51 @@
+@import models.db.Screen
+@import models.entities.FluxData
+
+@(form: Form[FluxData])
+
+
+@main("Flux Creation Page") {
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @helper.form(routes.FluxController.create()) {
+            @helper.CSRF.formField
+
+            <div class="form-group">
+                <div class="form-label-group">
+                    @helper.inputText(form("name"), '_label -> "Name", 'placeholder -> "Flux name", '_required -> "true")
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-group">
+                @helper.inputText(form("url"), '_label -> "URL", 'placeholder -> "Flux url", '_required -> "true")
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-group">
+                @helper.inputText(form("duration"), '_label -> "Duration", 'placeholder -> "Duration of flux (milliseconds)", '_required -> "true")
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-group">
+                    @helper.select(
+                        field = form("type"),
+                        options = Seq(
+                            "Video" -> "VIDEO",
+                            "Text" -> "TEXT",
+                            "Image" -> "IMAGE",
+                            "Url" -> "URL"
+                        )
+                )
+                </div>
+            </div>
+
+
+            <button type="submit">Create schedule</button>
+        }
+
+    </div>
+}

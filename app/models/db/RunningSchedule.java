@@ -1,12 +1,14 @@
 package models.db;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RunningSchedule extends Schedule {
 
+	@ManyToMany
+	@JoinColumn(name="screens", nullable = false)
 	private List<Screen> screens;
-	private Flux currentFlux;
 
 	public RunningSchedule() {
 		super();
@@ -24,13 +26,5 @@ public class RunningSchedule extends Schedule {
 
 	public void setScreens(List<Screen> screens) {
 		this.screens = screens;
-	}
-
-	public Flux getCurrentFlux() {
-		return currentFlux;
-	}
-
-	public void setCurrentFlux(Flux currentFlux) {
-		this.currentFlux = currentFlux;
 	}
 }

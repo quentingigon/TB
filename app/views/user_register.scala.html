@@ -10,6 +10,7 @@
     @b4.vertical.formCSRF(routes.UserController.register()) { implicit vfc =>
         @b4.email( userRegisterForm("email"), '_label -> "Email", 'placeholder -> "example@example.com" )
         @b4.password( userRegisterForm("password"), '_label -> "Password", 'placeholder -> "Password" )
+        @b4.text( userRegisterForm("team"), '_label -> "Team", 'placeholder -> "Team name" )
         @b4.submit('class -> "btn btn-secondary"){ Register }
     }
 

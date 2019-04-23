@@ -6,6 +6,7 @@ import java.util.List;
 
 @Entity
 @Table(name="schedules", schema="public")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Schedule {
 
 	@Id

@@ -1,0 +1,30 @@
+@import models.entities.TeamData
+@import models.db.Screen
+
+@(form: Form[TeamData], screens: java.util.List[Screen])
+
+
+@main("Team Creation Page") {
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @helper.form(routes.TeamController.create()) {
+            @helper.CSRF.formField
+
+            <div class="form-group">
+                <div class="form-label-group">
+                    @helper.inputText(form("name"), '_label -> "Name", 'placeholder -> "Team name", '_required -> "true")
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-group">
+
+                </div>
+            </div>
+
+            <button type="submit">Create team</button>
+        }
+
+    </div>
+}

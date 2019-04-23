@@ -1,5 +1,6 @@
 package models.repositories;
 
+import models.db.TeamMember;
 import models.db.User;
 import play.db.jpa.JPAApi;
 
@@ -67,6 +68,13 @@ public class JPAUserRepository implements UserRepository{
 			} catch (NoResultException e) {
 				return null;
 			}
+		});
+	}
+
+	@Override
+	public void createMember(TeamMember member) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(member);
 		});
 	}
 }

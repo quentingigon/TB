@@ -5,6 +5,10 @@
 # An example controller showing a sample home page
 GET     /                               controllers.HomeController.index
 
+GET     /fluxes/new                     controllers.FluxController.createView()
+
+POST    /fluxes/new                     controllers.FluxController.create(request: Request)
+
 GET     /screens/auth                   controllers.ScreenController.authentification(request: Request)
 
 GET     /screens/register               controllers.ScreenController.indexRegister
@@ -23,9 +27,17 @@ POST    /users/login                    controllers.UserController.login(request
 
 POST    /users/register                 controllers.UserController.register(request: Request)
 
+GET     /teams/new                      controllers.TeamController.createView()
+
+POST    /teams/new                      controllers.TeamController.create(request: Request)
+
 POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
 
 POST    /schedules/activate/:name       controllers.ScheduleController.activate(name: String)
+
+GET     /schedules/new                  controllers.ScheduleController.createView()
+
+POST    /schedules/new                  controllers.ScheduleController.create(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)

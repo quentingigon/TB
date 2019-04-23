@@ -2,12 +2,14 @@ package controllers;
 
 import models.db.Team;
 import models.entities.TeamData;
+import models.repositories.ScreenRepository;
 import models.repositories.TeamRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import views.html.team_creation;
 
 import javax.inject.Inject;
 
@@ -16,11 +18,18 @@ public class TeamController extends Controller {
 	@Inject
 	TeamRepository teamRepository;
 
+	@Inject
+	ScreenRepository screenRepository;
+
 	private Form<TeamData> form;
 
 	@Inject
 	public TeamController(FormFactory formFactory) {
 		this.form = formFactory.form(TeamData.class);
+	}
+
+	public Result createView() {
+		return ok(team_creation.render(form, screenRepository.getAll()));
 	}
 
 	public Result create(Http.Request request) {

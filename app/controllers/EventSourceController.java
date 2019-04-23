@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Singleton
 public class EventSourceController extends Controller implements Observer {
@@ -53,7 +51,7 @@ public class EventSourceController extends Controller implements Observer {
         List<Flux> fluxes1 = new ArrayList<>();
         List<Flux> fluxes2 = new ArrayList<>();
         fluxes1.add(flux1);
-        fluxes1.add(flux2);
+        // fluxes1.add(flux2);
         fluxes2.add(flux2);
 
         FluxEvent fe1 = new FluxEvent(flux1, screen1);
@@ -80,12 +78,11 @@ public class EventSourceController extends Controller implements Observer {
         RunningScheduleService service2 = new RunningScheduleService(rs2);
         service2.addObserver(fluxManager);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        Thread t = new Thread(fluxManager);
+        t.start();
 
-
-        executorService.execute(fluxManager);
-        /*executorService.execute(service1);
-        executorService.execute(service2);*/
+        // executorService.execute(service1);
+        // executorService.execute(service2);
     }
 
     public Result index() {
@@ -97,7 +94,7 @@ public class EventSourceController extends Controller implements Observer {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void update(Observable o, Object arg) {
+    public synchronized void update(Observable o, Object arg) {
         source = (Source<String, ?>) arg;
     }
 

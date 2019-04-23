@@ -6,6 +6,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 public class JPAScreenRepository implements ScreenRepository {
 
@@ -43,6 +44,21 @@ public class JPAScreenRepository implements ScreenRepository {
 				return null;
 			}
 
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Screen> getAll() {
+		return jpaApi.withTransaction(entityManager -> {
+
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM screens", Screen.class);
+			try {
+				return (List<Screen>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
 		});
 	}
 

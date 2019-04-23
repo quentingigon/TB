@@ -1,6 +1,7 @@
 package models.repositories;
 
 import com.google.inject.ImplementedBy;
+import models.db.TeamMember;
 import models.db.User;
 
 /**
@@ -14,4 +15,6 @@ public interface UserRepository {
 	void delete(User user);
 	void update(User user);
 	User getByEmail(String email);
+
+	void createMember(TeamMember member);
 }
