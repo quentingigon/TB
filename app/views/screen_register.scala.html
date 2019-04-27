@@ -1,18 +1,73 @@
+@import models.db.Screen
 @import models.entities.ScreenData
-@(screenRegisterForm: Form[ScreenData])
+
+@(form: Form[ScreenData], error: String)
 
 
-@main("Screen Registration") {
+@main("Screen Register Page") {
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
-        @b4.vertical.formCSRF(routes.ScreenController.register()) { implicit vfc =>
-            @b4.text( screenRegisterForm("name"), '_label -> "Name", 'placeholder -> "Screen name" )
-            @b4.text( screenRegisterForm("mac"), '_label -> "Mac", 'placeholder -> "MAC address " )
-            @b4.text( screenRegisterForm("site"), '_label -> "Site", 'placeholder -> "Site name (e.g. Cheseaux) " )
-            @b4.text( screenRegisterForm("code"), '_label -> "Code", 'placeholder -> "1234" )
-            @b4.submit('class -> "btn btn-secondary"){ Register screen }
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
         }
 
+        @helper.form(routes.ScreenController.register()) {
+            @helper.CSRF.formField
+            <div class="form-group">
+                <label for="inputName">Name</label>
+                <input name="name" type="text" class="form-control" id="inputName" placeholder="Screen name...">
+            </div>
+            <div class="form-group">
+                <label for="inputMac">URL</label>
+                <input name="mac" type="text" class="form-control" id="inputMac" placeholder="Screen MAC address...">
+            </div>
+            <div class="form-group">
+                <label for="inputCode">Code</label>
+                <input name="code" type="text" class="form-control" id="inputCode" placeholder="Register code...">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="inputResolution">Resolution</label>
+                <select name="resolution" id="inputResolution" class="form-control">
+                    <option selected>1080p</option>
+                    <option>720p</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="inputSite">Site</label>
+                <select name="site" id="inputSite" class="form-control">
+                    <option selected>Cheseaux</option>
+                    <option>St-Roch</option>
+                    <option>Y-Park</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        }
     </div>
 }

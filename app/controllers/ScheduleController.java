@@ -20,8 +20,6 @@ import views.html.schedule_creation;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ScheduleController extends Controller {
 
@@ -31,14 +29,11 @@ public class ScheduleController extends Controller {
 	@Inject
 	ScreenRepository screenRepository;
 
-	ExecutorService executorService;
-
 	private Form<ScheduleData> form;
 
 	@Inject
 	public ScheduleController(FormFactory formFactory) {
 		this.form = formFactory.form(ScheduleData.class);
-		this.executorService = Executors.newFixedThreadPool(10);
 	}
 
 	public Result createView() {
@@ -57,28 +52,36 @@ public class ScheduleController extends Controller {
 		}
 		else {
 
-			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
+			RunningSchedule rs1 = new RunningSchedule(scheduleToActivate);
+			RunningSchedule rs2 = new RunningSchedule(scheduleToActivate);
 
-			Flux flux1 = new Flux("flux1", 10000, "https://heig-vd.ch/");
-			Flux flux2 = new Flux("flux2", 10000, "https://hes-so.ch/");
+			Flux flux1 = new Flux("flux1", 30000L, "https://heig-vd.ch/");
+			Flux flux2 = new Flux("flux2", 40000L, "https://hes-so.ch/");
 			List<Flux> fluxes1 = new ArrayList<>();
+			List<Flux> fluxes2 = new ArrayList<>();
 			fluxes1.add(flux1);
-			fluxes1.add(flux2);
-			rs.setFluxes(fluxes1);
+			fluxes2.add(flux2);
+			rs1.setFluxes(fluxes1);
+			rs2.setFluxes(fluxes2);
 
 			Screen screen1 = new Screen("1234");
 			Screen screen2 = new Screen("test");
 			List<Screen> screens1 = new ArrayList<>();
+			List<Screen> screens2 = new ArrayList<>();
 			screens1.add(screen1);
-			screens1.add(screen2);
-			rs.setScreens(screens1);
+			screens2.add(screen2);
+			rs1.setScreens(screens1);
+			rs2.setScreens(screens2);
 
-			RunningScheduleService service = new RunningScheduleService(rs);
-			service.addObserver(FluxManager.getInstance());
+			RunningScheduleService service1 = new RunningScheduleService(rs1);
+			RunningScheduleService service2 = new RunningScheduleService(rs2);
+			service1.addObserver(FluxManager.getInstance());
+			service2.addObserver(FluxManager.getInstance());
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
-			manager.addRunningSchedule(service);
+			manager.addRunningSchedule(service1);
+			manager.addRunningSchedule(service2);
 
 			// TODO fix -> need to make a correct subclass (weak entity) from Schedule
 			// scheduleRepository.add(rs);

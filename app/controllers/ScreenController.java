@@ -37,7 +37,7 @@ public class ScreenController extends Controller {
 	}
 
 	public Result registerView() {
-		return ok(screen_register.render(form));
+		return ok(screen_register.render(form, null));
 	}
 
 	public Result authentification(Http.Request request) {
@@ -86,8 +86,7 @@ public class ScreenController extends Controller {
 
 		// screen is already known
 		if (screenRepository.getByMacAddress(macAdr) != null) {
-			// TODO: return error (with error handling)
-			return registerView();
+			return badRequest(screen_register.render(form, "Screen already exists, by MAC"));
 		}
 		else {
 			Screen newScreen = new Screen(macAdr);
@@ -96,7 +95,7 @@ public class ScreenController extends Controller {
 			// if code is correct
 			if (waitingScreenRepository.getByMac(macAdr).getCode().equals(code)) {
 
-				newScreen.setSite(siteRepository.getByName(boundForm.get().getSiteName()));
+				newScreen.setSite(siteRepository.getByName(boundForm.get().getSite()));
 
 				screenRepository.add(newScreen);
 

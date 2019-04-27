@@ -1,5 +1,7 @@
 package models.db;
 
+import models.FluxTypes;
+
 import javax.persistence.*;
 
 @Entity
@@ -15,17 +17,19 @@ public class Flux {
 	private String name;
 
 	@Column(name="duration")
-	private int duration;
+	private long duration;
 
 	@Column(name="url")
 	private String url;
+
+	private FluxTypes type;
 
 	public Flux(String name, String url) {
 		this.name = name;
 		this.url = url;
 	}
 
-	public Flux(String name, int duration, String url) {
+	public Flux(String name, long duration, String url) {
 		this.name = name;
 		this.duration = duration;
 		this.url = url;
@@ -54,11 +58,19 @@ public class Flux {
 		this.url = url;
 	}
 
-	public int getDuration() {
+	public long getDuration() {
 		return duration;
 	}
 
-	public void setDuration(int duration) {
+	public void setDuration(long duration) {
 		this.duration = duration;
+	}
+
+	public FluxTypes getType() {
+		return type;
+	}
+
+	public void setType(FluxTypes type) {
+		this.type = type;
 	}
 }

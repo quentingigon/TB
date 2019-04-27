@@ -26,9 +26,13 @@ public class RunningScheduleService extends Observable implements Runnable {
 	@Override
 	public void run() {
 
+		int i = 0;
+
 		while (running) {
 
 			if (!fluxes.isEmpty()) {
+
+				// System.out.println("RunningScheduleService: " + i++ + " for schedule " + schedule.getName());
 
 				// make rotation
 				fluxes.add(fluxes.get(0));

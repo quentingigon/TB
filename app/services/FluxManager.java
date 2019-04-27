@@ -3,25 +3,24 @@ package services;
 import akka.stream.javadsl.Source;
 
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 @Singleton
 public class FluxManager extends Observable implements Runnable, Observer {
 
 	private FluxEvent currentFlux;
 	private List<FluxEvent> fluxEvents;
+	private Source<String, ?> source;
 
 	private boolean running;
 
 	private static final FluxManager instance = new FluxManager();
 
-	public FluxManager() {
+	private FluxManager() {
 		fluxEvents = new ArrayList<>();
 		running = false;
 	}
+
 
 	public FluxManager(List<FluxEvent> fluxEvents) {
 		this.fluxEvents = fluxEvents;
@@ -44,6 +43,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 	public synchronized void update(Observable o, Object arg) {
 		if (arg instanceof FluxEvent) {
 			fluxEvents.add((FluxEvent) arg);
+			System.out.println("Flux " + ((FluxEvent) arg).getFlux().getName() + " was added to manager");
 		}
 	}
 
@@ -56,15 +56,18 @@ public class FluxManager extends Observable implements Runnable, Observer {
 
 			// there are flux events to send
 			if (!fluxEvents.isEmpty()) {
-				// fluxEvents.add(fluxEvents.get(0));
 				currentFlux = fluxEvents.remove(0);
 
 				boolean bool = true;
 
 				// notify observer with url + macs
 				do {
-					setChanged();
-					notifyObservers(Source.single(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs())));
+					//setChanged();
+					source = Source.single(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+
+					//notifyObservers(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+
+					System.out.println("Source updated " + currentFlux.getFlux());
 
 					if (!fluxEvents.isEmpty()) {
 						// fluxEvents.add(fluxEvents.get(0));
@@ -81,12 +84,17 @@ public class FluxManager extends Observable implements Runnable, Observer {
 			}
 			// wait a bit before rechecking
 			else {
+				System.out.println("No flux events");
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+	}
+
+	public Source<String, ?> getSource() {
+		return source;
 	}
 }

@@ -5,6 +5,8 @@
 # An example controller showing a sample home page
 GET     /                               controllers.HomeController.index
 
+GET     /fluxes                         controllers.FluxController.index()
+
 GET     /fluxes/new                     controllers.FluxController.createView()
 
 POST    /fluxes/new                     controllers.FluxController.create(request: Request)

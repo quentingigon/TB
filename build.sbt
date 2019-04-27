@@ -7,14 +7,16 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava)
 scalaVersion := "2.12.8"
 
 javacOptions ++= Seq(
+  "-source", "1.8",
+  "-target", "1.8",
   "-encoding", "UTF-8",
   "-parameters",
   "-Xlint:unchecked",
   "-Xlint:deprecation",
-  "-Werror"
+  "-Werror",
 )
 
-crossScalaVersions := Seq("2.11.12", "2.12.7")
+//crossScalaVersions := Seq("2.11.12", "2.12.8")
 
 libraryDependencies += guice
 

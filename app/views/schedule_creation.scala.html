@@ -1,30 +1,49 @@
-@import models.db.Screen
+
 @import models.entities.ScheduleData
+@(form: Form[ScheduleData], error: String)
 
-@(form: Form[ScheduleData])
 
+@main("Screen Register Page") {
 
-@main("Schedule Creation Page") {
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
-        @helper.form(routes.ScheduleController.create()) {
-            @helper.CSRF.formField
-
-            <div class="form-group">
-                <div class="form-label-group">
-                    @helper.inputText(form("name"), '_label -> "Name", 'placeholder -> "Schedule name", '_required -> "true")
-                </div>
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
             </div>
-
-            <div class="form-group">
-                <div class="form-label-group">
-                    
-                </div>
-            </div>
-
-            <button type="submit">Create schedule</button>
         }
 
+        @helper.form(routes.ScheduleController.create()) {
+            @helper.CSRF.formField
+            <div class="form-group">
+                <label for="inputName">Name</label>
+                <input name="name" type="text" class="form-control" id="inputName" placeholder="Screen name...">
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        }
     </div>
 }

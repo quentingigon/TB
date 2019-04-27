@@ -15,6 +15,13 @@ public class FluxData {
 		this.url = url;
 	}
 
+	public FluxData(String name, String url, String duration, String type) {
+		this.name = name;
+		this.url = url;
+		this.duration = duration;
+		this.type = type;
+	}
+
 	public String getName() {
 		return name;
 	}

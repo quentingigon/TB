@@ -10,7 +10,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.login_test;
+import views.html.user_login;
 import views.html.user_register;
 
 import javax.inject.Inject;
@@ -31,11 +31,11 @@ public class UserController extends Controller {
 	}
 
 	public Result registerView() {
-		return ok(user_register.render(form));
+		return ok(user_register.render(form, null));
 	}
 
 	public Result loginView() {
-		return ok(login_test.render(form));
+		return ok(user_login.render(form, null));
 	}
 
 	public Result register(Http.Request request) {
@@ -55,7 +55,7 @@ public class UserController extends Controller {
 				// set team
 				newMember.setTeam(teamRepository.getByName(boundForm.get().getTeam()));
 
-				userRepository.createMember(newMember);
+//				userRepository.createMember(newMember);
 			}
 			else {
 				userRepository.create(newUser);

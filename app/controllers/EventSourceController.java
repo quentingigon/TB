@@ -4,6 +4,7 @@
 package controllers;
 
 import akka.stream.javadsl.Source;
+import com.google.common.collect.Lists;
 import models.repositories.FluxRepository;
 import models.repositories.ScreenRepository;
 import play.libs.EventSource;
@@ -27,7 +28,10 @@ public class EventSourceController extends Controller implements Observer {
     @Inject
     ScreenRepository screenRepository;
 
-    private Source<String, ?> source;
+    private static Source<String, ?> source;
+    private Source<String, ?> oldSource;
+
+    private boolean updated = false;
 
     @Inject
     EventSourceController() {
@@ -37,7 +41,7 @@ public class EventSourceController extends Controller implements Observer {
 
         // TODO maybe optimize ?
         Thread t = new Thread(fluxManager);
-        t.start();
+        // t.start();
     }
 
     public Result index() {
@@ -47,21 +51,53 @@ public class EventSourceController extends Controller implements Observer {
             .withHeader("Access-Control-Allow-Origin", "localhost");
     }
 
+    private static Http.Cookie[] toArray(final Http.Cookies cookies) {
+    	Http.Cookie[] cookieArray = new Http.Cookie[1];
+		return Lists.newArrayList(cookies.iterator()).toArray(cookieArray);
+	}
     @Override
     @SuppressWarnings("unchecked")
     public synchronized void update(Observable o, Object arg) {
-        source = (Source<String, ?>) arg;
+/*
+        if (source == null) {
+            source = Source.single((String) arg);
+        }
+        else {
+            source.concat(Source.single((String) arg));
+        }*/
+    	//source = Source.single((String) arg);
+        // System.out.println("Source was updated");
+    	updated = true;
     }
 
     public Result events() {
 
         // TODO error page
-        if (source == null) {
+        while (FluxManager.getInstance().getSource() == null) {
             // System.out.println("source is null");
         }
 
-        final Source<EventSource.Event, ?> eventSource = source.map(EventSource.Event::event);
+        //final Source<EventSource.Event, ?> eventSource;
 
-        return ok().chunked(eventSource.via(EventSource.flow())).as(Http.MimeTypes.EVENT_STREAM);
+        return ok().chunked(FluxManager.getInstance().getSource()
+            .map(EventSource.Event::event)
+            .via(EventSource.flow()))
+            .as(Http.MimeTypes.EVENT_STREAM);
+
+        /*
+        final Result bkp = ok();
+
+        Result result = ok().chunked(eventSource.via(EventSource.flow()));
+        if (bkp.flash() != null)
+        	result = result.withFlash(bkp.flash());
+        if (bkp.cookies() != null) {
+			Iterator<Http.Cookie> iterator = bkp.cookies().iterator();
+			while (iterator.hasNext())
+				result = result.withCookies(iterator.next());
+		}
+        if (bkp.session() != null)
+        	result = result.withSession(bkp.session());
+        return result.as(Http.MimeTypes.EVENT_STREAM);*/
+
     }
 }
