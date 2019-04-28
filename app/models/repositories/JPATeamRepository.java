@@ -6,6 +6,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 public class JPATeamRepository implements TeamRepository {
 
@@ -32,6 +33,21 @@ public class JPATeamRepository implements TeamRepository {
 				"SELECT * FROM teams WHERE name = " + teamName, Team.class);
 			try {
 				return (Team) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Team> getAll() {
+		return jpaApi.withTransaction(entityManager -> {
+
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM teams", Team.class);
+			try {
+				return (List<Team>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

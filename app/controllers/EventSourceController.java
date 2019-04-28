@@ -16,8 +16,8 @@ import views.html.eventsource;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Observable;
-import java.util.Observer;
+import java.time.Duration;
+import java.util.*;
 
 @Singleton
 public class EventSourceController extends Controller implements Observer {
@@ -58,13 +58,17 @@ public class EventSourceController extends Controller implements Observer {
     @Override
     @SuppressWarnings("unchecked")
     public synchronized void update(Observable o, Object arg) {
-/*
+
         if (source == null) {
-            source = Source.single((String) arg);
+            source = Source.tick(Duration.ZERO, Duration.ofSeconds(5), "tick");
         }
         else {
-            source.concat(Source.single((String) arg));
-        }*/
+            List<String> list = new ArrayList<>();
+            list.add((String) arg);
+            Source<String, ?> s = Source.from(list);
+            // source.merge(s);
+            // source.flatMapMerge(1, s);
+        }
     	//source = Source.single((String) arg);
         // System.out.println("Source was updated");
     	updated = true;
@@ -73,13 +77,14 @@ public class EventSourceController extends Controller implements Observer {
     public Result events() {
 
         // TODO error page
-        while (FluxManager.getInstance().getSource() == null) {
+        while (source != null) {
             // System.out.println("source is null");
         }
 
         //final Source<EventSource.Event, ?> eventSource;
 
-        return ok().chunked(FluxManager.getInstance().getSource()
+        return ok().chunked(source
+            //.map(t -> EventSource.Event.event(t.concat("\nretry: 10000\\n")))
             .map(EventSource.Event::event)
             .via(EventSource.flow()))
             .as(Http.MimeTypes.EVENT_STREAM);

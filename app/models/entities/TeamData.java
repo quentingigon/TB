@@ -1,5 +1,7 @@
 package models.entities;
 
+import models.db.Team;
+
 import java.util.List;
 
 public class TeamData {
@@ -17,6 +19,10 @@ public class TeamData {
 
 	public TeamData(String name) {
 		this.name = name;
+	}
+
+	public TeamData(Team team) {
+		this.name = team.getName();
 	}
 
 	public String getName() {

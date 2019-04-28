@@ -37,7 +37,7 @@ public class ScheduleController extends Controller {
 	}
 
 	public Result createView() {
-		return ok(schedule_creation.render(form));
+		return ok(schedule_creation.render(form, null));
 	}
 
 	// TODO maybe do it with entities (Data)
@@ -55,7 +55,7 @@ public class ScheduleController extends Controller {
 			RunningSchedule rs1 = new RunningSchedule(scheduleToActivate);
 			RunningSchedule rs2 = new RunningSchedule(scheduleToActivate);
 
-			Flux flux1 = new Flux("flux1", 30000L, "https://heig-vd.ch/");
+			Flux flux1 = new Flux("flux1", 20000L, "https://heig-vd.ch/");
 			Flux flux2 = new Flux("flux2", 40000L, "https://hes-so.ch/");
 			List<Flux> fluxes1 = new ArrayList<>();
 			List<Flux> fluxes2 = new ArrayList<>();

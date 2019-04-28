@@ -13,9 +13,12 @@ import play.mvc.Http;
 import play.mvc.Result;
 import views.html.eventsource;
 import views.html.screen_code;
+import views.html.screen_page;
 import views.html.screen_register;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ScreenController extends Controller {
@@ -34,6 +37,14 @@ public class ScreenController extends Controller {
 	@Inject
 	public ScreenController(FormFactory formFactory) {
 		this.form = formFactory.form(ScreenData.class);
+	}
+
+	public Result index() {
+		List<ScreenData> data = new ArrayList<>();
+		for (Screen s: screenRepository.getAll()) {
+			data.add(new ScreenData(s));
+		}
+		return (ok(screen_page.render(data, null)));
 	}
 
 	public Result registerView() {

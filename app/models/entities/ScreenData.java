@@ -1,5 +1,7 @@
 package models.entities;
 
+import models.db.Screen;
+
 public class ScreenData {
 
 	private String name;
@@ -8,7 +10,16 @@ public class ScreenData {
 	private String site;
 	private String resolution;
 
+	private boolean active;
+
 	public ScreenData() {
+	}
+
+	public ScreenData(Screen s) {
+		this.name = s.getName();
+		this.mac = s.getMacAddress();
+		this.site = s.getSite().getName();
+		this.resolution = s.getResolution();
 	}
 
 	public String getMac() {
@@ -49,5 +60,13 @@ public class ScreenData {
 
 	public void setResolution(String resolution) {
 		this.resolution = resolution;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

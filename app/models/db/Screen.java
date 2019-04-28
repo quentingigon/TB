@@ -11,11 +11,15 @@ public class Screen {
 	@Column(name="id")
 	private Integer id;
 
+	private String name;
+
 	@Column(name="mac")
 	private String macAddress;
 
 	@ManyToOne
 	private Site site;
+
+	private String resolution;
 
 	@Column(name="logged")
 	private boolean logged;
@@ -53,5 +57,21 @@ public class Screen {
 
 	public void setLogged(boolean logged) {
 		this.logged = logged;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getResolution() {
+		return resolution;
+	}
+
+	public void setResolution(String resolution) {
+		this.resolution = resolution;
 	}
 }

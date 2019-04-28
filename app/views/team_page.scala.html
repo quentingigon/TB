@@ -1,0 +1,86 @@
+@import java.util
+@import models.entities.TeamData
+@(teams: util.List[TeamData], error: String)
+
+
+@main("Screens Main Page") {
+
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    </head>
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+
+            tr:hover .button {
+                opacity: 1;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px;
+            }
+
+            .button {
+                opacity: 0;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Members</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if(teams != null) {
+                @for(team <- teams) {
+                    <tr>
+                        <td>@team.getName()</td>
+                        <td>@team.getMembers().length</td>
+                        <td>
+                            <div class="button">
+                                <a href="@routes.TeamController.update()">Update Team</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+
+        <a type="button" class="btn btn-primary" role="button" href="@routes.TeamController.create()">Create new Team</a>
+    </div>
+}

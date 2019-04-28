@@ -10,8 +10,12 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.team_creation;
+import views.html.team_page;
+import views.html.team_update;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TeamController extends Controller {
 
@@ -28,8 +32,24 @@ public class TeamController extends Controller {
 		this.form = formFactory.form(TeamData.class);
 	}
 
+	public Result index() {
+		List<TeamData> data = new ArrayList<>();
+		for (Team t: teamRepository.getAll()) {
+			TeamData td = new TeamData(t);
+			List<String> members = new ArrayList<>();
+			members.add("user1");
+			td.setMembers(members);
+			data.add(td);
+		}
+		return ok(team_page.render(data, null));
+	}
+
 	public Result createView() {
-		return ok(team_creation.render(form, screenRepository.getAll()));
+		return ok(team_creation.render(form, null));
+	}
+
+	public Result updateView() {
+		return ok(team_update.render(form, new TeamData(teamRepository.getByName("test")), null));
 	}
 
 	public Result create(Http.Request request) {

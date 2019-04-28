@@ -5,11 +5,17 @@
 # An example controller showing a sample home page
 GET     /                               controllers.HomeController.index
 
+
+# Fluxes
 GET     /fluxes                         controllers.FluxController.index()
 
 GET     /fluxes/new                     controllers.FluxController.createView()
 
 POST    /fluxes/new                     controllers.FluxController.create(request: Request)
+
+
+# Screens
+GET     /screens                        controllers.ScreenController.index()
 
 GET     /screens/auth                   controllers.ScreenController.authentification(request: Request)
 
@@ -17,10 +23,14 @@ GET     /screens/register               controllers.ScreenController.registerVie
 
 POST    /screens/register               controllers.ScreenController.register(request: Request)
 
+
+# Events
 GET     /events                         controllers.EventSourceController.index
 
 GET     /eventsource                    controllers.EventSourceController.events
 
+
+# Users
 GET     /users/register                 controllers.UserController.registerView()
 
 GET     /users/login                    controllers.UserController.loginView()
@@ -29,10 +39,20 @@ POST    /users/login                    controllers.UserController.login(request
 
 POST    /users/register                 controllers.UserController.register(request: Request)
 
+
+# Teams
+GET     /teams                          controllers.TeamController.index()
+
 GET     /teams/new                      controllers.TeamController.createView()
 
 POST    /teams/new                      controllers.TeamController.create(request: Request)
 
+GET     /teams/update                   controllers.TeamController.updateView()
+
+POST    /teams/update                   controllers.TeamController.update(request: Request)
+
+
+# Schedules
 POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
 
 GET    /schedules/activate/:name        controllers.ScheduleController.activate(name: String)

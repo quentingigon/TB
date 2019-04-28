@@ -1,0 +1,88 @@
+@import models.db.Screen
+@import models.entities.ScreenData
+
+@import java.util
+@(screens: util.List[ScreenData], error: String)
+
+
+@main("Screens Main Page") {
+
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    </head>
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">MAC</th>
+                    <th scope="col">Actif</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(screens != null) {
+                    @for(screen <- screens) {
+                        <tr>
+                            <td>@screen.getName()</td>
+                            <td>@screen.getMac()</td>
+                            <td>@screen.isActive()</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <a type="button" class="btn btn-primary" role="button" href="@routes.ScreenController.register()">Register new Screen</a>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actif</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if(screens != null) {
+                @for(screen <- screens) {
+                    <tr>
+                        <td>@screen.getName()</td>
+                        <td>@screen.isActive()</td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+}
