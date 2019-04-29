@@ -16,8 +16,8 @@ public class Screen {
 	@Column(name="mac")
 	private String macAddress;
 
-	@ManyToOne
-	private Site site;
+	@Column(name="site_id")
+	private Integer siteId;
 
 	private String resolution;
 
@@ -43,12 +43,12 @@ public class Screen {
 		this.macAddress = macAddress;
 	}
 
-	public Site getSite() {
-		return site;
+	public Integer getSiteId() {
+		return siteId;
 	}
 
-	public void setSite(Site site) {
-		this.site = site;
+	public void setSiteId(Integer site_id) {
+		this.siteId = site_id;
 	}
 
 	public boolean isLogged() {

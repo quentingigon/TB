@@ -11,10 +11,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.eventsource;
-import views.html.screen_code;
-import views.html.screen_page;
-import views.html.screen_register;
+import views.html.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -40,15 +37,16 @@ public class ScreenController extends Controller {
 	}
 
 	public Result index() {
-		List<ScreenData> data = new ArrayList<>();
-		for (Screen s: screenRepository.getAll()) {
-			data.add(new ScreenData(s));
-		}
-		return (ok(screen_page.render(data, null)));
+
+		return (ok(screen_page.render(getScreens(), null)));
 	}
 
 	public Result registerView() {
 		return ok(screen_register.render(form, null));
+	}
+
+	public Result updateView(String mac) {
+		return ok(screen_update.render(form, new ScreenData(screenRepository.getByMacAddress(mac)), null));
 	}
 
 	public Result authentification(Http.Request request) {
@@ -106,11 +104,11 @@ public class ScreenController extends Controller {
 			// if code is correct
 			if (waitingScreenRepository.getByMac(macAdr).getCode().equals(code)) {
 
-				newScreen.setSite(siteRepository.getByName(boundForm.get().getSite()));
+				newScreen.setSiteId(siteRepository.getByName(boundForm.get().getSite()).getId());
 
 				screenRepository.add(newScreen);
 
-				return redirect(routes.HomeController.index());
+				return index();
 			}
 			else {
 				// wrong code
@@ -119,20 +117,41 @@ public class ScreenController extends Controller {
 		}
 	}
 
-	public Result updateScreen(Http.Request request) {
+	public Result update(Http.Request request) {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 
-		Screen screen = screenRepository.getByMacAddress(boundForm.get().getMac());
+		ScreenData data = boundForm.get();
+
+		Screen screen = screenRepository.getByMacAddress(data.getMac());
 
 		if (screen == null) {
 			// screen is not known
-			// TODO: return error (with error handling)
-			return registerView();
+			return badRequest(screen_update.render(form, null, "MAC address already exists"));
 		}
 		else {
-			// TODO modify screen here
-			return redirect(routes.HomeController.index());
+			// update screen
+			screen.setName(data.getName());
+			screen.setMacAddress(data.getMac());
+			screen.setResolution(data.getResolution());
+			screen.setSiteId(siteRepository.getByName(data.getSite()).getId());
+
+			screenRepository.update(screen);
+			return index();
+		}
+	}
+
+	public Result delete(String mac) {
+
+		Screen screen = screenRepository.getByMacAddress(mac);
+
+		if (screen == null) {
+			// screen is not known
+			return badRequest(screen_page.render(getScreens(), "MAC address does not exists"));
+		}
+		else {
+			screenRepository.delete(screen);
+			return index();
 		}
 	}
 
@@ -140,5 +159,13 @@ public class ScreenController extends Controller {
 		UUID uniqueKey = UUID.randomUUID();
 
 		return uniqueKey.toString().substring(0, 5);
+	}
+
+	private List<ScreenData> getScreens() {
+		List<ScreenData> data = new ArrayList<>();
+		for (Screen s: screenRepository.getAll()) {
+			data.add(new ScreenData(s));
+		}
+		return data;
 	}
 }

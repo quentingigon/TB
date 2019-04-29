@@ -6,10 +6,6 @@
 
 @main("Fluxes Main Page") {
 
-    <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    </head>
-
     <style>
             .alert {
                 padding: 20px;
@@ -30,6 +26,22 @@
 
             .closebtn:hover {
                 color: black;
+            }
+
+            tr:hover .button {
+                opacity: 1;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px;
+            }
+
+            .button {
+                opacity: 0;
             }
     </style>
 
@@ -52,12 +64,6 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Test</td>
-                    <td>Test</td>
-                    <td>Test</td>
-                    <td>Test</td>
-                </tr>
                 @if(fluxes != null) {
                     @for(flux <- fluxes) {
                         <tr>
@@ -65,10 +71,22 @@
                             <td>@flux.getUrl()</td>
                             <td>@flux.getDuration()</td>
                             <td>@flux.getType()</td>
+
+                            <td>
+                                <div class="button">
+                                    <a href="@routes.FluxController.updateView(flux.getName)">Update Flux</a>
+                                </div>
+                                <form method="post" action="@routes.FluxController.delete(flux.getName)">
+                                    @helper.CSRF.formField
+                                <button type="submit" class="btn btn-danger">Delete Flux</button>
+                                </form>
+                            </td>
                         </tr>
                     }
                 }
             </tbody>
         </table>
+
+        <a type="button" class="btn btn-primary" role="button" href="@routes.FluxController.create()">Create new Flux</a>
     </div>
 }

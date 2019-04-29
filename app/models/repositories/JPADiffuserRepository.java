@@ -34,7 +34,7 @@ public class JPADiffuserRepository implements DiffuserRepository {
 	@Override
 	public void delete(Diffuser diffuser) {
 		jpaApi.withTransaction(entityManager -> {
-			entityManager.remove(diffuser);
+			entityManager.remove(entityManager.contains(diffuser) ? diffuser : entityManager.merge(diffuser));
 		});
 	}
 

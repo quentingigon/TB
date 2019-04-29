@@ -1,6 +1,6 @@
 package models.db;
 
-import models.FluxTypes;
+import models.entities.FluxData;
 
 import javax.persistence.*;
 
@@ -22,7 +22,7 @@ public class Flux {
 	@Column(name="url")
 	private String url;
 
-	private FluxTypes type;
+	private String type;
 
 	public Flux(String name, String url) {
 		this.name = name;
@@ -36,6 +36,13 @@ public class Flux {
 	}
 
 	public Flux() {
+	}
+
+	public Flux(FluxData fluxData) {
+		name = fluxData.getName();
+		duration = Long.valueOf(fluxData.getDuration());
+		url = fluxData.getUrl();
+		type = fluxData.getType();
 	}
 
 	public Integer getId() {
@@ -66,11 +73,11 @@ public class Flux {
 		this.duration = duration;
 	}
 
-	public FluxTypes getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(FluxTypes type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 }

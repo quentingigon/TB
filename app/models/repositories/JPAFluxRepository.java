@@ -6,6 +6,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 public class JPAFluxRepository implements FluxRepository {
 
@@ -53,6 +54,20 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Flux> getAll() {
+		return jpaApi.withTransaction(entityManager -> {
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM fluxes", Flux.class);
+			try {
+				return (List<Flux>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public void update(Flux flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(flux);
@@ -62,7 +77,7 @@ public class JPAFluxRepository implements FluxRepository {
 	@Override
 	public void delete(Flux flux) {
 		jpaApi.withTransaction(entityManager -> {
-			entityManager.remove(flux);
+			entityManager.remove(entityManager.contains(flux) ? flux : entityManager.merge(flux));
 		});
 	}
 }

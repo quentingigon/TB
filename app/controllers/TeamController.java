@@ -66,7 +66,7 @@ public class TeamController extends Controller {
 
 			teamRepository.add(newTeam);
 
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 
@@ -84,11 +84,11 @@ public class TeamController extends Controller {
 			// TODO update with values from form
 			teamRepository.update(team);
 
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 
-	public Result delete(Http.Request request, String name) {
+	public Result delete(String name) {
 		Team team = teamRepository.getByName(name);
 
 		if (team == null) {
@@ -97,7 +97,7 @@ public class TeamController extends Controller {
 		}
 		else {
 			teamRepository.delete(team);
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 }

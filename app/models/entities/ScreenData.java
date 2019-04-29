@@ -18,7 +18,7 @@ public class ScreenData {
 	public ScreenData(Screen s) {
 		this.name = s.getName();
 		this.mac = s.getMacAddress();
-		this.site = s.getSite().getName();
+		this.site = String.valueOf(s.getSiteId());
 		this.resolution = s.getResolution();
 	}
 

@@ -35,7 +35,7 @@ public class JPAScheduleRepository implements ScheduleRepository {
 	@Override
 	public void delete(Schedule schedule) {
 		jpaApi.withTransaction(entityManager -> {
-			entityManager.remove(schedule);
+			entityManager.remove(entityManager.contains(schedule) ? schedule : entityManager.merge(schedule));
 		});
 	}
 

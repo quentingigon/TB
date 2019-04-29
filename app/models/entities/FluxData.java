@@ -1,5 +1,7 @@
 package models.entities;
 
+import models.db.Flux;
+
 public class FluxData {
 
 	private String name;
@@ -20,6 +22,13 @@ public class FluxData {
 		this.url = url;
 		this.duration = duration;
 		this.type = type;
+	}
+
+	public FluxData(Flux flux) {
+		this.name = flux.getName();
+		this.duration = String.valueOf(flux.getDuration());
+		this.url = flux.getUrl();
+		this.type = flux.getType();
 	}
 
 	public String getName() {

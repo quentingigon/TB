@@ -1,6 +1,8 @@
 package controllers;
 
+import models.FluxTypes;
 import models.db.Flux;
+import models.db.Team;
 import models.entities.FluxData;
 import models.repositories.FluxRepository;
 import play.data.Form;
@@ -10,6 +12,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import views.html.flux_creation;
 import views.html.flux_page;
+import views.html.flux_update;
+import views.html.team_page;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -28,48 +32,34 @@ public class FluxController extends Controller {
 	}
 
 	public Result index() {
-		/*
-		List<String> row1 = Arrays.asList("f1", "heig-vd.ch", "10000", "url");
-		List<String> row2 = Arrays.asList("f2", "heig-vd.ch", "8000", "url");
-
-		List<List<String>> data = new ArrayList<>();
-		data.add(row1);
-		data.add(row2);*/
-
-		List<FluxData> data2 = new ArrayList<>();
-		data2.add(new FluxData("f1", "heig-vd.ch", "10000", "url"));
-		data2.add(new FluxData("f2", "heig-vd.ch", "8000", "url"));
-
-		/*
-		var strings = Stream.of(new String[][] {
-			{"f1", "https://heig-vd.ch", "10000", "url"},
-			{"f2", "https://heig-vd.ch", "8000", "url"}
-		})
-			.map(Arrays::asList)
-			.collect(Collectors.toList());
-*/
-		return ok(flux_page.render(data2, null));
+		return ok(flux_page.render(getAllFluxes(), null));
 	}
 
 	public Result createView() {
 		return ok(flux_creation.render(form, null));
 	}
 
+	public Result updateView(String name) {
+		return ok(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), null));
+	}
+
 	public Result create(Http.Request request) {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
 
-		Flux newFlux = new Flux(boundForm.get().getName(), boundForm.get().getUrl());
+		FluxData data = boundForm.get();
+
+		Flux newFlux = new Flux(data);
 
 		// flux already exists
-		if (fluxRepository.getByName(boundForm.get().getName()) != null) {
+		if (fluxRepository.getByName(data.getName()) != null) {
 			// with error message
 			return badRequest(flux_creation.render(form, "Flux already exists"));
 		}
 		else {
 
 			fluxRepository.add(newFlux);
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 
@@ -77,17 +67,43 @@ public class FluxController extends Controller {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
 
-		Flux flux = fluxRepository.getByName(boundForm.get().getName());
+		FluxData data = boundForm.get();
+
+		Flux flux = fluxRepository.getByName(data.getName());
 
 		// flux does not exist
-		if (fluxRepository.getByName(boundForm.get().getName()) == null) {
-			// TODO error + correct redirect
-			return status(440, "Flux name does not exist");
+		if (flux == null) {
+			return badRequest(flux_creation.render(form, "Flux name does not exists"));
+		}
+		// update flux
+		else {
+			flux.setDuration(Long.valueOf(data.getDuration()));
+			flux.setUrl(data.getUrl());
+			flux.setType(data.getType());
+			fluxRepository.update(flux);
+
+			return index();
+		}
+	}
+
+	public Result delete(String name) {
+		Flux flux = fluxRepository.getByName(name);
+
+		if (flux == null) {
+			// team does not exists
+			return badRequest(flux_page.render(null, "Flux name does not exists"));
 		}
 		else {
-
-			fluxRepository.update(flux);
-			return redirect(routes.HomeController.index());
+			fluxRepository.delete(flux);
+			return index();
 		}
+	}
+
+	private List<FluxData> getAllFluxes() {
+		List<FluxData> data = new ArrayList<>();
+		for (Flux f: fluxRepository.getAll()) {
+			data.add(new FluxData(f));
+		}
+		return data;
 	}
 }

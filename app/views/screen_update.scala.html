@@ -1,0 +1,69 @@
+@import models.db.Screen
+@import models.entities.ScreenData
+
+@(form: Form[ScreenData], data: ScreenData, error: String)
+
+
+@main("Screen Update Page") {
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        @helper.form(routes.ScreenController.update()) {
+            @helper.CSRF.formField
+            <div class="form-group">
+                <label for="inputName">Name</label>
+                <input name="name" type="text" class="form-control" id="inputName" value="@data.getName">
+            </div>
+            <div class="form-group">
+                <label for="inputMac">MAC</label>
+                <input name="mac" type="text" class="form-control" id="inputMac" value="@data.getMac">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="inputResolution">Resolution</label>
+                <select name="resolution" id="inputResolution" class="form-control">
+                    <option>1080p</option>
+                    <option>720p</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="inputSite">Site</label>
+                <select name="site" id="inputSite" class="form-control">
+                    <option>Cheseaux</option>
+                    <option>St-Roch</option>
+                    <option>Y-Park</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        }
+    </div>
+}

@@ -13,6 +13,12 @@ GET     /fluxes/new                     controllers.FluxController.createView()
 
 POST    /fluxes/new                     controllers.FluxController.create(request: Request)
 
+GET     /fluxes/update/:name            controllers.FluxController.updateView(name: String)
+
+POST    /fluxes/update                  controllers.FluxController.update(request: Request)
+
+POST    /fluxes/delete/:name            controllers.FluxController.delete(name: String)
+
 
 # Screens
 GET     /screens                        controllers.ScreenController.index()
@@ -22,6 +28,12 @@ GET     /screens/auth                   controllers.ScreenController.authentific
 GET     /screens/register               controllers.ScreenController.registerView
 
 POST    /screens/register               controllers.ScreenController.register(request: Request)
+
+GET     /screens/update/:name           controllers.ScreenController.updateView(name: String)
+
+POST    /screens/update                 controllers.ScreenController.update(request: Request)
+
+POST    /screens/delete/:mac            controllers.ScreenController.delete(mac: String)
 
 
 # Events
@@ -51,7 +63,7 @@ GET     /teams/update/:name             controllers.TeamController.updateView(na
 
 POST    /teams/update                   controllers.TeamController.update(request: Request)
 
-POST    /teams/delete/:name             controllers.TeamController.delete(request: Request, name: String)
+POST    /teams/delete/:name             controllers.TeamController.delete(name: String)
 
 
 # Schedules

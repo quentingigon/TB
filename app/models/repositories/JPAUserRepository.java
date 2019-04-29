@@ -46,7 +46,7 @@ public class JPAUserRepository implements UserRepository{
 	@Override
 	public void delete(User user) {
 		jpaApi.withTransaction(entityManager -> {
-			entityManager.remove(user);
+			entityManager.remove(entityManager.contains(user) ? user : entityManager.merge(user));
 		});
 	}
 
