@@ -46,9 +46,9 @@
             @helper.CSRF.formField
             <div class="form-group">
                 <label for="inputName">Name</label>
-                <input name="name" type="text" class="form-control" id="inputName" placeholder="@data.getName">
+                <input name="name" type="text" readonly class="form-control-plaintext" id="inputName" value="@data.getName">
             </div>
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="submit" class="btn btn-primary">Update</button>
         </form>
 
     </div>

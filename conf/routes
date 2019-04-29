@@ -47,9 +47,11 @@ GET     /teams/new                      controllers.TeamController.createView()
 
 POST    /teams/new                      controllers.TeamController.create(request: Request)
 
-GET     /teams/update                   controllers.TeamController.updateView()
+GET     /teams/update/:name             controllers.TeamController.updateView(name: String)
 
 POST    /teams/update                   controllers.TeamController.update(request: Request)
+
+POST    /teams/delete/:name             controllers.TeamController.delete(request: Request, name: String)
 
 
 # Schedules

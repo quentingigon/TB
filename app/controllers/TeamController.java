@@ -9,6 +9,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import views.html.flux_creation;
 import views.html.team_creation;
 import views.html.team_page;
 import views.html.team_update;
@@ -48,8 +49,8 @@ public class TeamController extends Controller {
 		return ok(team_creation.render(form, null));
 	}
 
-	public Result updateView() {
-		return ok(team_update.render(form, new TeamData(teamRepository.getByName("test")), null));
+	public Result updateView(String teamName) {
+		return ok(team_update.render(form, new TeamData(teamRepository.getByName(teamName)), null));
 	}
 
 	public Result create(Http.Request request) {
@@ -58,8 +59,7 @@ public class TeamController extends Controller {
 
 		if (teamRepository.getByName(boundForm.get().getName()) != null) {
 			// team already exists
-			// TODO error
-			return createView();
+			return badRequest(team_creation.render(form, "Team name already exists"));
 		}
 		else {
 			Team newTeam = new Team(boundForm.get().getName());
@@ -78,8 +78,7 @@ public class TeamController extends Controller {
 
 		if (team == null) {
 			// team does not exists
-			// TODO error
-			return redirect(routes.HomeController.index());
+			return badRequest(team_update.render(form, new TeamData(boundForm.get().getName()), "Team name does not exists"));
 		}
 		else {
 			// TODO update with values from form
@@ -87,6 +86,18 @@ public class TeamController extends Controller {
 
 			return redirect(routes.HomeController.index());
 		}
+	}
 
+	public Result delete(Http.Request request, String name) {
+		Team team = teamRepository.getByName(name);
+
+		if (team == null) {
+			// team does not exists
+			return badRequest(team_page.render(null, "Team name does not exists"));
+		}
+		else {
+			teamRepository.delete(team);
+			return redirect(routes.HomeController.index());
+		}
 	}
 }
