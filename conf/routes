@@ -67,13 +67,19 @@ POST    /teams/delete/:name             controllers.TeamController.delete(name: 
 
 
 # Schedules
-POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
+GET     /schedules                      controllers.ScheduleController.index()
 
-GET    /schedules/activate/:name        controllers.ScheduleController.activate(name: String)
+GET     /schedules/activate/:name        controllers.ScheduleController.activate(name: String)
 
 GET     /schedules/new                  controllers.ScheduleController.createView()
 
 POST    /schedules/new                  controllers.ScheduleController.create(request: Request)
+
+GET     /schedules/update/:name         controllers.ScheduleController.updateView(name: String)
+
+POST    /schedules/update                  controllers.ScheduleController.update(request: Request)
+
+POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)

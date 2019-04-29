@@ -1,5 +1,7 @@
 package models.db;
 
+import models.entities.TeamData;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,10 @@ public class Team {
 
 	@Column(name="name")
 	private String name;
+
+	@OneToMany
+	@Column(name="teams_screens")
+	private List<Screen> screens;
 
 	@OneToMany
 	@Column(name="screengroups")
@@ -42,6 +48,19 @@ public class Team {
 		this.diffusers = new ArrayList<>();
 		this.schedules = new ArrayList<>();
 		this.screenGroups = new ArrayList<>();
+	}
+
+	public Team(TeamData data) {
+		name = data.getName();
+
+
+	}
+
+	private void fillFluxes(List<String> fluxesNames) {
+		fluxes = new ArrayList<>();
+		for (String name: fluxesNames) {
+
+		}
 	}
 
 	public Integer getId() {
@@ -102,5 +121,19 @@ public class Team {
 
 	public void addToFluxes(Flux flux) {
 		this.fluxes.add(flux);
+	}
+
+	public List<Screen> getScreens() {
+		return screens;
+	}
+
+	public void setScreens(List<Screen> screens) {
+		this.screens = screens;
+	}
+
+	public void addScreen(Screen s) {
+		if (screens == null)
+			screens = new ArrayList<>();
+		screens.add(s);
 	}
 }

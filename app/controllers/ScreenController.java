@@ -38,7 +38,7 @@ public class ScreenController extends Controller {
 
 	public Result index() {
 
-		return (ok(screen_page.render(getScreens(), null)));
+		return (ok(screen_page.render(getAllScreens(), null)));
 	}
 
 	public Result registerView() {
@@ -147,7 +147,7 @@ public class ScreenController extends Controller {
 
 		if (screen == null) {
 			// screen is not known
-			return badRequest(screen_page.render(getScreens(), "MAC address does not exists"));
+			return badRequest(screen_page.render(getAllScreens(), "MAC address does not exists"));
 		}
 		else {
 			screenRepository.delete(screen);
@@ -161,7 +161,7 @@ public class ScreenController extends Controller {
 		return uniqueKey.toString().substring(0, 5);
 	}
 
-	private List<ScreenData> getScreens() {
+	private List<ScreenData> getAllScreens() {
 		List<ScreenData> data = new ArrayList<>();
 		for (Screen s: screenRepository.getAll()) {
 			data.add(new ScreenData(s));

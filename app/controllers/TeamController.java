@@ -1,6 +1,8 @@
 package controllers;
 
+import models.db.Screen;
 import models.db.Team;
+import models.entities.ScreenData;
 import models.entities.TeamData;
 import models.repositories.ScreenRepository;
 import models.repositories.TeamRepository;
@@ -9,7 +11,6 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.flux_creation;
 import views.html.team_creation;
 import views.html.team_page;
 import views.html.team_update;
@@ -46,7 +47,7 @@ public class TeamController extends Controller {
 	}
 
 	public Result createView() {
-		return ok(team_creation.render(form, null));
+		return ok(team_creation.render(form, getAllScreens(), null));
 	}
 
 	public Result updateView(String teamName) {
@@ -57,12 +58,18 @@ public class TeamController extends Controller {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<TeamData> boundForm = form.bindFromRequest(request);
 
-		if (teamRepository.getByName(boundForm.get().getName()) != null) {
+		TeamData data = boundForm.get();
+
+		if (teamRepository.getByName(data.getName()) != null) {
 			// team already exists
-			return badRequest(team_creation.render(form, "Team name already exists"));
+			return badRequest(team_creation.render(form, getAllScreens(), "Team name already exists"));
 		}
 		else {
-			Team newTeam = new Team(boundForm.get().getName());
+			Team newTeam = new Team(data.getName());
+
+			for (String mac: data.getScreens()) {
+				newTeam.addScreen(screenRepository.getByMacAddress(mac));
+			}
 
 			teamRepository.add(newTeam);
 
@@ -99,5 +106,13 @@ public class TeamController extends Controller {
 			teamRepository.delete(team);
 			return index();
 		}
+	}
+
+	private List<ScreenData> getAllScreens() {
+		List<ScreenData> data = new ArrayList<>();
+		for (Screen s: screenRepository.getAll()) {
+			data.add(new ScreenData(s));
+		}
+		return data;
 	}
 }

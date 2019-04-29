@@ -1,0 +1,88 @@
+@import models.db.Screen
+@import models.entities.FluxData
+
+@import models.entities.ScheduleData
+@import java.util
+@(schedules: util.List[ScheduleData], error: String)
+
+
+@main("Schedules Main Page") {
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+
+            tr:hover .button {
+                opacity: 1;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px;
+            }
+
+            .button {
+                opacity: 0;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if(schedules != null) {
+                @for(schedule <- schedules) {
+                    <tr>
+                        <td>@schedule.getName()</td>
+
+                        <td>
+                            <div class="button">
+                                <a href="@routes.ScheduleController.updateView(schedule.getName)">Update Schedule</a>
+                            </div>
+                            <form method="post" action="@routes.ScheduleController.delete(schedule.getName)">
+                                @helper.CSRF.formField
+                            <button type="submit" class="btn btn-danger">Delete Schedule</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+
+        <a type="button" class="btn btn-primary" role="button" href="@routes.ScheduleController.create()">Create new Schedule</a>
+    </div>
+}

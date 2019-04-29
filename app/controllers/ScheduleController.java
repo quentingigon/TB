@@ -4,7 +4,9 @@ import models.db.Flux;
 import models.db.RunningSchedule;
 import models.db.Schedule;
 import models.db.Screen;
+import models.entities.FluxData;
 import models.entities.ScheduleData;
+import models.repositories.FluxRepository;
 import models.repositories.ScheduleRepository;
 import models.repositories.ScreenRepository;
 import play.data.Form;
@@ -16,6 +18,8 @@ import services.FluxManager;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
 import views.html.schedule_creation;
+import views.html.schedule_page;
+import views.html.schedule_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -29,6 +33,9 @@ public class ScheduleController extends Controller {
 	@Inject
 	ScreenRepository screenRepository;
 
+	@Inject
+	FluxRepository fluxRepository;
+
 	private Form<ScheduleData> form;
 
 	@Inject
@@ -36,8 +43,17 @@ public class ScheduleController extends Controller {
 		this.form = formFactory.form(ScheduleData.class);
 	}
 
+	public Result index() {
+		return ok(schedule_page.render(getAllSchedules(), null));
+	}
+
+	public Result updateView(String name) {
+		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
+			getAllFluxes(), getAllFluxes(), null));
+	}
+
 	public Result createView() {
-		return ok(schedule_creation.render(form, null));
+		return ok(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), null));
 	}
 
 	// TODO maybe do it with entities (Data)
@@ -94,17 +110,18 @@ public class ScheduleController extends Controller {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
+		ScheduleData data = boundForm.get();
+
 		// schedule already exists
-		if (scheduleRepository.getByName(boundForm.get().getName()) != null) {
-			// TODO error
-			return status(440, "Flux already exists");
+		if (scheduleRepository.getByName(data.getName()) != null) {
+			return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "MAC address does not exists"));
 		}
 		else {
-			Schedule schedule = new Schedule(boundForm.get().getName());
+			Schedule schedule = new Schedule(data.getName());
 
 			scheduleRepository.add(schedule);
 
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 
@@ -117,14 +134,14 @@ public class ScheduleController extends Controller {
 		// name is incorrect
 		if (schedule == null) {
 			// TODO error + correct redirect
-			return redirect(routes.HomeController.index());
+			return badRequest(schedule_update.render(form, new ScheduleData(boundForm.get().getName()), getAllFluxes(), getAllFluxes(), "MAC address does not exists"));
 		}
 		else {
 			// do changes to schedule here
 
 			scheduleRepository.update(schedule);
 
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 
@@ -135,12 +152,28 @@ public class ScheduleController extends Controller {
 		// name is incorrect
 		if (schedule == null) {
 			// TODO error + correct redirect
-			return redirect(routes.HomeController.index());
+			return badRequest(schedule_page.render(getAllSchedules(), "Name in incorrect"));
 		}
 		else {
 			scheduleRepository.delete(schedule);
 
-			return redirect(routes.HomeController.index());
+			return index();
 		}
+	}
+
+	private List<FluxData> getAllFluxes() {
+		List<FluxData> data = new ArrayList<>();
+		for (Flux f: fluxRepository.getAll()) {
+			data.add(new FluxData(f));
+		}
+		return data;
+	}
+
+	private List<ScheduleData> getAllSchedules() {
+		List<ScheduleData> data = new ArrayList<>();
+		for (Schedule s: scheduleRepository.getAll()) {
+			data.add(new ScheduleData(s));
+		}
+		return data;
 	}
 }

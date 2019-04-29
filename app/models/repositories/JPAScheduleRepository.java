@@ -7,6 +7,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 public class JPAScheduleRepository implements ScheduleRepository {
 
@@ -47,6 +48,21 @@ public class JPAScheduleRepository implements ScheduleRepository {
 				"SELECT * FROM schedules WHERE name = " + scheduleName, Schedule.class);
 			try {
 				return (Schedule) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Schedule> getAll() {
+		return jpaApi.withTransaction(entityManager -> {
+
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM schedules", Schedule.class);
+			try {
+				return (List<Schedule>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

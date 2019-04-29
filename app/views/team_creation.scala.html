@@ -1,7 +1,9 @@
 @import models.entities.TeamData
 @import models.db.Screen
 
-@(form: Form[TeamData], error: String)
+@import java.util
+@import models.entities.ScreenData
+@(form: Form[TeamData], screens: util.List[ScreenData], error: String)
 
 
 @main("Team Creation Page") {
@@ -40,10 +42,21 @@
 
         <form action="@routes.TeamController.create()" method="POST">
             @helper.CSRF.formField
+
             <div class="form-group">
                 <label for="inputName">Name</label>
-                <input name="name" type="text" class="form-control" id="inputName" placeholder="Flux name...">
+                <input name="name" type="text" class="form-control" id="inputName" placeholder="Team name...">
             </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputScreens">Screens</label>
+                <select name="screens[]" id="inputScreens" class="form-control" multiple="multiple" >
+                    @for(screen <- screens) {
+                        <option>@screen.getMac</option>
+                    }
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
 
