@@ -45,6 +45,14 @@
             .button {
                 opacity: 0;
             }
+
+            .btn-group {
+                opacity: 0;
+            }
+
+            tr:hover .btn-group {
+                opacity: 1;
+            }
     </style>
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
@@ -69,13 +77,18 @@
                         <td>@schedule.getName()</td>
 
                         <td>
-                            <div class="button">
-                                <a href="@routes.ScheduleController.updateView(schedule.getName)">Update Schedule</a>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-secondary" href="@routes.ScheduleController.updateView(schedule.getName)" >Update Schedule</button>
+                                <form method="get" action="@routes.ScheduleController.activate(schedule.getName)">
+                                    @helper.CSRF.formField
+                                    <button type="submit" class="btn btn-secondary">Activate Schedule</button>
+                                </form>
+                                <form method="post" action="@routes.ScheduleController.delete(schedule.getName)">
+                                    @helper.CSRF.formField
+                                <button type="submit" class="btn btn-danger">Delete Schedule</button>
+                                </form>
                             </div>
-                            <form method="post" action="@routes.ScheduleController.delete(schedule.getName)">
-                                @helper.CSRF.formField
-                            <button type="submit" class="btn btn-danger">Delete Schedule</button>
-                            </form>
+
                         </td>
                     </tr>
                 }

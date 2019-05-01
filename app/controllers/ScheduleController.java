@@ -74,35 +74,25 @@ public class ScheduleController extends Controller {
 		}
 		else {
 
-			RunningSchedule rs1 = new RunningSchedule(scheduleToActivate);
-			RunningSchedule rs2 = new RunningSchedule(scheduleToActivate);
+			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
 
-			Flux flux1 = new Flux("flux1", 10000L, "https://heig-vd.ch/");
-			Flux flux2 = new Flux("flux2", 50000L, "https://hes-so.ch/");
 			List<Flux> fluxes = fluxRepository.getAll();
-			rs1.addToFluxs(flux1);
-			rs2.addToFluxs(flux2);
+			rs.setFluxes(fluxes);
 
-
-			Screen screen1 = new Screen("1234");
 			List<Screen> screens = screenRepository.getAll();
-			rs1.setScreens(screens);
-			rs2.addToScreens(screen1);
+			rs.setScreens(screens);
 
-			RunningScheduleService service1 = new RunningScheduleService(rs1);
-			RunningScheduleService service2 = new RunningScheduleService(rs2);
+			RunningScheduleService service1 = new RunningScheduleService(rs);
 			service1.addObserver(fluxManager);
-			service2.addObserver(fluxManager);
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
 			manager.addRunningSchedule(service1);
-			manager.addRunningSchedule(service2);
 
 			// TODO fix -> need to make a correct subclass (weak entity) from Schedule
 			// scheduleRepository.add(rs);
 
-			return redirect(routes.HomeController.index());
+			return index();
 		}
 	}
 
