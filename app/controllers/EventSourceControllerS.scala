@@ -1,27 +1,35 @@
 package controllers
 
-import akka.stream.scaladsl.{Source}
+import java.util.Observable
+
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
+import akka.stream.OverflowStrategy
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import javax.inject.Inject
+import controllers.EventActorManager.{Register, SendMessage, UnRegister}
+import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes
-import play.api.mvc._
+import play.api.mvc.{Action, _}
 import play.libs.EventSource
-import services.{EventObserver, FluxManager}
+import services.FluxManager
 
-class EventSourceControllerS @Inject()
-(cc: ControllerComponents)
-extends AbstractController(cc){
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 
-  var observer : EventObserver = EventObserver.getInstance()
+@Singleton
+class EventSourceControllerS @Inject() (system: ActorSystem,
+                                        cc: ControllerComponents)
+                                       (implicit executionContext: ExecutionContext)
+extends AbstractController(cc) {
 
-  @Inject
-  def EventSourceControllerS() {
-    val fluxManager = FluxManager.getInstance
-    fluxManager.addObserver(EventObserver.getInstance())
 
-    // TODO maybe optimize ?
-    val t = new Thread(fluxManager)
-    // t.start()
+  private[this] val manager = system.actorOf(EventActorManager.props)
+
+  def send(event: String) =  {
+    print("Send event to screens : " + event)
+    manager ! SendMessage(event)
+    Ok
   }
 
   def index = Action {
@@ -30,20 +38,44 @@ extends AbstractController(cc){
 
   def events = Action {
 
-    while (observer.getSource == null) {
+    val source  =
+      Source
+        .actorRef[String](32, OverflowStrategy.dropHead)
+        .watchTermination() { case (actorRef, terminate) =>
+          manager ! Register(actorRef)
+          terminate.onComplete(_ => manager ! UnRegister(actorRef))
+          actorRef
+        }
 
-    }
+    val eventSource = Source.fromGraph(source.map(EventSource.Event.event))
 
-    if (observer.getSource != null) {
-      val eventSource = Source.fromGraph(observer.getSource.map(EventSource.Event.event))
-      Ok.chunked[ByteString](eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
-    }
-    else {
-      Ok("Source is null").as(ContentTypes.EVENT_STREAM)
-    }
+    Ok.chunked(eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
 
-    //return ok().chunked(eventSource.via(EventSource.flow())).as(Http.MimeTypes.EVENT_STREAM);
+//    val eventSource = Source.fromGraph(observer.getSource.map(EventSource.Event.event))
+  //  Ok.chunked[ByteString](eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
 
+  }
+}
+
+class EventActor extends Actor {
+
+  private[this] val actors = mutable.Set.empty[ActorRef]
+
+  def receive = {
+    case Register(actorRef)   => actors += actorRef
+    case UnRegister(actorRef) => actors -= actorRef
+    case SendMessage(message) => actors.foreach(_ ! message)
   }
 
 }
+
+object EventActorManager {
+  def props: Props = Props[EventActor]
+
+  case class SendMessage(message: String)
+
+  case class Register(actorRef: ActorRef)
+  case class UnRegister(actorRef: ActorRef)
+}
+
+

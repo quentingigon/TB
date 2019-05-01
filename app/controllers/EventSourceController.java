@@ -33,16 +33,6 @@ public class EventSourceController extends Controller implements Observer {
 
     private boolean updated = false;
 
-    @Inject
-    EventSourceController() {
-
-        FluxManager fluxManager = FluxManager.getInstance();
-        fluxManager.addObserver(this);
-
-        // TODO maybe optimize ?
-        Thread t = new Thread(fluxManager);
-        // t.start();
-    }
 
     public Result index() {
         return ok(eventsource.render())

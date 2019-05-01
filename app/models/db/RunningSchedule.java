@@ -16,8 +16,8 @@ public class RunningSchedule extends Schedule {
 
 	public RunningSchedule(Schedule schedule) {
 		this.name = schedule.getName();
-		this.fluxes = schedule.getFluxes();
 		this.screens = new ArrayList<>();
+		this.fluxes = new ArrayList<>();
 	}
 
 	public List<Screen> getScreens() {
@@ -26,5 +26,11 @@ public class RunningSchedule extends Schedule {
 
 	public void setScreens(List<Screen> screens) {
 		this.screens = screens;
+	}
+
+	public void addToScreens(Screen s) {
+		if (screens == null)
+			screens = new ArrayList<>();
+		screens.add(s);
 	}
 }

@@ -6,6 +6,7 @@ import models.db.Schedule;
 import models.db.Screen;
 import models.entities.FluxData;
 import models.entities.ScheduleData;
+import models.entities.ScreenData;
 import models.repositories.FluxRepository;
 import models.repositories.ScheduleRepository;
 import models.repositories.ScreenRepository;
@@ -36,11 +37,16 @@ public class ScheduleController extends Controller {
 	@Inject
 	FluxRepository fluxRepository;
 
+	private final FluxManager fluxManager;
+
 	private Form<ScheduleData> form;
 
 	@Inject
-	public ScheduleController(FormFactory formFactory) {
+	public ScheduleController(FormFactory formFactory, FluxManager fluxManager) {
 		this.form = formFactory.form(ScheduleData.class);
+		this.fluxManager = fluxManager;
+		Thread t = new Thread(this.fluxManager);
+		t.start();
 	}
 
 	public Result index() {
@@ -52,8 +58,8 @@ public class ScheduleController extends Controller {
 			getAllFluxes(), getAllFluxes(), null));
 	}
 
-	public Result createView() {
-		return ok(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), null));
+	public Result createView(Http.Request request) {
+		return ok(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), null, request));
 	}
 
 	// TODO maybe do it with entities (Data)
@@ -71,28 +77,22 @@ public class ScheduleController extends Controller {
 			RunningSchedule rs1 = new RunningSchedule(scheduleToActivate);
 			RunningSchedule rs2 = new RunningSchedule(scheduleToActivate);
 
-			Flux flux1 = new Flux("flux1", 20000L, "https://heig-vd.ch/");
-			Flux flux2 = new Flux("flux2", 40000L, "https://hes-so.ch/");
-			List<Flux> fluxes1 = new ArrayList<>();
-			List<Flux> fluxes2 = new ArrayList<>();
-			fluxes1.add(flux1);
-			fluxes2.add(flux2);
-			rs1.setFluxes(fluxes1);
-			rs2.setFluxes(fluxes2);
+			Flux flux1 = new Flux("flux1", 10000L, "https://heig-vd.ch/");
+			Flux flux2 = new Flux("flux2", 50000L, "https://hes-so.ch/");
+			List<Flux> fluxes = fluxRepository.getAll();
+			rs1.addToFluxs(flux1);
+			rs2.addToFluxs(flux2);
+
 
 			Screen screen1 = new Screen("1234");
-			Screen screen2 = new Screen("test");
-			List<Screen> screens1 = new ArrayList<>();
-			List<Screen> screens2 = new ArrayList<>();
-			screens1.add(screen1);
-			screens2.add(screen2);
-			rs1.setScreens(screens1);
-			rs2.setScreens(screens2);
+			List<Screen> screens = screenRepository.getAll();
+			rs1.setScreens(screens);
+			rs2.addToScreens(screen1);
 
 			RunningScheduleService service1 = new RunningScheduleService(rs1);
 			RunningScheduleService service2 = new RunningScheduleService(rs2);
-			service1.addObserver(FluxManager.getInstance());
-			service2.addObserver(FluxManager.getInstance());
+			service1.addObserver(fluxManager);
+			service2.addObserver(fluxManager);
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
@@ -114,7 +114,7 @@ public class ScheduleController extends Controller {
 
 		// schedule already exists
 		if (scheduleRepository.getByName(data.getName()) != null) {
-			return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "MAC address does not exists"));
+			return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "MAC address does not exists", request));
 		}
 		else {
 			Schedule schedule = new Schedule(data.getName());
@@ -173,6 +173,14 @@ public class ScheduleController extends Controller {
 		List<ScheduleData> data = new ArrayList<>();
 		for (Schedule s: scheduleRepository.getAll()) {
 			data.add(new ScheduleData(s));
+		}
+		return data;
+	}
+
+	private List<ScreenData> getAllScreens() {
+		List<ScreenData> data = new ArrayList<>();
+		for (Screen s: screenRepository.getAll()) {
+			data.add(new ScreenData(s));
 		}
 		return data;
 	}

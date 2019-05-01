@@ -39,7 +39,7 @@ POST    /screens/delete/:mac            controllers.ScreenController.delete(mac:
 # Events
 GET     /events                         controllers.EventSourceController.index
 
-GET     /eventsource                    controllers.EventSourceController.events
+GET     /eventsource                    controllers.EventSourceControllerS.events
 
 
 # Users
@@ -69,15 +69,15 @@ POST    /teams/delete/:name             controllers.TeamController.delete(name: 
 # Schedules
 GET     /schedules                      controllers.ScheduleController.index()
 
-GET     /schedules/activate/:name        controllers.ScheduleController.activate(name: String)
+GET     /schedules/activate/:name       controllers.ScheduleController.activate(name: String)
 
-GET     /schedules/new                  controllers.ScheduleController.createView()
+GET     /schedules/new                  controllers.ScheduleController.createView(request: Request)
 
 POST    /schedules/new                  controllers.ScheduleController.create(request: Request)
 
 GET     /schedules/update/:name         controllers.ScheduleController.updateView(name: String)
 
-POST    /schedules/update                  controllers.ScheduleController.update(request: Request)
+POST    /schedules/update               controllers.ScheduleController.update(request: Request)
 
 POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
 

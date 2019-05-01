@@ -1,12 +1,19 @@
 package services;
 
 import akka.stream.javadsl.Source;
+import controllers.EventSourceControllerS;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 @Singleton
 public class FluxManager extends Observable implements Runnable, Observer {
+
+	private final EventSourceControllerS eventController;
 
 	private FluxEvent currentFlux;
 	private List<FluxEvent> fluxEvents;
@@ -14,16 +21,11 @@ public class FluxManager extends Observable implements Runnable, Observer {
 
 	private boolean running;
 
-	private static final FluxManager instance = new FluxManager();
-
-	private FluxManager() {
+	@Inject
+	private FluxManager(EventSourceControllerS eventController) {
+		this.eventController = eventController;
 		fluxEvents = new ArrayList<>();
 		running = false;
-	}
-
-
-	public FluxManager(List<FluxEvent> fluxEvents) {
-		this.fluxEvents = fluxEvents;
 	}
 
 	private void activate() {
@@ -33,10 +35,6 @@ public class FluxManager extends Observable implements Runnable, Observer {
 		running = false;
 	}
 
-	public static final FluxManager getInstance()
-	{
-		return instance;
-	}
 
 
 	@Override
@@ -62,10 +60,12 @@ public class FluxManager extends Observable implements Runnable, Observer {
 
 				// notify observer with url + macs
 				do {
-					setChanged();
+					// setChanged();
 					//source = Source.single(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+					System.out.println("Sending event : " + currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+					//notifyObservers(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
 
-					notifyObservers(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+					eventController.send(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
 
 					System.out.println("Source updated " + currentFlux.getFlux());
 
@@ -86,7 +86,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 			else {
 				System.out.println("No flux events");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
