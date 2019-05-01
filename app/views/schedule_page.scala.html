@@ -83,6 +83,10 @@
                                     @helper.CSRF.formField
                                     <button type="submit" class="btn btn-secondary">Activate Schedule</button>
                                 </form>
+                                <form method="get" action="@routes.ScheduleController.deactivate(schedule.getName)">
+                                    @helper.CSRF.formField
+                                <button type="submit" class="btn btn-secondary">Deactivate Schedule</button>
+                                </form>
                                 <form method="post" action="@routes.ScheduleController.delete(schedule.getName)">
                                     @helper.CSRF.formField
                                 <button type="submit" class="btn btn-danger">Delete Schedule</button>

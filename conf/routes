@@ -71,6 +71,8 @@ GET     /schedules                      controllers.ScheduleController.index()
 
 GET     /schedules/activate/:name       controllers.ScheduleController.activate(name: String)
 
+GET     /schedules/deactivate/:name     controllers.ScheduleController.deactivate(name: String)
+
 GET     /schedules/new                  controllers.ScheduleController.createView(request: Request)
 
 POST    /schedules/new                  controllers.ScheduleController.create(request: Request)

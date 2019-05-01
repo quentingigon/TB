@@ -96,6 +96,23 @@ public class ScheduleController extends Controller {
 		}
 	}
 
+	public Result deactivate(String name) {
+		Schedule scheduleToActivate = scheduleRepository.getByName(name);
+
+		// incorrect name
+		if (scheduleToActivate == null) {
+			// TODO error + redirect
+			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
+		}
+		else {
+			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
+
+			manager.removeRunningSchedule(name);
+
+			return index();
+		}
+	}
+
 	public Result create(Http.Request request) {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);

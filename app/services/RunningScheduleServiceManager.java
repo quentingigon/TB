@@ -1,6 +1,7 @@
 package services;
 
 import javax.inject.Singleton;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -8,15 +9,23 @@ import java.util.concurrent.Executors;
 public class RunningScheduleServiceManager {
 
 	private ExecutorService executorService;
+	private HashMap<String, RunningScheduleService> tasks;
 
 	private static final RunningScheduleServiceManager instance = new RunningScheduleServiceManager();
 
-	public RunningScheduleServiceManager() {
+	private RunningScheduleServiceManager() {
 		this.executorService = Executors.newFixedThreadPool(10);
+		this.tasks = new HashMap<>();
 	}
 
-	public void addRunningSchedule(Runnable r) {
-		this.executorService.execute(r);
+	public void addRunningSchedule(RunningScheduleService r) {
+		executorService.submit(r);
+		tasks.put(r.getSchedule().getName(), r);
+	}
+
+	public void removeRunningSchedule(String scheduleName) {
+		tasks.remove(scheduleName).setRunning(false);
+		// TODO maybe use garbage collector to remove it
 	}
 
 	public static final RunningScheduleServiceManager getInstance()
