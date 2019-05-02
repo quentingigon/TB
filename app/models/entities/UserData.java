@@ -1,5 +1,6 @@
 package models.entities;
 
+import models.db.User;
 import play.data.validation.Constraints;
 
 public class UserData {
@@ -13,6 +14,11 @@ public class UserData {
 	private String team;
 
 	public UserData() {
+	}
+
+	public UserData(User u) {
+		email = u.getEmail();
+		password = u.getPassword();
 	}
 
 	public String getEmail() {

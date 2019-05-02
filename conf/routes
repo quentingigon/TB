@@ -43,13 +43,21 @@ GET     /eventsource                    controllers.EventSourceControllerS.event
 
 
 # Users
+GET     /users                          controllers.UserController.index()
+
 GET     /users/register                 controllers.UserController.registerView()
+
+POST    /users/register                 controllers.UserController.register(request: Request)
 
 GET     /users/login                    controllers.UserController.loginView()
 
 POST    /users/login                    controllers.UserController.login(request: Request)
 
-POST    /users/register                 controllers.UserController.register(request: Request)
+GET     /users/update/:email            controllers.UserController.updateView(email: String)
+
+POST    /users/update                   controllers.UserController.update(request: Request)
+
+POST    /users/delete/:email            controllers.UserController.delete(email: String)
 
 
 # Teams

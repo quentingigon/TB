@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 @Singleton
 public class JPAUserRepository implements UserRepository{
@@ -65,6 +66,21 @@ public class JPAUserRepository implements UserRepository{
 				"SELECT * FROM users WHERE email = " + mail, User.class);
 			try {
 				return (User) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<User> getAll() {
+		return jpaApi.withTransaction(entityManager -> {
+
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM users", User.class);
+			try {
+				return (List<User>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

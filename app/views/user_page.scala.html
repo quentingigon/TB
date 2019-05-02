@@ -1,0 +1,95 @@
+@import java.util
+@import models.entities.UserData
+
+@(users: util.List[UserData], error: String)
+
+
+@main("Users Main Page") {
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+
+            tr:hover .button {
+                opacity: 1;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px;
+            }
+
+            .button {
+                opacity: 0;
+            }
+
+            .btn-group {
+                opacity: 0;
+            }
+
+            tr:hover .btn-group {
+                opacity: 1;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Email</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if(users != null) {
+                @for(user <- users) {
+                    <tr>
+                        <td>@user.getEmail()</td>
+
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-secondary" href="@routes.UserController.updateView(user.getEmail)" >Update User</button>
+                                <form method="post" action="@routes.UserController.delete(user.getEmail)">
+                                    @helper.CSRF.formField
+                                <button type="submit" class="btn btn-danger">Delete User</button>
+                                </form>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+
+        <a type="button" class="btn btn-primary" role="button" href="@routes.DiffuserController.create()">Create new Diffuser</a>
+    </div>
+}

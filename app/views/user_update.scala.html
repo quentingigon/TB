@@ -1,0 +1,62 @@
+@import models.db.Screen
+@import models.entities.ScreenData
+
+@import models.entities.UserData
+@(form: Form[UserData], data: UserData, error: String)
+
+
+@main("User Update Page") {
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        @helper.form(routes.UserController.update()) {
+            @helper.CSRF.formField
+            <div class="form-group">
+                <label for="inputEmail">Email</label>
+                <input name="email" type="email" class="form-control" id="inputEmail" value="@data.getEmail">
+            </div>
+            <div class="form-group">
+                <label for="inputPassword">Password</label>
+                <input name="password" type="password" class="form-control" id="inputPassword" value="@data.getPassword">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="inputTeam">Site</label>
+                <select name="team" id="inputTeam" class="form-control">
+                    <option>TeamA</option>
+                    <option>TeamB</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        }
+    </div>
+}

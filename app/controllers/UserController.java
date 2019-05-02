@@ -1,7 +1,9 @@
 package controllers;
 
+import models.db.Diffuser;
 import models.db.TeamMember;
 import models.db.User;
+import models.entities.DiffuserData;
 import models.entities.UserData;
 import models.repositories.TeamRepository;
 import models.repositories.UserRepository;
@@ -11,9 +13,13 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.user_login;
+import views.html.user_page;
 import views.html.user_register;
+import views.html.user_update;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserController extends Controller {
 
@@ -30,6 +36,13 @@ public class UserController extends Controller {
 		this.form = formFactory.form(UserData.class);
 	}
 
+	public Result index() {
+		return ok(user_page.render(getAllUsers(), null));
+	}
+	public Result updateView(String email) {
+		return ok(user_update.render(form, new UserData(userRepository.getByEmail(email)), null));
+	}
+
 	public Result registerView() {
 		return ok(user_register.render(form, null));
 	}
@@ -39,7 +52,6 @@ public class UserController extends Controller {
 	}
 
 	public Result register(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<UserData> boundForm = form.bindFromRequest(request);
 
 		User newUser = new User(boundForm.get().getEmail(),
@@ -90,5 +102,47 @@ public class UserController extends Controller {
 					.withHttpOnly(false)
 					.build());
 		}
+	}
+
+	public Result update(Http.Request request) {
+		final Form<UserData> boundForm = form.bindFromRequest(request);
+
+		User user = userRepository.getByEmail(boundForm.get().getEmail());
+
+		// email is incorrect
+		if (user == null) {
+			// TODO error + correct redirect
+			return badRequest();
+		}
+		else {
+			// do changes to diffuser here
+			userRepository.update(user);
+
+			return index();
+		}
+	}
+
+	public Result delete(String email) {
+
+		User user = userRepository.getByEmail(email);
+
+		// email is incorrect
+		if (user == null) {
+			// TODO error + correct redirect
+			return badRequest();
+		}
+		else {
+			userRepository.delete(user);
+
+			return index();
+		}
+	}
+
+	private List<UserData> getAllUsers() {
+		List<UserData> data = new ArrayList<>();
+		for (User u: userRepository.getAll()) {
+			data.add(new UserData(u));
+		}
+		return data;
 	}
 }

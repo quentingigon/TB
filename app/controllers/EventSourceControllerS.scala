@@ -1,18 +1,13 @@
 package controllers
 
-import java.util.Observable
-
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
-import akka.util.ByteString
 import controllers.EventActorManager.{Register, SendMessage, UnRegister}
 import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes
-import play.api.mvc.{Action, _}
+import play.api.mvc._
 import play.libs.EventSource
-import services.FluxManager
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -50,9 +45,6 @@ extends AbstractController(cc) {
     val eventSource = Source.fromGraph(source.map(EventSource.Event.event))
 
     Ok.chunked(eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
-
-//    val eventSource = Source.fromGraph(observer.getSource.map(EventSource.Event.event))
-  //  Ok.chunked[ByteString](eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
 
   }
 }

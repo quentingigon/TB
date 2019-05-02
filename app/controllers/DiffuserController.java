@@ -67,7 +67,7 @@ public class DiffuserController extends Controller {
 
 		// incorrect name
 		if (diffuser == null) {
-			return badRequest();
+			return badRequest(diffuser_page.render(getAllDiffusers(), "Diffuser name does not exist"));
 		}
 		else {
 
@@ -86,7 +86,7 @@ public class DiffuserController extends Controller {
 
 		// incorrect name
 		if (diffuser == null) {
-			return badRequest();
+			return badRequest(diffuser_page.render(getAllDiffusers(), "Diffuser name does not exist"));
 		}
 		else {
 
@@ -110,7 +110,7 @@ public class DiffuserController extends Controller {
 
 		// diffuser already exists
 		if (diffuserRepository.getByName(data.getName()) != null) {
-			return badRequest();
+			return badRequest(diffuser_creation.render(form, "Name is already taken"));
 		}
 		else {
 			Diffuser diffuser = new Diffuser(data.getName());
@@ -129,7 +129,7 @@ public class DiffuserController extends Controller {
 		// name is incorrect
 		if (diffuser == null) {
 			// TODO error + correct redirect
-			return badRequest();
+			return badRequest(diffuser.);
 		}
 		else {
 			// do changes to diffuser here
