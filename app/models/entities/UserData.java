@@ -16,6 +16,10 @@ public class UserData {
 	public UserData() {
 	}
 
+	public UserData(String email) {
+		this.email = email;
+	}
+
 	public UserData(User u) {
 		email = u.getEmail();
 		password = u.getPassword();

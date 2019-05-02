@@ -1,0 +1,75 @@
+
+@import models.entities.ScheduleData
+@import models.entities.FluxData
+@import java.util
+@import models.entities.DiffuserData
+@import models.entities.ScreenData
+@(      form: Form[DiffuserData],
+        fluxes: util.List[FluxData],
+        screens: util.List[ScreenData],
+        data: DiffuserData,
+        error: String)(implicit request: Http.Request)
+
+
+@main("Diffuser Activation Page") {
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
+        @helper.form(routes.DiffuserController.activate()) {
+            @helper.CSRF.formField
+            <div class="form-group">
+                <label for="inputName">Name</label>
+                <input name="name" type="text" class="form-control" id="inputName" value="@data.getName">
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputFluxes">Fluxes</label>
+                <select name="fluxes" id="inputFluxes" class="form-control" >
+                @for(flux <- fluxes) {
+                    <option>@flux.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputFallback">Screens</label>
+                <select name="fallBackFluxes[]" id="inputFallback" class="form-control" multiple="multiple" >
+                @for(screen <- screens) {
+                    <option>@screen.getMac</option>
+                }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Activate</button>
+        }
+    </div>
+}

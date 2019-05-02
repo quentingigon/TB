@@ -95,11 +95,13 @@ POST    /schedules/delete/:name         controllers.ScheduleController.delete(na
 # Diffusers
 GET     /diffusers                      controllers.DiffuserController.index()
 
-GET     /diffusers/activate/:name       controllers.DiffuserController.activate(name: String)
+GET     /diffusers/activate             controllers.DiffuserController.activateView(name: String, request: Request)
+
+POST    /diffusers/activate/            controllers.DiffuserController.activate(request: Request)
 
 GET     /diffusers/deactivate/:name     controllers.DiffuserController.deactivate(name: String)
 
-GET     /diffusers/new                  controllers.DiffuserController.createView(request: Request)
+GET     /diffusers/new                  controllers.DiffuserController.createView()
 
 POST    /diffusers/new                  controllers.DiffuserController.create(request: Request)
 

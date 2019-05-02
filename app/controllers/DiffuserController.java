@@ -1,17 +1,11 @@
 package controllers;
 
-import models.db.Diffuser;
-import models.db.Flux;
-import models.db.Schedule;
-import models.db.Screen;
+import models.db.*;
 import models.entities.DiffuserData;
 import models.entities.FluxData;
 import models.entities.ScheduleData;
 import models.entities.ScreenData;
-import models.repositories.DiffuserRepository;
-import models.repositories.FluxRepository;
-import models.repositories.ScheduleRepository;
-import models.repositories.ScreenRepository;
+import models.repositories.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -19,13 +13,17 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
+import views.html.diffuser_activation;
 import views.html.diffuser_creation;
 import views.html.diffuser_page;
 import views.html.diffuser_update;
 
 import javax.inject.Inject;
+import javax.xml.ws.http.HTTPBinding;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DiffuserController extends Controller {
 
@@ -40,6 +38,12 @@ public class DiffuserController extends Controller {
 
 	@Inject
 	DiffuserRepository diffuserRepository;
+
+	@Inject
+	RunningScheduleRepository runningScheduleRepository;
+
+	@Inject
+	RunningDiffuserRepository runningDiffuserRepository;
 
 	private Form<DiffuserData> form;
 
@@ -56,14 +60,22 @@ public class DiffuserController extends Controller {
 		return ok(diffuser_update.render(form, new DiffuserData(name), null));
 	}
 
-	public Result createView(Http.Request request) {
+	public Result createView() {
 		return ok(diffuser_creation.render(form, null));
 	}
 
-	// TODO maybe do it with entities (Data)
-	public Result activate(String name) {
+	public Result activateView(String name, Http.Request request) {
+		return ok(diffuser_activation.render(form, getAllFluxes(), getAllScreens(), new DiffuserData(name), null, request));
+	}
 
-		Diffuser diffuser = diffuserRepository.getByName(name);
+	// TODO activation page to select flux and screens
+	public Result activate(Http.Request request) {
+
+		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
+
+		DiffuserData data = boundForm.get();
+
+		Diffuser diffuser = diffuserRepository.getByName(data.getName());
 
 		// incorrect name
 		if (diffuser == null) {
@@ -71,11 +83,36 @@ public class DiffuserController extends Controller {
 		}
 		else {
 
-			// TODO create RunningDiffuser + modify associated RunningSchedule + modify associated service
+			// get names of RunningSchedules concerned by the new Diffuser
+			Set<String> runningSchedulesNames = new HashSet<>();
+			for (String mac: data.getScreens()) {
+				runningSchedulesNames.add(screenRepository.getByMacAddress(mac).getRunningScheduleName());
+			}
 
+			// Flux to add to schedules and services
+			Flux diffusedFlux = fluxRepository.getByName(data.getFluxName());
+
+			// create new runningDiffuser
+			RunningDiffuser rd = new RunningDiffuser(diffuser);
+			rd.setFluxId(diffusedFlux.getId());
+			rd.addToScreens(screenRepository.getByMacAddress("1234"));
+			runningDiffuserRepository.add(rd);
+
+			// update associated RunningSchedules
+			for (String s: runningSchedulesNames) {
+				RunningSchedule rs = runningScheduleRepository.getByName(s);
+				rs.addToFluxes(diffusedFlux);
+				runningScheduleRepository.update(rs);
+			}
+
+			// update associated RunningScheduleService
+			// TODO maybe do this in addToFluxes method in RunningSchedule
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
+			for (String s: runningSchedulesNames) {
+				RunningScheduleService rss = manager.getServiceByName(s);
+				rss.addFluxToRunningSchedule(diffusedFlux);
+			}
 
-			RunningScheduleService rss = manager.getServiceByName(name);
 
 			return index();
 		}
@@ -90,7 +127,11 @@ public class DiffuserController extends Controller {
 		}
 		else {
 
-			// TODO delete RunningDiffuser + modify associated RunningSchedule + modify associated service
+			runningDiffuserRepository.delete(runningDiffuserRepository.getByName(name));
+
+			// modify associated RunningSchedule + modify associated service
+
+			// runningScheduleRepository.getByName();
 
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
 
@@ -129,7 +170,7 @@ public class DiffuserController extends Controller {
 		// name is incorrect
 		if (diffuser == null) {
 			// TODO error + correct redirect
-			return badRequest(diffuser.);
+			return badRequest(diffuser_update.render(form, new DiffuserData(boundForm.get().getName()), "Diffuser name does not exists"));
 		}
 		else {
 			// do changes to diffuser here
@@ -146,7 +187,7 @@ public class DiffuserController extends Controller {
 		// name is incorrect
 		if (diffuser == null) {
 			// TODO error + correct redirect
-			return badRequest();
+			return badRequest(diffuser_page.render(getAllDiffusers(), "Diffuser name does not exists"));
 		}
 		else {
 			diffuserRepository.delete(diffuser);

@@ -59,6 +59,10 @@ public class RunningScheduleService extends Observable implements Runnable {
 		fluxes.remove(flux);
 	}
 
+	public synchronized void addFluxToRunningSchedule(Flux flux) {
+		fluxes.add(flux);
+	}
+
 	public RunningSchedule getSchedule() {
 		return schedule;
 	}

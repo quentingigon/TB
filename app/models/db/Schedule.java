@@ -46,7 +46,7 @@ public class Schedule {
 		this.fluxes = fluxes;
 	}
 
-	public void addToFluxs(Flux flux) {
+	public void addToFluxes(Flux flux) {
 		if (this.fluxes == null) {
 			this.fluxes = new ArrayList<>();
 		}

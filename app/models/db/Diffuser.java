@@ -1,10 +1,11 @@
 package models.db;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name="diffusers", schema="public")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name="name")
 public class Diffuser {
 
 	@Id
@@ -16,7 +17,7 @@ public class Diffuser {
 	private String name;
 
 	@Column(name="validity")
-	private Date validity;
+	private Integer validity;
 
 	public Diffuser() {
 	}
@@ -29,11 +30,11 @@ public class Diffuser {
 		return id;
 	}
 
-	public Date getValidity() {
+	public Integer getValidity() {
 		return validity;
 	}
 
-	public void setValidity(Date validity) {
+	public void setValidity(Integer validity) {
 		this.validity = validity;
 	}
 

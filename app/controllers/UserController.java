@@ -57,9 +57,12 @@ public class UserController extends Controller {
 		User newUser = new User(boundForm.get().getEmail(),
 			boundForm.get().getPassword());
 
-		// email is unique
-		if (userRepository.getByEmail(newUser.getEmail()) == null) {
+		// email is not unique
+		if (userRepository.getByEmail(newUser.getEmail()) != null) {
+			return badRequest(user_register.render(form, "email is already used"));
 
+		}
+		else {
 			// user created is part of a team
 			if (boundForm.get().getTeam() != null) {
 				TeamMember newMember = new TeamMember(newUser);
@@ -78,10 +81,6 @@ public class UserController extends Controller {
 					.withHttpOnly(false)
 					.build());
 		}
-		else {
-			// user must choose a new email
-			return registerView();
-		}
 	}
 
 	public Result login(Http.Request request) {
@@ -90,11 +89,10 @@ public class UserController extends Controller {
 
 		UserData data = boundForm.get();
 
-		User user = userRepository.get(data.getEmail(), data.getPassword());
+		User user = userRepository.getByEmail(data.getEmail());
 
 		if (user == null) {
-			// TODO send error
-			return loginView();
+			return badRequest(user_login.render(form, "Wrong email address"));
 		}
 		else {
 			return redirect(routes.HomeController.index()).withCookies(
@@ -111,8 +109,7 @@ public class UserController extends Controller {
 
 		// email is incorrect
 		if (user == null) {
-			// TODO error + correct redirect
-			return badRequest();
+			return badRequest(user_update.render(form, new UserData(boundForm.get().getEmail()), "Wrong email address"));
 		}
 		else {
 			// do changes to diffuser here
@@ -128,8 +125,7 @@ public class UserController extends Controller {
 
 		// email is incorrect
 		if (user == null) {
-			// TODO error + correct redirect
-			return badRequest();
+			return badRequest(user_page.render(getAllUsers(), "Wrong email address"));
 		}
 		else {
 			userRepository.delete(user);

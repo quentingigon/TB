@@ -24,6 +24,8 @@ public class Screen {
 	@Column(name="logged")
 	private boolean logged;
 
+	private String runningScheduleName;
+
 	public Screen(String macAddress) {
 		this.macAddress = macAddress;
 		logged = false;
@@ -73,5 +75,13 @@ public class Screen {
 
 	public void setResolution(String resolution) {
 		this.resolution = resolution;
+	}
+
+	public String getRunningScheduleName() {
+		return runningScheduleName;
+	}
+
+	public void setRunningScheduleName(String runningScheduleName) {
+		this.runningScheduleName = runningScheduleName;
 	}
 }
