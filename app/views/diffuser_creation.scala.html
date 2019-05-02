@@ -1,0 +1,50 @@
+@import models.entities.DiffuserData
+
+@(form: Form[DiffuserData], message: String)
+
+
+@main("Diffuser Creation Page") {
+
+
+    <style>
+            .alert {
+                padding: 20px;
+                background-color: #f44336;
+                color: white;
+            }
+
+            .closebtn {
+                margin-left: 15px;
+                color: white;
+                font-weight: bold;
+                float: right;
+                font-size: 22px;
+                line-height: 20px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+
+    <div class="tab-pane active" id="vertical" role="tabpanel">
+
+        @if(message != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@message</strong>
+            </div>
+        }
+
+        <form action="@routes.DiffuserController.create()" method="POST">
+            @helper.CSRF.formField
+            <div class="form-group">
+                <label for="inputName">Name</label>
+                <input name="name" type="text" class="form-control" id="inputName" placeholder="Diffuser name...">
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+}

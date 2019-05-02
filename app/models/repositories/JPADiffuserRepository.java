@@ -6,6 +6,7 @@ import play.db.jpa.JPAApi;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 public class JPADiffuserRepository implements DiffuserRepository {
 
@@ -46,6 +47,20 @@ public class JPADiffuserRepository implements DiffuserRepository {
 				"SELECT * FROM diffusers WHERE name = " + diffuserName, Diffuser.class);
 			try {
 				return (Diffuser) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Diffuser> getAll() {
+		return jpaApi.withTransaction(entityManager -> {
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM diffusers", Diffuser.class);
+			try {
+				return (List<Diffuser>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

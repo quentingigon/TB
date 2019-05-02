@@ -55,6 +55,10 @@ public class RunningScheduleService extends Observable implements Runnable {
 		}
 	}
 
+	public synchronized void removeFluxFromRunningSchedule(Flux flux) {
+		fluxes.remove(flux);
+	}
+
 	public RunningSchedule getSchedule() {
 		return schedule;
 	}

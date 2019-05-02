@@ -21,6 +21,10 @@ public class Diffuser {
 	public Diffuser() {
 	}
 
+	public Diffuser(String name) {
+		this.name = name;
+	}
+
 	public Integer getId() {
 		return id;
 	}

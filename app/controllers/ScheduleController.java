@@ -70,7 +70,7 @@ public class ScheduleController extends Controller {
 		// incorrect name
 		if (scheduleToActivate == null) {
 			// TODO error + redirect
-			return status(440, "Schedule does not exist");
+			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
 		}
 		else {
 
@@ -108,6 +108,9 @@ public class ScheduleController extends Controller {
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
 
 			manager.removeRunningSchedule(name);
+
+
+			// TODO remove from DB
 
 			return index();
 		}

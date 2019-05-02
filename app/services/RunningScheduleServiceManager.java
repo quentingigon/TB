@@ -25,7 +25,10 @@ public class RunningScheduleServiceManager {
 
 	public void removeRunningSchedule(String scheduleName) {
 		tasks.remove(scheduleName).setRunning(false);
-		// TODO maybe use garbage collector to remove it
+	}
+
+	public RunningScheduleService getServiceByName(String name) {
+		return tasks.get(name);
 	}
 
 	public static final RunningScheduleServiceManager getInstance()

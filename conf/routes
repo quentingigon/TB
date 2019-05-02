@@ -81,7 +81,26 @@ GET     /schedules/update/:name         controllers.ScheduleController.updateVie
 
 POST    /schedules/update               controllers.ScheduleController.update(request: Request)
 
-POST    /runningSchedules/delete/:name  controllers.ScheduleController.delete(name: String)
+POST    /schedules/delete/:name         controllers.ScheduleController.delete(name: String)
+
+
+# Diffusers
+GET     /diffusers                      controllers.DiffuserController.index()
+
+GET     /diffusers/activate/:name       controllers.DiffuserController.activate(name: String)
+
+GET     /diffusers/deactivate/:name     controllers.DiffuserController.deactivate(name: String)
+
+GET     /diffusers/new                  controllers.DiffuserController.createView(request: Request)
+
+POST    /diffusers/new                  controllers.DiffuserController.create(request: Request)
+
+GET     /diffusers/update/:name         controllers.DiffuserController.updateView(name: String)
+
+POST    /diffusers/update               controllers.DiffuserController.update(request: Request)
+
+POST    /diffusers/delete/:name         controllers.DiffuserController.delete(name: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)
