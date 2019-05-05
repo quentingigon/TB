@@ -3,13 +3,12 @@ package models.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name="users", schema="public")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name="user", schema="public")
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="user_id")
 	private Integer id;
 
 	@Column(name="email")

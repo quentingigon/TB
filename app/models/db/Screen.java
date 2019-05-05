@@ -3,35 +3,42 @@ package models.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name="screens", schema = "public")
+@Table(name="screen", schema = "public")
 public class Screen {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="screen_id")
 	private Integer id;
 
 	private String name;
 
-	@Column(name="mac")
+	@Column(name="mac_address")
 	private String macAddress;
 
 	@Column(name="site_id")
 	private Integer siteId;
 
+	@Column(name="runningschedule_id")
+	private Integer runningscheduleId;
+
+	@Column(name="next_to")
+	private Integer screenNextTo;
+
+	@Column(name="resolution")
 	private String resolution;
 
 	@Column(name="logged")
 	private boolean logged;
-
-	private String runningScheduleName;
 
 	public Screen(String macAddress) {
 		this.macAddress = macAddress;
 		logged = false;
 	}
 
-	public Screen() {}
+	public Screen() {
+
+	}
 
 	public Integer getId() {
 		return id;
@@ -77,11 +84,19 @@ public class Screen {
 		this.resolution = resolution;
 	}
 
-	public String getRunningScheduleName() {
-		return runningScheduleName;
+	public Integer getRunningscheduleId() {
+		return runningscheduleId;
 	}
 
-	public void setRunningScheduleName(String runningScheduleName) {
-		this.runningScheduleName = runningScheduleName;
+	public void setRunningscheduleId(Integer runningscheduleId) {
+		this.runningscheduleId = runningscheduleId;
+	}
+
+	public Integer getScreenNextTo() {
+		return screenNextTo;
+	}
+
+	public void setScreenNextTo(Integer screenNextTo) {
+		this.screenNextTo = screenNextTo;
 	}
 }

@@ -57,9 +57,15 @@ public class ScreenController extends Controller {
 
 		// screen not registered
 		if (screen == null) {
+
+			// if screen already asked for a code
+			if (waitingScreenRepository.getByMac(macAdr) != null) {
+				return ok(screen_code.render(waitingScreenRepository.getByMac(macAdr).getCode()));
+			}
+
 			String code = screenRegisterCodeGenerator();
 
-			waitingScreenRepository.add(new WaitingScreen(macAdr, code));
+			waitingScreenRepository.add(new WaitingScreen(code, macAdr));
 
 			// send code
 			return ok(screen_code.render(code));
@@ -91,22 +97,28 @@ public class ScreenController extends Controller {
 		//final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 
-		String macAdr = boundForm.get().getMac();
+		ScreenData data = boundForm.get();
+		String macAdr = data.getMac();
 
 		// screen is already known
 		if (screenRepository.getByMacAddress(macAdr) != null) {
 			return badRequest(screen_register.render(form, "Screen already exists, by MAC"));
 		}
 		else {
-			Screen newScreen = new Screen(macAdr);
-			String code = boundForm.get().getCode();
+			String code = data.getCode();
+			WaitingScreen ws = waitingScreenRepository.getByMac(macAdr);
 
-			// if code is correct
-			if (waitingScreenRepository.getByMac(macAdr).getCode().equals(code)) {
+			// if code is correct -> add screen to DB
+			if (ws.getCode().equals(code)) {
 
-				newScreen.setSiteId(siteRepository.getByName(boundForm.get().getSite()).getId());
+				Screen newScreen = new Screen(macAdr);
+				newScreen.setSiteId(siteRepository.getByName(data.getSite()).getId());
+				newScreen.setResolution(data.getResolution());
+				newScreen.setLogged(false);
+				newScreen.setName(data.getName());
 
 				screenRepository.add(newScreen);
+				waitingScreenRepository.delete(ws);
 
 				return index();
 			}

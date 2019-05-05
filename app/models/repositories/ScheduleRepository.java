@@ -11,6 +11,7 @@ public interface ScheduleRepository {
 
 	Schedule add(Schedule schedule);
 	Schedule getByName(String name);
+	Schedule getById(Integer id);
 
 	List<Schedule> getAll();
 

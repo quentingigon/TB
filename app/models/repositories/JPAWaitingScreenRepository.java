@@ -36,7 +36,7 @@ public class JPAWaitingScreenRepository implements WaitingScreenRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String macAdr = "'" + mac + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM waitingscreens WHERE mac = " + macAdr, WaitingScreen.class);
+				"SELECT * FROM waitingscreen WHERE mac_address = " + macAdr, WaitingScreen.class);
 			try {
 				return (WaitingScreen) query.getSingleResult();
 			} catch (NoResultException e) {

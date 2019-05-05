@@ -75,10 +75,7 @@ public class ScheduleController extends Controller {
 		else {
 
 			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
-
-			List<Flux> fluxes = fluxRepository.getAll();
-			rs.setFluxes(fluxes);
-
+			// TODO change this to use screens sent from frontend at activation
 			List<Screen> screens = screenRepository.getAll();
 			rs.setScreens(screens);
 
@@ -87,7 +84,7 @@ public class ScheduleController extends Controller {
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
-			manager.addRunningSchedule(service1);
+			manager.addRunningSchedule(scheduleToActivate.getName(), service1);
 
 			// TODO fix -> need to make a correct subclass (weak entity) from Schedule
 			// scheduleRepository.add(rs);

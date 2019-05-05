@@ -3,14 +3,12 @@ package models.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name="diffusers", schema="public")
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name="name")
+@Table(name="diffuser", schema="public")
 public class Diffuser {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="diffuser_id")
 	private Integer id;
 
 	@Column(name="name")

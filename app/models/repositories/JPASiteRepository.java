@@ -21,7 +21,7 @@ public class JPASiteRepository implements SiteRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String siteName = "'" + name + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM sites WHERE name = " + siteName, Site.class);
+				"SELECT * FROM site WHERE name = " + siteName, Site.class);
 			try {
 				return (Site) query.getSingleResult();
 			} catch (NoResultException e) {

@@ -30,7 +30,7 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String diffuserName = "'" + name + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM runningdiffusers WHERE name = " + diffuserName, RunningDiffuser.class);
+				"SELECT * FROM runningdiffuser WHERE name = " + diffuserName, RunningDiffuser.class);
 			try {
 				return (RunningDiffuser) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -44,7 +44,7 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 	public List<RunningDiffuser> getAll() {
 		return jpaApi.withTransaction(entityManager -> {
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM runningdiffusers", RunningDiffuser.class);
+				"SELECT * FROM runningdiffuser", RunningDiffuser.class);
 			try {
 				return (List<RunningDiffuser>) query.getResultList();
 			} catch (NoResultException e) {

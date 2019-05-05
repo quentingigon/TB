@@ -30,7 +30,7 @@ public class JPATeamRepository implements TeamRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String teamName = "'" + name + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM teams WHERE name = " + teamName, Team.class);
+				"SELECT * FROM team WHERE name = " + teamName, Team.class);
 			try {
 				return (Team) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -45,7 +45,7 @@ public class JPATeamRepository implements TeamRepository {
 		return jpaApi.withTransaction(entityManager -> {
 
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM teams", Team.class);
+				"SELECT * FROM team", Team.class);
 			try {
 				return (List<Team>) query.getResultList();
 			} catch (NoResultException e) {

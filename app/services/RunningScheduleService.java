@@ -2,13 +2,18 @@ package services;
 
 import models.db.Flux;
 import models.db.RunningSchedule;
+import models.repositories.ScheduleRepository;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Observable;
 
 public class RunningScheduleService extends Observable implements Runnable {
 
-	private RunningSchedule schedule;
+	@Inject
+	ScheduleRepository scheduleRepository;
+
+	private RunningSchedule runningSchedule;
 	private List<Flux> fluxes;
 
 	private boolean running;
@@ -16,9 +21,9 @@ public class RunningScheduleService extends Observable implements Runnable {
 	public RunningScheduleService() {
 	}
 
-	public RunningScheduleService(RunningSchedule schedule) {
-		this.schedule = schedule;
-		this.fluxes = schedule.getFluxes();
+	public RunningScheduleService(RunningSchedule runningSchedule) {
+		this.runningSchedule = runningSchedule;
+		this.fluxes = scheduleRepository.getById(runningSchedule.getScheduleId()).getFluxes();
 
 		running = true;
 	}
@@ -32,13 +37,13 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 			if (!fluxes.isEmpty()) {
 
-				// System.out.println("RunningScheduleService: " + i++ + " for schedule " + schedule.getName());
+				// System.out.println("RunningScheduleService: " + i++ + " for runningSchedule " + runningSchedule.getName());
 
 				// make rotation
 				fluxes.add(fluxes.get(0));
 				Flux flux = fluxes.remove(0);
 
-				FluxEvent event = new FluxEvent(flux, schedule.getScreens());
+				FluxEvent event = new FluxEvent(flux, runningSchedule.getScreens());
 
 				setChanged();
 				notifyObservers(event);
@@ -63,12 +68,12 @@ public class RunningScheduleService extends Observable implements Runnable {
 		fluxes.add(flux);
 	}
 
-	public RunningSchedule getSchedule() {
-		return schedule;
+	public RunningSchedule getRunningSchedule() {
+		return runningSchedule;
 	}
 
-	public void setSchedule(RunningSchedule schedule) {
-		this.schedule = schedule;
+	public void setRunningSchedule(RunningSchedule runningSchedule) {
+		this.runningSchedule = runningSchedule;
 	}
 
 	public List<Flux> getFluxes() {

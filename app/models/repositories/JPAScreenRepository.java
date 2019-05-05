@@ -22,7 +22,7 @@ public class JPAScreenRepository implements ScreenRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String macAdr = "'" + address + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM screens WHERE mac = " + macAdr, Screen.class);
+				"SELECT * FROM screen WHERE mac_address = " + macAdr, Screen.class);
 			try {
 				return (Screen) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -37,7 +37,7 @@ public class JPAScreenRepository implements ScreenRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String ID = "'" + id + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM screens WHERE id = " + ID, Screen.class);
+				"SELECT * FROM screen WHERE id = " + ID, Screen.class);
 			try {
 				return (Screen) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -53,7 +53,7 @@ public class JPAScreenRepository implements ScreenRepository {
 		return jpaApi.withTransaction(entityManager -> {
 
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM screens", Screen.class);
+				"SELECT * FROM screen", Screen.class);
 			try {
 				return (List<Screen>) query.getResultList();
 			} catch (NoResultException e) {

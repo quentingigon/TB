@@ -30,7 +30,7 @@ public class JPAFluxRepository implements FluxRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String fluxName = "'" + name + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM fluxes WHERE name = " + fluxName, Flux.class);
+				"SELECT * FROM flux WHERE name = " + fluxName, Flux.class);
 			try {
 				return (Flux) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -44,7 +44,7 @@ public class JPAFluxRepository implements FluxRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String fluxUrl = "'" + url + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM fluxes WHERE url = " + fluxUrl, Flux.class);
+				"SELECT * FROM flux WHERE url = " + fluxUrl, Flux.class);
 			try {
 				return (Flux) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -58,7 +58,7 @@ public class JPAFluxRepository implements FluxRepository {
 	public List<Flux> getAll() {
 		return jpaApi.withTransaction(entityManager -> {
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM fluxes", Flux.class);
+				"SELECT * FROM flux", Flux.class);
 			try {
 				return (List<Flux>) query.getResultList();
 			} catch (NoResultException e) {

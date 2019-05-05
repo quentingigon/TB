@@ -1,35 +1,28 @@
 package models.db;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
-@Table(name="waitingscreens", schema="public")
+@Table(name="waitingscreen", schema="public")
 public class WaitingScreen {
 
 	@Id
-	@Column(name="mac")
-	private String mac;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="waitingscreen_id")
+	private Integer id;
+
+	@Column(name="mac_address")
+	private String macAddress;
 
 	@Column(name="code")
 	private String code;
 
-	public WaitingScreen(String mac, String code) {
-		this.mac = mac;
+	public WaitingScreen(String code, String macAddress) {
 		this.code = code;
+		this.macAddress = macAddress;
 	}
 
 	public WaitingScreen() {
-	}
-
-	public String getMac() {
-		return mac;
-	}
-
-	public void setMac(String mac) {
-		this.mac = mac;
 	}
 
 	public String getCode() {
@@ -38,5 +31,13 @@ public class WaitingScreen {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public String getMacAddress() {
+		return macAddress;
+	}
+
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
 	}
 }

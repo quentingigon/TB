@@ -60,6 +60,7 @@ public class TeamController extends Controller {
 
 		TeamData data = boundForm.get();
 
+		// TODO dont return all screens but screens of team
 		if (teamRepository.getByName(data.getName()) != null) {
 			// team already exists
 			return badRequest(team_creation.render(form, getAllScreens(), "Team name already exists"));
@@ -67,8 +68,10 @@ public class TeamController extends Controller {
 		else {
 			Team newTeam = new Team(data.getName());
 
-			for (String mac: data.getScreens()) {
-				newTeam.addScreen(screenRepository.getByMacAddress(mac));
+			if (data.getScreens() != null) {
+				for (String mac: data.getScreens()) {
+					newTeam.addScreen(screenRepository.getByMacAddress(mac));
+				}
 			}
 
 			teamRepository.add(newTeam);

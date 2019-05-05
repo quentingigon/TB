@@ -86,7 +86,8 @@ public class DiffuserController extends Controller {
 			// get names of RunningSchedules concerned by the new Diffuser
 			Set<String> runningSchedulesNames = new HashSet<>();
 			for (String mac: data.getScreens()) {
-				runningSchedulesNames.add(screenRepository.getByMacAddress(mac).getRunningScheduleName());
+				// TODO get runningScheduleName from somewhere
+				//runningSchedulesNames.add();
 			}
 
 			// Flux to add to schedules and services
@@ -100,9 +101,9 @@ public class DiffuserController extends Controller {
 
 			// update associated RunningSchedules
 			for (String s: runningSchedulesNames) {
-				RunningSchedule rs = runningScheduleRepository.getByName(s);
-				rs.addToFluxes(diffusedFlux);
-				runningScheduleRepository.update(rs);
+				//RunningSchedule rs = runningScheduleRepository.getByName(s);
+				//rs.addToFluxes(diffusedFlux);
+				//runningScheduleRepository.update(rs);
 			}
 
 			// update associated RunningScheduleService

@@ -3,12 +3,12 @@ package models.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name="sites", schema="public")
+@Table(name="site", schema="public")
 public class Site {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="site_id")
 	private Integer id;
 
 	@Column(name="name")

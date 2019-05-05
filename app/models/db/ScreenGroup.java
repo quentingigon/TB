@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="screengroups", schema="public")
+@Table(name="screengroup", schema="public")
 public class ScreenGroup {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="group_id")
 	private Integer id;
 
 	@OneToMany

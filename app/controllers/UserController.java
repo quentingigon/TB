@@ -1,9 +1,7 @@
 package controllers;
 
-import models.db.Diffuser;
 import models.db.TeamMember;
 import models.db.User;
-import models.entities.DiffuserData;
 import models.entities.UserData;
 import models.repositories.TeamRepository;
 import models.repositories.UserRepository;
@@ -68,7 +66,7 @@ public class UserController extends Controller {
 				TeamMember newMember = new TeamMember(newUser);
 
 				// set team
-				newMember.setTeam(teamRepository.getByName(boundForm.get().getTeam()));
+				newMember.setTeamId(teamRepository.getByName(boundForm.get().getTeam()).getId());
 
 //				userRepository.createMember(newMember);
 			}

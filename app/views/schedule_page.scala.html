@@ -72,22 +72,22 @@
             </thead>
             <tbody>
             @if(schedules != null) {
-                @for(schedule <- schedules) {
+                @for(runningSchedule <- schedules) {
                     <tr>
-                        <td>@schedule.getName()</td>
+                        <td>@runningSchedule.getName()</td>
 
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-secondary" href="@routes.ScheduleController.updateView(schedule.getName)" >Update Schedule</button>
-                                <form method="get" action="@routes.ScheduleController.activate(schedule.getName)">
+                                <button type="button" class="btn btn-secondary" href="@routes.ScheduleController.updateView(runningSchedule.getName)" >Update Schedule</button>
+                                <form method="get" action="@routes.ScheduleController.activate(runningSchedule.getName)">
                                     @helper.CSRF.formField
                                     <button type="submit" class="btn btn-secondary">Activate Schedule</button>
                                 </form>
-                                <form method="get" action="@routes.ScheduleController.deactivate(schedule.getName)">
+                                <form method="get" action="@routes.ScheduleController.deactivate(runningSchedule.getName)">
                                     @helper.CSRF.formField
                                 <button type="submit" class="btn btn-secondary">Deactivate Schedule</button>
                                 </form>
-                                <form method="post" action="@routes.ScheduleController.delete(schedule.getName)">
+                                <form method="post" action="@routes.ScheduleController.delete(runningSchedule.getName)">
                                     @helper.CSRF.formField
                                 <button type="submit" class="btn btn-danger">Delete Schedule</button>
                                 </form>

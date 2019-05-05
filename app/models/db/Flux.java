@@ -5,18 +5,18 @@ import models.entities.FluxData;
 import javax.persistence.*;
 
 @Entity
-@Table(name="fluxes", schema="public")
+@Table(name="flux", schema="public")
 public class Flux {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="flux_id")
 	private Integer id;
 
 	@Column(name="name")
 	private String name;
 
-	@Column(name="duration")
+	@Column(name="phase_duration")
 	private long duration;
 
 	@Column(name="url")

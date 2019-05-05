@@ -1,6 +1,6 @@
 package models.db;
 
-public class Admin extends User {
+public class Admin {
 
 	public Admin() {
 

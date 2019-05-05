@@ -9,7 +9,6 @@ import java.util.List;
 public interface RunningScheduleRepository {
 
 	RunningSchedule add(RunningSchedule schedule);
-	RunningSchedule getByName(String name);
 
 	List<RunningSchedule> getAll();
 

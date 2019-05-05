@@ -45,7 +45,21 @@ public class JPAScheduleRepository implements ScheduleRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String scheduleName = "'" + name + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM schedules WHERE name = " + scheduleName, Schedule.class);
+				"SELECT * FROM schedule WHERE name = " + scheduleName, Schedule.class);
+			try {
+				return (Schedule) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public Schedule getById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM schedule WHERE schedule_id = " + id, Schedule.class);
 			try {
 				return (Schedule) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -60,7 +74,7 @@ public class JPAScheduleRepository implements ScheduleRepository {
 		return jpaApi.withTransaction(entityManager -> {
 
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM schedules", Schedule.class);
+				"SELECT * FROM schedule", Schedule.class);
 			try {
 				return (List<Schedule>) query.getResultList();
 			} catch (NoResultException e) {

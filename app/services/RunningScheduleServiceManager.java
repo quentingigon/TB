@@ -18,9 +18,9 @@ public class RunningScheduleServiceManager {
 		this.tasks = new HashMap<>();
 	}
 
-	public void addRunningSchedule(RunningScheduleService r) {
+	public void addRunningSchedule(String scheduleName, RunningScheduleService r) {
 		executorService.submit(r);
-		tasks.put(r.getSchedule().getName(), r);
+		tasks.put(scheduleName, r);
 	}
 
 	public void removeRunningSchedule(String scheduleName) {

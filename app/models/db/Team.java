@@ -7,23 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="teams", schema="public")
+@Table(name="team", schema="public")
 public class Team {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="team_id")
 	private Integer id;
 
 	@Column(name="name")
 	private String name;
 
 	@OneToMany
-	@Column(name="teams_screens")
+	@Column(name="screens")
 	private List<Screen> screens;
 
 	@OneToMany
-	@Column(name="screengroups")
+	@Column(name="screen_groups")
 	private List<ScreenGroup> screenGroups;
 
 	@OneToMany

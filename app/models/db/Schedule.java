@@ -5,21 +5,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="schedules", schema="public")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name="schedule", schema="public")
 public class Schedule {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name="schedule_id")
 	private Integer id;
 
 	@Column(name="name")
-	protected String name;
+	private String name;
 
 	@OneToMany
 	@Column(name="fluxes")
-	protected List<Flux> fluxes;
+	private List<Flux> fluxes;
+
+	@OneToMany
+	@Column(name="fallbacks")
+	private List<Flux> fallbacks;
 
 	public Schedule() {
 		fluxes = new ArrayList<>();
@@ -59,5 +62,13 @@ public class Schedule {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public List<Flux> getFallbacks() {
+		return fallbacks;
+	}
+
+	public void setFallbacks(List<Flux> fallbacks) {
+		this.fallbacks = fallbacks;
 	}
 }

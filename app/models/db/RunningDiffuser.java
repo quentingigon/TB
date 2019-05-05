@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="runningdiffusers", schema="public")
-@DiscriminatorValue("test")
-public class RunningDiffuser extends Diffuser {
+@Table(name="runningdiffuser", schema="public")
+public class RunningDiffuser {
 
-	@PrimaryKeyJoinColumn
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="runningdiffuser_id")
+	private Integer id;
+
 	@Column(name="flux_id")
 	private Integer fluxId;
 
@@ -22,8 +25,8 @@ public class RunningDiffuser extends Diffuser {
 	}
 
 	public RunningDiffuser(Diffuser d) {
-		setName(d.getName());
-		setValidity(d.getValidity());
+		// setName(d.getName());
+		// setValidity(d.getValidity());
 	}
 
 	public Integer getFluxId() {
