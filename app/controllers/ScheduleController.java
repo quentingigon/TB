@@ -8,6 +8,7 @@ import models.entities.FluxData;
 import models.entities.ScheduleData;
 import models.entities.ScreenData;
 import models.repositories.FluxRepository;
+import models.repositories.RunningScheduleRepository;
 import models.repositories.ScheduleRepository;
 import models.repositories.ScreenRepository;
 import play.data.Form;
@@ -30,6 +31,9 @@ public class ScheduleController extends Controller {
 
 	@Inject
 	ScheduleRepository scheduleRepository;
+
+	@Inject
+	RunningScheduleRepository runningScheduleRepository;
 
 	@Inject
 	ScreenRepository screenRepository;
@@ -65,40 +69,40 @@ public class ScheduleController extends Controller {
 	// TODO maybe do it with entities (Data)
 	public Result activate(String name) {
 
-		Schedule scheduleToActivate = scheduleRepository.getByName(name);
+		Schedule schedule = scheduleRepository.getByName(name);
 
 		// incorrect name
-		if (scheduleToActivate == null) {
+		if (schedule == null) {
 			// TODO error + redirect
 			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
 		}
 		else {
 
-			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
+			RunningSchedule rs = new RunningSchedule(schedule);
 			// TODO change this to use screens sent from frontend at activation
-			List<Screen> screens = screenRepository.getAll();
-			rs.setScreens(screens);
+			for (Screen s : screenRepository.getAll()) {
+				rs.addToScreens(s.getId());
+			}
 
+			// add service as observer of FluxManager
 			RunningScheduleService service1 = new RunningScheduleService(rs);
 			service1.addObserver(fluxManager);
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
-			manager.addRunningSchedule(scheduleToActivate.getName(), service1);
+			manager.addRunningSchedule(schedule.getName(), service1);
 
-			// TODO fix -> need to make a correct subclass (weak entity) from Schedule
-			// scheduleRepository.add(rs);
+			runningScheduleRepository.add(rs);
 
 			return index();
 		}
 	}
 
 	public Result deactivate(String name) {
-		Schedule scheduleToActivate = scheduleRepository.getByName(name);
+		Schedule schedule = scheduleRepository.getByName(name);
 
 		// incorrect name
-		if (scheduleToActivate == null) {
-			// TODO error + redirect
+		if (schedule == null) {
 			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
 		}
 		else {
@@ -106,8 +110,8 @@ public class ScheduleController extends Controller {
 
 			manager.removeRunningSchedule(name);
 
-
-			// TODO remove from DB
+			// TODO delete
+			// runningScheduleRepository.delete();
 
 			return index();
 		}
@@ -121,10 +125,15 @@ public class ScheduleController extends Controller {
 
 		// schedule already exists
 		if (scheduleRepository.getByName(data.getName()) != null) {
-			return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "MAC address does not exists", request));
+			return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "MAC address already exists", request));
 		}
 		else {
 			Schedule schedule = new Schedule(data.getName());
+
+			// TODO check for null
+			for (String fluxName: data.getFluxes()) {
+				schedule.addToFluxes(fluxRepository.getByName(fluxName).getId());
+			}
 
 			scheduleRepository.add(schedule);
 
@@ -140,7 +149,6 @@ public class ScheduleController extends Controller {
 
 		// name is incorrect
 		if (schedule == null) {
-			// TODO error + correct redirect
 			return badRequest(schedule_update.render(form, new ScheduleData(boundForm.get().getName()), getAllFluxes(), getAllFluxes(), "MAC address does not exists"));
 		}
 		else {
@@ -158,7 +166,6 @@ public class ScheduleController extends Controller {
 
 		// name is incorrect
 		if (schedule == null) {
-			// TODO error + correct redirect
 			return badRequest(schedule_page.render(getAllSchedules(), "Name in incorrect"));
 		}
 		else {

@@ -18,25 +18,23 @@ public class Team {
 	@Column(name="name")
 	private String name;
 
-	@OneToMany
-	@Column(name="screens")
-	private List<Screen> screens;
+	@ElementCollection
+	private List<Integer> screens;
 
-	@OneToMany
-	@Column(name="screen_groups")
-	private List<ScreenGroup> screenGroups;
+	@ElementCollection
+	private List<Integer> groups;
 
-	@OneToMany
-	@Column(name="schedules")
-	private List<Schedule> schedules;
+	@ElementCollection
+	private List<Integer> schedules;
 
-	@OneToMany
-	@Column(name="diffusers")
-	private List<Diffuser> diffusers;
+	@ElementCollection
+	private List<Integer> diffusers;
 
-	@OneToMany
-	@Column(name="fluxes")
-	private List<Flux> fluxes;
+	@ElementCollection
+	private List<Integer> fluxes;
+
+	@ElementCollection
+	private List<Integer> members;
 
 	public Team() {
 	}
@@ -47,7 +45,7 @@ public class Team {
 		this.fluxes = new ArrayList<>();
 		this.diffusers = new ArrayList<>();
 		this.schedules = new ArrayList<>();
-		this.screenGroups = new ArrayList<>();
+		this.groups = new ArrayList<>();
 	}
 
 	public Team(TeamData data) {
@@ -75,65 +73,73 @@ public class Team {
 		this.name = name;
 	}
 
-	public List<ScreenGroup> getScreenGroups() {
-		return screenGroups;
+	public List<Integer> getGroups() {
+		return groups;
 	}
 
-	public void setScreenGroups(List<ScreenGroup> screenGroups) {
-		this.screenGroups = screenGroups;
+	public void setGroups(List<Integer> screenGroups) {
+		this.groups = screenGroups;
 	}
 
-	public void addToScreenGroups(ScreenGroup group) {
-		this.screenGroups.add(group);
+	public void addToScreenGroups(Integer group) {
+		this.groups.add(group);
 	}
 
-	public List<Schedule> getSchedules() {
+	public List<Integer> getSchedules() {
 		return schedules;
 	}
 
-	public void setSchedules(List<Schedule> schedules) {
+	public void setSchedules(List<Integer> schedules) {
 		this.schedules = schedules;
 	}
 
-	public void addToSchedules(Schedule schedule) {
+	public void addToSchedules(Integer schedule) {
 		this.schedules.add(schedule);
 	}
 
-	public List<Diffuser> getDiffusers() {
+	public List<Integer> getDiffusers() {
 		return diffusers;
 	}
 
-	public void setDiffusers(List<Diffuser> diffusers) {
+	public void setDiffusers(List<Integer> diffusers) {
 		this.diffusers = diffusers;
 	}
 
-	public void addToDiffusers(Diffuser diffuser) {
+	public void addToDiffusers(Integer diffuser) {
 		this.diffusers.add(diffuser);
 	}
 
-	public List<Flux> getFluxes() {
+	public List<Integer> getFluxes() {
 		return fluxes;
 	}
 
-	public void setFluxes(List<Flux> fluxes) {
+	public void setFluxes(List<Integer> fluxes) {
 		this.fluxes = fluxes;
 	}
 
-	public void addToFluxes(Flux flux) {
+	public void addToFluxes(Integer flux) {
 		this.fluxes.add(flux);
 	}
 
-	public List<Screen> getScreens() {
+	public List<Integer> getScreens() {
 		return screens;
 	}
 
-	public void setScreens(List<Screen> screens) {
+	public void setScreens(List<Integer> screens) {
 		this.screens = screens;
 	}
 
-	public void addScreen(Screen s) {
+	public void addScreen(Integer s) {
 		if (screens == null)
 			screens = new ArrayList<>();
 		screens.add(s);
+	}
+
+	public List<Integer> getMembers() {
+		return members;
+	}
+
+	public void setMembers(List<Integer> members) {
+		this.members = members;
 	}
 }

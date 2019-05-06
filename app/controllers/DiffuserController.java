@@ -96,7 +96,7 @@ public class DiffuserController extends Controller {
 			// create new runningDiffuser
 			RunningDiffuser rd = new RunningDiffuser(diffuser);
 			rd.setFluxId(diffusedFlux.getId());
-			rd.addToScreens(screenRepository.getByMacAddress("1234"));
+			rd.addToScreens(screenRepository.getByMacAddress("1234").getId());
 			runningDiffuserRepository.add(rd);
 
 			// update associated RunningSchedules

@@ -84,7 +84,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 			}
 			// wait a bit before rechecking
 			else {
-				System.out.println("No flux events");
+				// System.out.println("No flux events");
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {

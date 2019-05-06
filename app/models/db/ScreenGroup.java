@@ -13,9 +13,8 @@ public class ScreenGroup {
 	@Column(name="group_id")
 	private Integer id;
 
-	@OneToMany
-	@Column(name="screens")
-	private List<Screen> screens;
+	@ElementCollection
+	private List<Integer> screens;
 
 	public ScreenGroup() {
 		this.screens = new ArrayList<>();
@@ -25,15 +24,15 @@ public class ScreenGroup {
 		return id;
 	}
 
-	public List<Screen> getScreens() {
+	public List<Integer> getScreens() {
 		return screens;
 	}
 
-	public void setScreens(List<Screen> screens) {
+	public void setScreens(List<Integer> screens) {
 		this.screens = screens;
 	}
 
-	public void addToScreens(Screen screen) {
+	public void addToScreens(Integer screen) {
 		this.screens.add(screen);
 	}
 }

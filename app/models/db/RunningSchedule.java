@@ -16,9 +16,8 @@ public class RunningSchedule {
 	@Column(name="schedule_id")
 	private Integer scheduleId;
 
-	@ManyToMany
-	@JoinColumn(name="screens", nullable = false)
-	private List<Screen> screens;
+	@ElementCollection
+	private List<Integer> screens;
 
 
 	public RunningSchedule() {
@@ -31,15 +30,15 @@ public class RunningSchedule {
 		// this.fluxes = new ArrayList<>();
 	}
 
-	public List<Screen> getScreens() {
+	public List<Integer> getScreens() {
 		return screens;
 	}
 
-	public void setScreens(List<Screen> screens) {
+	public void setScreens(List<Integer> screens) {
 		this.screens = screens;
 	}
 
-	public void addToScreens(Screen s) {
+	public void addToScreens(Integer s) {
 		if (screens == null)
 			screens = new ArrayList<>();
 		screens.add(s);

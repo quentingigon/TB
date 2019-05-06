@@ -10,7 +10,7 @@ public interface FluxRepository {
 
 	Flux add(Flux flux);
 	Flux getByName(String name);
-	Flux getByUrl(String url);
+	Flux getById(Integer id);
 
 	List<Flux> getAll();
 

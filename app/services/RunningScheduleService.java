@@ -2,9 +2,13 @@ package services;
 
 import models.db.Flux;
 import models.db.RunningSchedule;
+import models.db.Screen;
+import models.repositories.FluxRepository;
 import models.repositories.ScheduleRepository;
+import models.repositories.ScreenRepository;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
@@ -12,6 +16,12 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	@Inject
 	ScheduleRepository scheduleRepository;
+
+	@Inject
+	ScreenRepository screenRepository;
+
+	@Inject
+	FluxRepository fluxRepository;
 
 	private RunningSchedule runningSchedule;
 	private List<Flux> fluxes;
@@ -23,7 +33,12 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	public RunningScheduleService(RunningSchedule runningSchedule) {
 		this.runningSchedule = runningSchedule;
-		this.fluxes = scheduleRepository.getById(runningSchedule.getScheduleId()).getFluxes();
+
+		this.fluxes = new ArrayList<>();
+		for (Integer fluxId: scheduleRepository.getById(runningSchedule.getScheduleId()).getFluxes()) {
+			fluxes.add(fluxRepository.getById(fluxId));
+		}
+
 
 		running = true;
 	}
@@ -31,19 +46,19 @@ public class RunningScheduleService extends Observable implements Runnable {
 	@Override
 	public void run() {
 
-		int i = 0;
-
 		while (running) {
 
 			if (!fluxes.isEmpty()) {
-
-				// System.out.println("RunningScheduleService: " + i++ + " for runningSchedule " + runningSchedule.getName());
 
 				// make rotation
 				fluxes.add(fluxes.get(0));
 				Flux flux = fluxes.remove(0);
 
-				FluxEvent event = new FluxEvent(flux, runningSchedule.getScreens());
+				List<Screen> screens = new ArrayList<>();
+				for (Integer id: runningSchedule.getScreens()) {
+					screens.add(screenRepository.getById(id));
+				}
+				FluxEvent event = new FluxEvent(flux, screens);
 
 				setChanged();
 				notifyObservers(event);

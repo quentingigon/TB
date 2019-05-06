@@ -16,9 +16,8 @@ public class RunningDiffuser {
 	@Column(name="flux_id")
 	private Integer fluxId;
 
-	@OneToMany
-	@Column(name="screens")
-	private List<Screen> screens;
+	@ElementCollection
+	private List<Integer> screens;
 
 	public RunningDiffuser() {
 
@@ -37,17 +36,17 @@ public class RunningDiffuser {
 		this.fluxId = flux_id;
 	}
 
-	public List<Screen> getScreens() {
+	public List<Integer> getScreens() {
 		return screens;
 	}
 
-	public void setScreens(List<Screen> screens) {
+	public void setScreens(List<Integer> screens) {
 		this.screens = screens;
 	}
 
-	public void addToScreens(Screen s) {
+	public void addToScreens(Integer screenId) {
 		if (screens == null)
 			screens = new ArrayList<>();
-		screens.add(s);
+		screens.add(screenId);
 	}
 }

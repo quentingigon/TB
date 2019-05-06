@@ -70,7 +70,7 @@ public class TeamController extends Controller {
 
 			if (data.getScreens() != null) {
 				for (String mac: data.getScreens()) {
-					newTeam.addScreen(screenRepository.getByMacAddress(mac));
+					newTeam.addScreen(screenRepository.getByMacAddress(mac).getId());
 				}
 			}
 

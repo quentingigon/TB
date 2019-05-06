@@ -40,11 +40,11 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
-	public Flux getByUrl(String url) {
+	public Flux getById(Integer id) {
 		return jpaApi.withTransaction(entityManager -> {
-			String fluxUrl = "'" + url + "'";
+			String fluxId = "'" + id + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM flux WHERE url = " + fluxUrl, Flux.class);
+				"SELECT * FROM flux WHERE flux_id = " + fluxId, Flux.class);
 			try {
 				return (Flux) query.getSingleResult();
 			} catch (NoResultException e) {

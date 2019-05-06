@@ -16,21 +16,20 @@ public class Schedule {
 	@Column(name="name")
 	private String name;
 
-	@OneToMany
-	@Column(name="fluxes")
-	private List<Flux> fluxes;
+	@ElementCollection
+	private List<Integer> fluxes;
 
-	@OneToMany
-	@Column(name="fallbacks")
-	private List<Flux> fallbacks;
+	@ElementCollection
+	private List<Integer> fallbacks;
 
 	public Schedule() {
+		fallbacks = new ArrayList<>();
 		fluxes = new ArrayList<>();
 	}
 
 	public Schedule(String name) {
 		this.name = name;
-		fluxes = new ArrayList<>();
+		fallbacks = new ArrayList<>();
 	}
 
 	public Integer getId() {
@@ -41,19 +40,19 @@ public class Schedule {
 		this.id = id;
 	}
 
-	public List<Flux> getFluxes() {
+	public List<Integer> getFluxes() {
 		return fluxes;
 	}
 
-	public void setFluxes(List<Flux> fluxes) {
+	public void setFluxes(List<Integer> fluxes) {
 		this.fluxes = fluxes;
 	}
 
-	public void addToFluxes(Flux flux) {
+	public void addToFluxes(Integer fluxId) {
 		if (this.fluxes == null) {
 			this.fluxes = new ArrayList<>();
 		}
-		this.fluxes.add(flux);
+		this.fluxes.add(fluxId);
 	}
 
 	public String getName() {
@@ -64,11 +63,11 @@ public class Schedule {
 		this.name = name;
 	}
 
-	public List<Flux> getFallbacks() {
+	public List<Integer> getFallbacks() {
 		return fallbacks;
 	}
 
-	public void setFallbacks(List<Flux> fallbacks) {
+	public void setFallbacks(List<Integer> fallbacks) {
 		this.fallbacks = fallbacks;
 	}
 }

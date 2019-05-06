@@ -25,6 +25,10 @@ public class WaitingScreen {
 	public WaitingScreen() {
 	}
 
+	public Integer getId() {
+		return id;
+	}
+
 	public String getCode() {
 		return code;
 	}
