@@ -118,7 +118,7 @@ public class ScreenController extends Controller {
 				newScreen.setName(data.getName());
 
 				screenRepository.add(newScreen);
-				waitingScreenRepository.delete(ws);
+				// waitingScreenRepository.delete(ws);
 
 				return index();
 			}

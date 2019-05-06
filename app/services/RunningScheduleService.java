@@ -3,43 +3,22 @@ package services;
 import models.db.Flux;
 import models.db.RunningSchedule;
 import models.db.Screen;
-import models.repositories.FluxRepository;
-import models.repositories.ScheduleRepository;
-import models.repositories.ScreenRepository;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
 public class RunningScheduleService extends Observable implements Runnable {
 
-	@Inject
-	ScheduleRepository scheduleRepository;
-
-	@Inject
-	ScreenRepository screenRepository;
-
-	@Inject
-	FluxRepository fluxRepository;
-
 	private RunningSchedule runningSchedule;
 	private List<Flux> fluxes;
+	private List<Screen> screens;
 
 	private boolean running;
-
-	public RunningScheduleService() {
-	}
-
-	public RunningScheduleService(RunningSchedule runningSchedule) {
+	
+	public RunningScheduleService(RunningSchedule runningSchedule, List<Flux> fluxes, List<Screen> screens) {
 		this.runningSchedule = runningSchedule;
-
-		this.fluxes = new ArrayList<>();
-		for (Integer fluxId: scheduleRepository.getById(runningSchedule.getScheduleId()).getFluxes()) {
-			fluxes.add(fluxRepository.getById(fluxId));
-		}
-
-
+		this.fluxes = fluxes;
+		this.screens = screens;
 		running = true;
 	}
 
@@ -54,10 +33,6 @@ public class RunningScheduleService extends Observable implements Runnable {
 				fluxes.add(fluxes.get(0));
 				Flux flux = fluxes.remove(0);
 
-				List<Screen> screens = new ArrayList<>();
-				for (Integer id: runningSchedule.getScreens()) {
-					screens.add(screenRepository.getById(id));
-				}
 				FluxEvent event = new FluxEvent(flux, screens);
 
 				setChanged();

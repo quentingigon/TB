@@ -25,9 +25,8 @@ public class RunningSchedule {
 	}
 
 	public RunningSchedule(Schedule schedule) {
-		// this.name = schedule.getName();
+		this.scheduleId = schedule.getId();
 		this.screens = new ArrayList<>();
-		// this.fluxes = new ArrayList<>();
 	}
 
 	public List<Integer> getScreens() {
@@ -50,5 +49,9 @@ public class RunningSchedule {
 
 	public void setScheduleId(Integer scheduleId) {
 		this.scheduleId = scheduleId;
+	}
+
+	public Integer getId() {
+		return id;
 	}
 }

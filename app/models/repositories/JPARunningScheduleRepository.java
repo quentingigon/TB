@@ -26,6 +26,20 @@ public class JPARunningScheduleRepository implements RunningScheduleRepository {
 	}
 
 	@Override
+	public RunningSchedule getByScheduleId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM runningschedule WHERE schedule_id = " + scheduleId, RunningSchedule.class);
+			try {
+				return (RunningSchedule) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<RunningSchedule> getAll() {
 		return jpaApi.withTransaction(entityManager -> {

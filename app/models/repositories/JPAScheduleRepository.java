@@ -59,7 +59,7 @@ public class JPAScheduleRepository implements ScheduleRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String scheduleId = "'" + id + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM schedule WHERE schedule_id = " + id, Schedule.class);
+				"SELECT * FROM schedule WHERE schedule_id = " + scheduleId, Schedule.class);
 			try {
 				return (Schedule) query.getSingleResult();
 			} catch (NoResultException e) {

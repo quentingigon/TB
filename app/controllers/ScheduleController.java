@@ -7,10 +7,7 @@ import models.db.Screen;
 import models.entities.FluxData;
 import models.entities.ScheduleData;
 import models.entities.ScreenData;
-import models.repositories.FluxRepository;
-import models.repositories.RunningScheduleRepository;
-import models.repositories.ScheduleRepository;
-import models.repositories.ScreenRepository;
+import models.repositories.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -40,6 +37,9 @@ public class ScheduleController extends Controller {
 
 	@Inject
 	FluxRepository fluxRepository;
+
+	@Inject
+	ScheduleFluxesRepository scheduleFluxesRepository;
 
 	private final FluxManager fluxManager;
 
@@ -83,16 +83,29 @@ public class ScheduleController extends Controller {
 			for (Screen s : screenRepository.getAll()) {
 				rs.addToScreens(s.getId());
 			}
+			// TODO errors
+			if (runningScheduleRepository.getByScheduleId(schedule.getId()) == null) {
+				runningScheduleRepository.add(rs);
+			}
+
+			List<Flux> fluxes = new ArrayList<>();
+
+			for (Integer fluxid: scheduleFluxesRepository.getFluxesIdsByScheduleId(schedule.getId())) {
+				fluxes.add(fluxRepository.getById(fluxid));
+			}
 
 			// add service as observer of FluxManager
-			RunningScheduleService service1 = new RunningScheduleService(rs);
+			RunningScheduleService service1 = new RunningScheduleService(
+				runningScheduleRepository.getByScheduleId(schedule.getId()),
+				fluxes,
+				// TODO change this to use screens sent from frontend at activation
+				screenRepository.getAll());
+
 			service1.addObserver(fluxManager);
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
 			manager.addRunningSchedule(schedule.getName(), service1);
-
-			runningScheduleRepository.add(rs);
 
 			return index();
 		}
