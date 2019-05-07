@@ -55,15 +55,13 @@ public class RunningScheduleService extends Observable implements Runnable {
 				// if a flux is scheduled for that block
 				if (currentFlux != null) {
 
-					// send an update only if flux has changed
-					// TODO need to check for fluxes with multiple phases
-					if (lastFlux != currentFlux) {
-
+					if (currentFlux != lastFlux) {
 						// send event to observer
 						sendFluxEvent(currentFlux);
 
 						lastFlux = currentFlux;
 					}
+
 				}
 				// choose from the unscheduled fluxes
 				else {
@@ -72,22 +70,17 @@ public class RunningScheduleService extends Observable implements Runnable {
 					// TODO optimize
 					for (Flux flux : fallbackFluxes) {
 
-						// send an update only if flux has changed
-						// TODO need to check for fluxes with multiple phases
-						if (flux != lastFlux) {
+						// if this flux can be inserted in the remaining blocks
+						if (flux.getDuration() <= freeBlocksN) {
 
-							// if this flux can be inserted in the remaining blocks
-							if (flux.getDuration() <= freeBlocksN) {
+							// update timetable
+							scheduleFlux(flux, blockIndex);
 
-								// update timetable
-								scheduleFlux(flux, blockIndex);
+							// send event to observer
+							sendFluxEvent(flux);
 
-								// send event to observer
-								sendFluxEvent(flux);
-
-								lastFlux = flux;
-								break;
-							}
+							lastFlux = flux;
+							break;
 						}
 					}
 				}
