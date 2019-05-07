@@ -8,53 +8,6 @@
 
 @main("Schedules Main Page") {
 
-    <style>
-            .alert {
-                padding: 20px;
-                background-color: #f44336;
-                color: white;
-            }
-
-            .closebtn {
-                margin-left: 15px;
-                color: white;
-                font-weight: bold;
-                float: right;
-                font-size: 22px;
-                line-height: 20px;
-                cursor: pointer;
-                transition: 0.3s;
-            }
-
-            .closebtn:hover {
-                color: black;
-            }
-
-            tr:hover .button {
-                opacity: 1;
-            }
-
-            table {
-                border-collapse: collapse;
-            }
-
-            td {
-                padding: 5px;
-            }
-
-            .button {
-                opacity: 0;
-            }
-
-            .btn-group {
-                opacity: 0;
-            }
-
-            tr:hover .btn-group {
-                opacity: 1;
-            }
-    </style>
-
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
         @if(error != null) {
@@ -79,10 +32,8 @@
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="button" class="btn btn-secondary" href="@routes.ScheduleController.updateView(runningSchedule.getName)" >Update Schedule</button>
-                                <form method="get" action="@routes.ScheduleController.activate(runningSchedule.getName)">
-                                    @helper.CSRF.formField
-                                    <button type="submit" class="btn btn-secondary">Activate Schedule</button>
-                                </form>
+                                <a type="button" class="btn btn-secondary" href="@routes.ScheduleController.activateView(runningSchedule.getName)">Activate Schedule</a>
+
                                 <form method="get" action="@routes.ScheduleController.deactivate(runningSchedule.getName)">
                                     @helper.CSRF.formField
                                 <button type="submit" class="btn btn-secondary">Deactivate Schedule</button>

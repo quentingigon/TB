@@ -16,6 +16,7 @@ import play.mvc.Result;
 import services.FluxManager;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
+import views.html.schedule_activation;
 import views.html.schedule_creation;
 import views.html.schedule_page;
 import views.html.schedule_update;
@@ -72,10 +73,16 @@ public class ScheduleController extends Controller {
 		return ok(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), null, request));
 	}
 
-	// TODO maybe do it with entities (Data)
-	public Result activate(String name) {
+	public Result activateView(String name, Http.Request request) {
+		return ok(schedule_activation.render(form, getAllScreens(), new ScheduleData(name), null, request));
+	}
 
-		Schedule schedule = scheduleRepository.getByName(name);
+	public Result activate(Http.Request request) {
+		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
+
+		ScheduleData data = boundForm.get();
+
+		Schedule schedule = scheduleRepository.getByName(data.getName());
 
 		// incorrect name
 		if (schedule == null) {
@@ -84,26 +91,30 @@ public class ScheduleController extends Controller {
 		else {
 
 			RunningSchedule rs = new RunningSchedule(schedule);
-			// TODO change this to use screens sent from frontend at activation
-			for (Screen s : screenRepository.getAll()) {
-				rs.addToScreens(s.getId());
+			if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
+				return badRequest(schedule_page.render(getAllSchedules(), "This schedule is already activated"));
 			}
-			// TODO errors
-			if (runningScheduleRepository.getByScheduleId(schedule.getId()) == null) {
-				rs = runningScheduleRepository.add(rs);
-			}
+			rs = runningScheduleRepository.add(rs);
 
-			for (Screen s : screenRepository.getAll()) {
-				s.setRunningscheduleId(rs.getId());
-				screenRepository.update(s);
+			List<Screen> screens = new ArrayList<>();
+			for (String screenMac : data.getScreens()) {
+				Screen screen = screenRepository.getByMacAddress(screenMac);
+				if (screen == null) {
+					return badRequest(schedule_page.render(getAllSchedules(), "screen mac address does not exist : " + screenMac));
+				}
+				rs.addToScreens(screenRepository.getByMacAddress(screenMac).getId());
+				screen.setRunningscheduleId(rs.getId());
+
+				screens.add(screen);
+				screenRepository.update(screen);
+				runningScheduleRepository.update(rs);
 			}
 
 			// add service as observer of FluxManager
 			RunningScheduleService service2 = new RunningScheduleService(
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
-				// TODO change this to use screens sent from frontend at activation
-				screenRepository.getAll(),
-				fluxRepository.getAll(),
+				screens,
+				fluxRepository.getAll(), // fallbackfluxes TODO
 				getTimeTable());
 
 			service2.addObserver(fluxManager);
@@ -123,18 +134,23 @@ public class ScheduleController extends Controller {
 			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
 		}
 		else {
+			RunningSchedule rs = runningScheduleRepository.getByScheduleId(schedule.getId());
+
+			// remove RunningSchedule reference from all concerned screens
+			for (Screen s : screenRepository.getAllByRunningScheduleId(rs.getId())) {
+				s.setRunningscheduleId(null);
+				screenRepository.update(s);
+			}
+
+			runningScheduleRepository.delete(rs);
 
 			serviceManager.removeRunningSchedule(schedule.getId());
-
-			// TODO delete
-			// runningScheduleRepository.delete();
 
 			return index();
 		}
 	}
 
 	public Result create(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
 		ScheduleData data = boundForm.get();

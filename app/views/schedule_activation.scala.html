@@ -4,13 +4,13 @@
 @import java.util
 @import models.entities.DiffuserData
 @import models.entities.ScreenData
-@(      form: Form[DiffuserData],
+@(      form: Form[ScheduleData],
         screens: util.List[ScreenData],
-        data: DiffuserData,
+        data: ScheduleData,
         error: String)(implicit request: Http.Request)
 
 
-@main("Diffuser Activation Page") {
+@main("Schedule Activation Page") {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
@@ -21,7 +21,7 @@
             </div>
         }
 
-        @helper.form(routes.DiffuserController.activate()) {
+        @helper.form(routes.ScheduleController.activate()) {
             @helper.CSRF.formField
             <div class="form-group">
                 <label for="inputName">Name</label>

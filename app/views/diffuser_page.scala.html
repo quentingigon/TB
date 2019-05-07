@@ -6,53 +6,6 @@
 
 @main("Diffusers Main Page") {
 
-    <style>
-            .alert {
-                padding: 20px;
-                background-color: #f44336;
-                color: white;
-            }
-
-            .closebtn {
-                margin-left: 15px;
-                color: white;
-                font-weight: bold;
-                float: right;
-                font-size: 22px;
-                line-height: 20px;
-                cursor: pointer;
-                transition: 0.3s;
-            }
-
-            .closebtn:hover {
-                color: black;
-            }
-
-            tr:hover .button {
-                opacity: 1;
-            }
-
-            table {
-                border-collapse: collapse;
-            }
-
-            td {
-                padding: 5px;
-            }
-
-            .button {
-                opacity: 0;
-            }
-
-            .btn-group {
-                opacity: 0;
-            }
-
-            tr:hover .btn-group {
-                opacity: 1;
-            }
-    </style>
-
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
         @if(error != null) {

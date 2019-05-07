@@ -55,13 +55,10 @@ public class RunningScheduleService extends Observable implements Runnable {
 				// if a flux is scheduled for that block
 				if (currentFlux != null) {
 
-					if (currentFlux != lastFlux) {
-						// send event to observer
-						sendFluxEvent(currentFlux);
+					// send event to observer
+					sendFluxEvent(currentFlux);
 
-						lastFlux = currentFlux;
-					}
-
+					lastFlux = currentFlux;
 				}
 				// choose from the unscheduled fluxes
 				else {
