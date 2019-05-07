@@ -28,7 +28,7 @@
     box-shadow: $pagination-focus-box-shadow;
   }
 
-  // Opinionated: add "hand" cursor to non-disabled .page-link elements
+  // Opinionated: addFlux "hand" cursor to non-disabled .page-link elements
   &:not(:disabled):not(.disabled) {
     cursor: pointer;
   }

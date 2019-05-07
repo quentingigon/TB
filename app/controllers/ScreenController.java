@@ -108,7 +108,7 @@ public class ScreenController extends Controller {
 			String code = data.getCode();
 			WaitingScreen ws = waitingScreenRepository.getByMac(macAdr);
 
-			// if code is correct -> add screen to DB
+			// if code is correct -> addFlux screen to DB
 			if (ws.getCode().equals(code)) {
 
 				Screen newScreen = new Screen(macAdr);

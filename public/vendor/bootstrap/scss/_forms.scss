@@ -231,7 +231,7 @@ textarea.form-control {
   padding-left: 0; // Override base .form-check
   margin-right: $form-check-inline-margin-x;
 
-  // Undo .form-check-input defaults and add some `margin-right`.
+  // Undo .form-check-input defaults and addFlux some `margin-right`.
   .form-check-input {
     position: static;
     margin-top: 0;

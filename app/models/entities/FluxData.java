@@ -8,6 +8,7 @@ public class FluxData {
 	private String url;
 	private String duration;
 	private String type;
+	private String site;
 
 	public FluxData() {
 	}
@@ -61,5 +62,13 @@ public class FluxData {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getSite() {
+		return site;
+	}
+
+	public void setSite(String site) {
+		this.site = site;
 	}
 }

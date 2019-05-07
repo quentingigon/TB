@@ -1,7 +1,7 @@
 package services;
 
 /**
- * This interface demonstrates how to add a component that is injected
+ * This interface demonstrates how to addFlux a component that is injected
  * into a controller. The interface represents a counter that returns a
  * incremented number each time it is called.
  *

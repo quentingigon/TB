@@ -117,7 +117,7 @@
     text-decoration: none;
   }
 
-  // Opinionated: add "hand" cursor to non-disabled .navbar-toggler elements
+  // Opinionated: addFlux "hand" cursor to non-disabled .navbar-toggler elements
   &:not(:disabled):not(.disabled) {
     cursor: pointer;
   }

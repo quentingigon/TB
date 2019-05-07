@@ -87,10 +87,10 @@ public class DiffuserController extends Controller {
 			Set<String> runningSchedulesNames = new HashSet<>();
 			for (String mac: data.getScreens()) {
 				// TODO get runningScheduleName from somewhere
-				//runningSchedulesNames.add();
+				//runningSchedulesNames.addFlux();
 			}
 
-			// Flux to add to schedules and services
+			// Flux to addFlux to schedules and services
 			Flux diffusedFlux = fluxRepository.getByName(data.getFluxName());
 
 			// create new runningDiffuser

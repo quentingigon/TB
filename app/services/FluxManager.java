@@ -70,7 +70,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 					System.out.println("Source updated " + currentFlux.getFlux());
 
 					if (!fluxEvents.isEmpty()) {
-						// fluxEvents.add(fluxEvents.get(0));
+						// fluxEvents.addFlux(fluxEvents.get(0));
 						currentFlux = fluxEvents.remove(0);
 
 						if (fluxEvents.isEmpty()) {
@@ -84,7 +84,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 			}
 			// wait a bit before rechecking
 			else {
-				System.out.println("No flux events");
+				// System.out.println("No flux events");
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {

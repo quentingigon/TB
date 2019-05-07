@@ -1,10 +1,11 @@
 package controllers;
 
-import models.FluxTypes;
 import models.db.Flux;
-import models.db.Team;
+import models.db.GeneralFlux;
+import models.db.LocatedFlux;
 import models.entities.FluxData;
 import models.repositories.FluxRepository;
+import models.repositories.SiteRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -13,9 +14,10 @@ import play.mvc.Result;
 import views.html.flux_creation;
 import views.html.flux_page;
 import views.html.flux_update;
-import views.html.team_page;
 
 import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,9 @@ public class FluxController extends Controller {
 
 	@Inject
 	FluxRepository fluxRepository;
+
+	@Inject
+	SiteRepository siteRepository;
 
 	private Form<FluxData> form;
 
@@ -53,12 +58,32 @@ public class FluxController extends Controller {
 
 		// flux already exists
 		if (fluxRepository.getByName(data.getName()) != null) {
-			// with error message
 			return badRequest(flux_creation.render(form, "Flux already exists"));
+		}
+		// bar url
+		else if (!isValidURL(data.getUrl())) {
+			return badRequest(flux_creation.render(form, "URL format is wrong"));
+		}
+		// duration not a number
+		else if (data.getDuration().matches("-?\\d+(\\.\\d+)?")) {
+			return badRequest(flux_creation.render(form, "You must enter a number for duration"));
 		}
 		else {
 
-			fluxRepository.add(newFlux);
+			// general flux
+			if (data.getSite() == null) {
+				newFlux = fluxRepository.addFlux(newFlux);
+				fluxRepository.addGeneralFlux(new GeneralFlux(newFlux.getId()));
+
+			}
+			// located flux
+			else {
+				newFlux = fluxRepository.addFlux(newFlux);
+				fluxRepository.addLocatedFlux(new LocatedFlux(newFlux.getId(),
+					siteRepository.getByName(data.getSite()).getId()));
+			}
+
+
 			return index();
 		}
 	}
@@ -105,5 +130,15 @@ public class FluxController extends Controller {
 			data.add(new FluxData(f));
 		}
 		return data;
+	}
+
+	private boolean isValidURL(String urlStr) {
+		try {
+			URL url = new URL(urlStr);
+			return true;
+		}
+		catch (MalformedURLException e) {
+			return false;
+		}
 	}
 }

@@ -1,6 +1,8 @@
 package models.repositories;
 
 import models.db.Flux;
+import models.db.GeneralFlux;
+import models.db.LocatedFlux;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -18,7 +20,23 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
-	public Flux add(Flux flux) {
+	public Flux addFlux(Flux flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(flux);
+		});
+		return flux;
+	}
+
+	@Override
+	public LocatedFlux addLocatedFlux(LocatedFlux flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(flux);
+		});
+		return flux;
+	}
+
+	@Override
+	public GeneralFlux addGeneralFlux(GeneralFlux flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(flux);
 		});

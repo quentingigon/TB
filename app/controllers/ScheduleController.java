@@ -94,7 +94,7 @@ public class ScheduleController extends Controller {
 				fluxes.add(fluxRepository.getById(fluxid));
 			}
 
-			// add service as observer of FluxManager
+			// addFlux service as observer of FluxManager
 			RunningScheduleService service1 = new RunningScheduleService(
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
 				fluxes,

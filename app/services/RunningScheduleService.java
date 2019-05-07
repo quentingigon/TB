@@ -14,7 +14,7 @@ public class RunningScheduleService extends Observable implements Runnable {
 	private List<Screen> screens;
 
 	private boolean running;
-	
+
 	public RunningScheduleService(RunningSchedule runningSchedule, List<Flux> fluxes, List<Screen> screens) {
 		this.runningSchedule = runningSchedule;
 		this.fluxes = fluxes;
