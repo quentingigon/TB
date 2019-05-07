@@ -12,6 +12,7 @@ public interface ScreenRepository {
 	Screen getById(int id);
 
 	List<Screen> getAll();
+	List<Integer> getAllScreenIdsOfTeam(Integer id);
 
 	void add(Screen screen);
 	void update(Screen screen);

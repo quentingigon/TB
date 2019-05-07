@@ -46,12 +46,15 @@ public class ScheduleController extends Controller {
 
 	private final FluxManager fluxManager;
 
+	private final RunningScheduleServiceManager serviceManager;
+
 	private Form<ScheduleData> form;
 
 	@Inject
-	public ScheduleController(FormFactory formFactory, FluxManager fluxManager) {
+	public ScheduleController(FormFactory formFactory, FluxManager fluxManager, RunningScheduleServiceManager serviceManager) {
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
+		this.serviceManager = serviceManager;
 		Thread t = new Thread(this.fluxManager);
 		t.start();
 	}
@@ -87,22 +90,15 @@ public class ScheduleController extends Controller {
 			}
 			// TODO errors
 			if (runningScheduleRepository.getByScheduleId(schedule.getId()) == null) {
-				runningScheduleRepository.add(rs);
+				rs = runningScheduleRepository.add(rs);
 			}
 
-			List<Flux> fluxes = new ArrayList<>();
-
-			for (Integer fluxid: scheduleFluxesRepository.getFluxesIdsByScheduleId(schedule.getId())) {
-				fluxes.add(fluxRepository.getById(fluxid));
+			for (Screen s : screenRepository.getAll()) {
+				s.setRunningscheduleId(rs.getId());
+				screenRepository.update(s);
 			}
 
-			// addFlux service as observer of FluxManager
-			RunningScheduleService service1 = new RunningScheduleService(
-				runningScheduleRepository.getByScheduleId(schedule.getId()),
-				fluxes,
-				// TODO change this to use screens sent from frontend at activation
-				screenRepository.getAll());
-
+			// add service as observer of FluxManager
 			RunningScheduleService service2 = new RunningScheduleService(
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
 				// TODO change this to use screens sent from frontend at activation
@@ -113,8 +109,7 @@ public class ScheduleController extends Controller {
 			service2.addObserver(fluxManager);
 
 			// the schedule is activated
-			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
-			manager.addRunningSchedule(schedule.getName(), service2);
+			serviceManager.addRunningSchedule(schedule.getId(), service2);
 
 			return index();
 		}
@@ -128,9 +123,8 @@ public class ScheduleController extends Controller {
 			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
 		}
 		else {
-			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
 
-			manager.removeRunningSchedule(name);
+			serviceManager.removeRunningSchedule(schedule.getId());
 
 			// TODO delete
 			// runningScheduleRepository.delete();

@@ -17,6 +17,9 @@ public class Diffuser {
 	@Column(name="validity")
 	private Integer validity;
 
+	@Column(name="flux_id")
+	private Integer flux;
+
 	public Diffuser() {
 	}
 
@@ -42,5 +45,13 @@ public class Diffuser {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getFlux() {
+		return flux;
+	}
+
+	public void setFlux(Integer flux) {
+		this.flux = flux;
 	}
 }

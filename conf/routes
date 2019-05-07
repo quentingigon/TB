@@ -95,9 +95,9 @@ POST    /schedules/delete/:name         controllers.ScheduleController.delete(na
 # Diffusers
 GET     /diffusers                      controllers.DiffuserController.index()
 
-GET     /diffusers/activate             controllers.DiffuserController.activateView(name: String, request: Request)
+GET     /diffusers/activate/:name       controllers.DiffuserController.activateView(name: String, request: Request)
 
-POST    /diffusers/activate/            controllers.DiffuserController.activate(request: Request)
+GET     /diffusers/activate             controllers.DiffuserController.activate(request: Request)
 
 GET     /diffusers/deactivate/:name     controllers.DiffuserController.deactivate(name: String)
 

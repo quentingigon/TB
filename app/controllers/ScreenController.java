@@ -104,15 +104,27 @@ public class ScreenController extends Controller {
 		if (screenRepository.getByMacAddress(macAdr) != null) {
 			return badRequest(screen_register.render(form, "Screen already exists, by MAC"));
 		}
+		else if (data.getCode() == null) {
+			return badRequest(screen_register.render(form, "You must enter a registration code"));
+		}
 		else {
 			String code = data.getCode();
 			WaitingScreen ws = waitingScreenRepository.getByMac(macAdr);
 
-			// if code is correct -> addFlux screen to DB
+			if (ws == null) {
+				return badRequest(screen_register.render(form,
+					"You must first get a registration code by going to this address: /auth?mac=<YOurMacAddress>"));
+			}
+
+			// if code is correct -> add screen to DB
 			if (ws.getCode().equals(code)) {
 
 				Screen newScreen = new Screen(macAdr);
-				newScreen.setSiteId(siteRepository.getByName(data.getSite()).getId());
+
+				if (siteRepository.getByName(data.getSite().toLowerCase()) == null) {
+					return badRequest(screen_register.render(form, "Bad site name"));
+				}
+				newScreen.setSiteId(siteRepository.getByName(data.getSite().toLowerCase()).getId());
 				newScreen.setResolution(data.getResolution());
 				newScreen.setLogged(false);
 				newScreen.setName(data.getName());
@@ -143,12 +155,17 @@ public class ScreenController extends Controller {
 		}
 		else {
 			// update screen
+			if (siteRepository.getByName(data.getSite().toLowerCase()) == null) {
+				return badRequest(screen_register.render(form, "Bad site name"));
+			}
+			screen.setSiteId(siteRepository.getByName(data.getSite().toLowerCase()).getId());
+
 			screen.setName(data.getName());
 			screen.setMacAddress(data.getMac());
 			screen.setResolution(data.getResolution());
-			screen.setSiteId(siteRepository.getByName(data.getSite()).getId());
 
 			screenRepository.update(screen);
+
 			return index();
 		}
 	}

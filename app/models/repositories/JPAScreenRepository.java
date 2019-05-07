@@ -63,6 +63,21 @@ public class JPAScreenRepository implements ScreenRepository {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllScreenIdsOfTeam(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String teamId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT screens FROM team_screens WHERE team_team_id = " + teamId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public void add(Screen screen) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(screen);

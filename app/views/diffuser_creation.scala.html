@@ -1,6 +1,8 @@
 @import models.entities.DiffuserData
 
-@(form: Form[DiffuserData], message: String)
+@import java.util
+@import models.entities.FluxData
+@(form: Form[DiffuserData], fluxes: util.List[FluxData], message: String)
 
 
 @main("Diffuser Creation Page") {
@@ -40,10 +42,22 @@
 
         <form action="@routes.DiffuserController.create()" method="POST">
             @helper.CSRF.formField
+
             <div class="form-group">
                 <label for="inputName">Name</label>
                 <input name="name" type="text" class="form-control" id="inputName" placeholder="Diffuser name...">
             </div>
+
+
+            <div class="form-group col-md-4">
+                <label for="inputFluxName">Fluxes</label>
+                <select name="fluxName" id="inputFluxName" class="form-control" >
+                @for(flux <- fluxes) {
+                    <option>@flux.getName</option>
+                }
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
     </div>

@@ -18,7 +18,7 @@ public class RunningScheduleService extends Observable implements Runnable {
 	private List<Flux> fluxes;
 	private List<Screen> screens;
 
-	private HashMap<Integer, Flux> timetable;
+	private volatile HashMap<Integer, Flux> timetable;
 	private List<Flux> fallbackFluxes;
 
 	private boolean running;
@@ -67,20 +67,24 @@ public class RunningScheduleService extends Observable implements Runnable {
 				else {
 					int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
 
+					boolean sent = false;
+
 					// TODO optimize
 					for (Flux flux : fallbackFluxes) {
 
-						// if this flux can be inserted in the remaining blocks
-						if (flux.getDuration() <= freeBlocksN) {
+						if (!sent) {
+							// if this flux can be inserted in the remaining blocks
+							if (flux.getDuration() <= freeBlocksN) {
 
-							// update timetable
-							scheduleFlux(flux, blockIndex);
+								// update timetable
+								scheduleFlux(flux, blockIndex);
 
-							// send event to observer
-							sendFluxEvent(flux);
+								// send event to observer
+								sendFluxEvent(flux);
 
-							lastFlux = flux;
-							break;
+								lastFlux = flux;
+								sent = true;
+							}
 						}
 					}
 				}
@@ -128,10 +132,19 @@ public class RunningScheduleService extends Observable implements Runnable {
 		notifyObservers(event);
 	}
 
-	private void scheduleFlux(Flux flux, int blockIndex) {
+	public void scheduleFlux(Flux flux, int blockIndex) {
 		for (int i = 0; i < flux.getDuration(); i++) {
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
 			timetable.put(blockIndex + i, flux);
+		}
+	}
+
+	// TODO maybe optimize
+	public void removeScheduledFlux(Flux flux) {
+		for (int i = 0; i < flux.getDuration(); i++) {
+			if (timetable.get(i) == flux) {
+				timetable.remove(i);
+			}
 		}
 	}
 

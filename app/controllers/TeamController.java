@@ -111,6 +111,14 @@ public class TeamController extends Controller {
 		}
 	}
 
+	private List<ScreenData> getAllScreensOfTeam(int teamId) {
+		List<ScreenData> data = new ArrayList<>();
+		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
+			data.add(new ScreenData(screenRepository.getById(screenId)));
+		}
+		return data;
+	}
+
 	private List<ScreenData> getAllScreens() {
 		List<ScreenData> data = new ArrayList<>();
 		for (Screen s: screenRepository.getAll()) {

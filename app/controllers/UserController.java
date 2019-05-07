@@ -87,10 +87,10 @@ public class UserController extends Controller {
 
 		UserData data = boundForm.get();
 
-		User user = userRepository.getByEmail(data.getEmail());
+		User user = userRepository.get(data.getEmail(), data.getPassword());
 
 		if (user == null) {
-			return badRequest(user_login.render(form, "Wrong email address"));
+			return badRequest(user_login.render(form, "Wrong user info"));
 		}
 		else {
 			return redirect(routes.HomeController.index()).withCookies(

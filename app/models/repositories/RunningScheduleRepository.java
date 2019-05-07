@@ -9,8 +9,9 @@ import java.util.List;
 public interface RunningScheduleRepository {
 
 	RunningSchedule add(RunningSchedule schedule);
-	RunningSchedule getByScheduleId(Integer scheduleId);
 
+	RunningSchedule getById(Integer id);
+	RunningSchedule getByScheduleId(Integer scheduleId);
 	List<RunningSchedule> getAll();
 
 	void update(RunningSchedule schedule);

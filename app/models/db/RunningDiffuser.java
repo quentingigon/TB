@@ -13,8 +13,8 @@ public class RunningDiffuser {
 	@Column(name="runningdiffuser_id")
 	private Integer id;
 
-	@Column(name="flux_id")
-	private Integer fluxId;
+	@Column(name="diffuser_id")
+	private Integer diffuserId;
 
 	@ElementCollection
 	private List<Integer> screens;
@@ -24,16 +24,11 @@ public class RunningDiffuser {
 	}
 
 	public RunningDiffuser(Diffuser d) {
-		// setName(d.getName());
-		// setValidity(d.getValidity());
+		diffuserId = d.getId();
 	}
 
-	public Integer getFluxId() {
-		return fluxId;
-	}
-
-	public void setFluxId(Integer flux_id) {
-		this.fluxId = flux_id;
+	public Integer getId() {
+		return id;
 	}
 
 	public List<Integer> getScreens() {
@@ -48,5 +43,13 @@ public class RunningDiffuser {
 		if (screens == null)
 			screens = new ArrayList<>();
 		screens.add(screenId);
+	}
+
+	public Integer getDiffuserId() {
+		return diffuserId;
+	}
+
+	public void setDiffuserId(Integer diffuserId) {
+		this.diffuserId = diffuserId;
 	}
 }

@@ -1,9 +1,9 @@
 import com.google.inject.AbstractModule;
-import java.time.Clock;
-
 import services.ApplicationTimer;
 import services.AtomicCounter;
 import services.Counter;
+
+import java.time.Clock;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -11,7 +11,7 @@ import services.Counter;
  * application starts.
  *
  * Play will automatically use any class called `Module` that is in
- * the root package. You can addFlux modules in other locations by
+ * the root package. You can add modules in other locations by
  * adding `play.modules.enabled` settings to the `application.conf`
  * configuration file.
  */
@@ -21,7 +21,7 @@ public class Module extends AbstractModule {
     public void configure() {
         // Use the system clock as the default implementation of Clock
         bind(Clock.class).toInstance(Clock.systemDefaultZone());
-        // Ask Guice to addFlux an instance of ApplicationTimer when the
+        // Ask Guice to add an instance of ApplicationTimer when the
         // application starts.
         bind(ApplicationTimer.class).asEagerSingleton();
         // Set AtomicCounter as the implementation for Counter.
