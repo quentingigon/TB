@@ -77,6 +77,7 @@ public class ScheduleController extends Controller {
 		return ok(schedule_activation.render(form, getAllScreens(), new ScheduleData(name), null, request));
 	}
 
+	// TODO implement on frontend a way to choose an hour for a flux and then use table scheduled_flux to persist the info
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
@@ -115,7 +116,7 @@ public class ScheduleController extends Controller {
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
 				screens,
 				fluxRepository.getAll(), // fallbackfluxes TODO
-				getTimeTable());
+				getTimeTable(schedule));
 
 			service2.addObserver(fluxManager);
 
@@ -164,7 +165,11 @@ public class ScheduleController extends Controller {
 
 			// TODO check for null
 			for (String fluxName: data.getFluxes()) {
+				if (fluxRepository.getByName(fluxName) == null) {
+					return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "Flux name does not exists", request));
+				}
 				schedule.addToFluxes(fluxRepository.getByName(fluxName).getId());
+
 			}
 
 			scheduleRepository.add(schedule);
@@ -174,7 +179,6 @@ public class ScheduleController extends Controller {
 	}
 
 	public Result update(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
 		Schedule schedule = scheduleRepository.getByName(boundForm.get().getName());
@@ -185,7 +189,6 @@ public class ScheduleController extends Controller {
 		}
 		else {
 			// do changes to schedule here
-
 			scheduleRepository.update(schedule);
 
 			return index();
@@ -208,7 +211,7 @@ public class ScheduleController extends Controller {
 	}
 
 	// TODO integrate with schedule etc
-	private HashMap<Integer, Flux> getTimeTable() {
+	private HashMap<Integer, Flux> getTimeTable(Schedule schedule) {
 
 		HashMap<Integer, Flux> timetable = new HashMap<>();
 		for (int i = 0; i < blockNumber; i++) {

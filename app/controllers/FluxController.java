@@ -70,6 +70,7 @@ public class FluxController extends Controller {
 		else if (data.getDuration().matches("-?\\d+(\\.\\d+)?")) {
 			return badRequest(flux_creation.render(form, "You must enter a number for duration"));
 		}
+		// flux duration is too long
 		else if (Integer.valueOf(data.getDuration()) > blockNumber) {
 			return badRequest(flux_creation.render(form, "Flux duration is too long"));
 		}
