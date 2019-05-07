@@ -22,7 +22,10 @@ import views.html.schedule_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static services.BlockUtils.blockNumber;
 
 public class ScheduleController extends Controller {
 
@@ -73,7 +76,6 @@ public class ScheduleController extends Controller {
 
 		// incorrect name
 		if (schedule == null) {
-			// TODO error + redirect
 			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
 		}
 		else {
@@ -101,11 +103,18 @@ public class ScheduleController extends Controller {
 				// TODO change this to use screens sent from frontend at activation
 				screenRepository.getAll());
 
-			service1.addObserver(fluxManager);
+			RunningScheduleService service2 = new RunningScheduleService(
+				runningScheduleRepository.getByScheduleId(schedule.getId()),
+				// TODO change this to use screens sent from frontend at activation
+				screenRepository.getAll(),
+				fluxRepository.getAll(),
+				getTimeTable());
+
+			service2.addObserver(fluxManager);
 
 			// the schedule is activated
 			RunningScheduleServiceManager manager = RunningScheduleServiceManager.getInstance();
-			manager.addRunningSchedule(schedule.getName(), service1);
+			manager.addRunningSchedule(schedule.getName(), service2);
 
 			return index();
 		}
@@ -186,6 +195,19 @@ public class ScheduleController extends Controller {
 
 			return index();
 		}
+	}
+
+	// TODO integrate with schedule etc
+	private HashMap<Integer, Flux> getTimeTable() {
+
+		HashMap<Integer, Flux> timetable = new HashMap<>();
+		for (int i = 0; i < blockNumber; i++) {
+			if (i == 1)
+				timetable.put(i, fluxRepository.getById(1));
+			else
+				timetable.put(i, null);
+		}
+		return timetable;
 	}
 
 	private List<FluxData> getAllFluxes() {

@@ -21,6 +21,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static services.BlockUtils.blockNumber;
+
 public class FluxController extends Controller {
 
 	@Inject
@@ -67,6 +69,9 @@ public class FluxController extends Controller {
 		// duration not a number
 		else if (data.getDuration().matches("-?\\d+(\\.\\d+)?")) {
 			return badRequest(flux_creation.render(form, "You must enter a number for duration"));
+		}
+		else if (Integer.valueOf(data.getDuration()) > blockNumber) {
+			return badRequest(flux_creation.render(form, "Flux duration is too long"));
 		}
 		else {
 
