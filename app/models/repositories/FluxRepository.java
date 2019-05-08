@@ -18,6 +18,7 @@ public interface FluxRepository {
 	Flux getById(Integer id);
 
 	List<Flux> getAll();
+	List<Integer> getAllFluxIdsOfTeam(Integer id);
 
 	void update(Flux flux);
 	void delete(Flux flux);

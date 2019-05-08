@@ -11,6 +11,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import views.html.flux_creation;
 import views.html.flux_page;
 import views.html.flux_update;
@@ -38,20 +39,23 @@ public class FluxController extends Controller {
 		this.form = formFactory.form(FluxData.class);
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result index() {
 		return ok(flux_page.render(getAllFluxes(), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result createView() {
 		return ok(flux_creation.render(form, null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
 		return ok(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
 
 		FluxData data = boundForm.get();
@@ -94,8 +98,8 @@ public class FluxController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
 
 		FluxData data = boundForm.get();
@@ -117,6 +121,7 @@ public class FluxController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result delete(String name) {
 		Flux flux = fluxRepository.getByName(name);
 

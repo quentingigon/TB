@@ -86,6 +86,21 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllFluxIdsOfTeam(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String fluxId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT fluxes FROM team_fluxes WHERE team_team_id = " + fluxId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public void update(Flux flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(flux);

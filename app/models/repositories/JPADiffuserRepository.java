@@ -54,6 +54,20 @@ public class JPADiffuserRepository implements DiffuserRepository {
 	}
 
 	@Override
+	public Diffuser getById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String diffuserId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM diffuser WHERE diffuser_id = " + diffuserId, Diffuser.class);
+			try {
+				return (Diffuser) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<Diffuser> getAll() {
 		return jpaApi.withTransaction(entityManager -> {
@@ -61,6 +75,21 @@ public class JPADiffuserRepository implements DiffuserRepository {
 				"SELECT * FROM diffuser", Diffuser.class);
 			try {
 				return (List<Diffuser>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllDiffuserIdsOfTeam(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String diffuserId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT diffusers FROM team_diffusers WHERE team_team_id = " + diffuserId);
+			try {
+				return (List<Integer>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

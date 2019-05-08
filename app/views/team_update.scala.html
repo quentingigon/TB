@@ -1,7 +1,20 @@
 @import models.entities.TeamData
 @import models.db.Screen
 
-@(form: Form[TeamData], data: TeamData, error: String)
+@import models.entities.FluxData
+@import java.util
+@import models.entities.ScreenData
+@import models.entities.UserData
+@import models.entities.ScheduleData
+@import models.entities.DiffuserData
+@(form: Form[TeamData],
+        fluxes: util.List[FluxData],
+        screens: util.List[ScreenData],
+        members: util.List[UserData],
+        schedules: util.List[ScheduleData],
+        diffusers: util.List[DiffuserData],
+        data: TeamData,
+        error: String)
 
 
 @main("Team Update Page") {
@@ -17,10 +30,57 @@
 
         <form action="@routes.TeamController.update()" method="POST">
             @helper.CSRF.formField
+
             <div class="form-group">
                 <label for="inputName">Name</label>
                 <input name="name" type="text" readonly class="form-control-plaintext" id="inputName" value="@data.getName">
             </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputFluxes">Fluxes</label>
+                <select name="fluxes[]" id="inputFluxes" class="form-control" multiple="multiple" >
+                @for(flux <- fluxes) {
+                    <option>@flux.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputScreens">Screens</label>
+                <select name="screens[]" id="inputScreens" class="form-control" multiple="multiple" >
+                @for(screen <- screens) {
+                    <option>@screen.getMac</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputMembers">Members</label>
+                <select name="members[]" id="inputMembers" class="form-control" multiple="multiple" >
+                @for(member <- members) {
+                    <option>@member.getEmail</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputSchedules">Schedules</label>
+                <select name="schedules[]" id="inputSchedules" class="form-control" multiple="multiple" >
+                @for(schedule <- schedules) {
+                    <option>@schedule.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputDiffusers">Diffusers</label>
+                <select name="diffusers[]" id="inputDiffusers" class="form-control" multiple="multiple" >
+                @for(diffuser <- diffusers) {
+                    <option>@diffuser.getName</option>
+                }
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
 

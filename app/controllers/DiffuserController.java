@@ -11,6 +11,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
 import views.html.diffuser_activation;
@@ -54,23 +55,28 @@ public class DiffuserController extends Controller {
 		this.serviceManager = serviceManager;
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result index() {
 		return ok(diffuser_page.render(getAllDiffusers(), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
 		return ok(diffuser_update.render(form, new DiffuserData(name), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result createView() {
 		return ok(diffuser_creation.render(form, getAllFluxes(), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
 		return ok(diffuser_activation.render(form, getAllScreens(), new DiffuserData(name), null, request));
 	}
 
 	// TODO activation page to select flux and screens
+	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
@@ -127,6 +133,7 @@ public class DiffuserController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name) {
 		Diffuser diffuser = diffuserRepository.getByName(name);
 
@@ -152,6 +159,7 @@ public class DiffuserController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
 
@@ -171,6 +179,7 @@ public class DiffuserController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
 
@@ -189,6 +198,7 @@ public class DiffuserController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result delete(String name) {
 
 		Diffuser diffuser = diffuserRepository.getByName(name);

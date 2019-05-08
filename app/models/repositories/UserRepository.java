@@ -15,8 +15,10 @@ public interface UserRepository {
 	User create(User user);
 	User get(String email, String password);
 	User getByEmail(String email);
+	User getById(Integer id);
 
 	List<User> getAll();
+	List<Integer> getAllMemberIdsOfTeam(Integer id);
 
 	void delete(User user);
 	void update(User user);

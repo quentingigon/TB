@@ -84,6 +84,21 @@ public class JPAScheduleRepository implements ScheduleRepository {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllScheduleIdsOfTeam(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT schedules FROM team_schedules WHERE team_team_id = " + scheduleId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public void activate(RunningSchedule schedule) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(schedule);

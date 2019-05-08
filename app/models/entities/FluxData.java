@@ -9,6 +9,7 @@ public class FluxData {
 	private String duration;
 	private String type;
 	private String site;
+	private String team;
 
 	public FluxData() {
 	}
@@ -70,5 +71,13 @@ public class FluxData {
 
 	public void setSite(String site) {
 		this.site = site;
+	}
+
+	public String getTeam() {
+		return team;
+	}
+
+	public void setTeam(String team) {
+		this.team = team;
 	}
 }

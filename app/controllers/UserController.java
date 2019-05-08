@@ -10,6 +10,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import views.html.user_login;
 import views.html.user_page;
 import views.html.user_register;
@@ -34,9 +35,12 @@ public class UserController extends Controller {
 		this.form = formFactory.form(UserData.class);
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result index() {
 		return ok(user_page.render(getAllUsers(), null));
 	}
+
+	@With(UserAuthentificationAction.class)
 	public Result updateView(String email) {
 		return ok(user_update.render(form, new UserData(userRepository.getByEmail(email)), null));
 	}
@@ -66,16 +70,18 @@ public class UserController extends Controller {
 				TeamMember newMember = new TeamMember(newUser);
 
 				// set team
-				newMember.setTeamId(teamRepository.getByName(boundForm.get().getTeam()).getId());
+//				newMember.setTeamId(teamRepository.getByName(boundForm.get().getTeam()).getId());
 
 //				userRepository.createMember(newMember);
+				// TODO fix this shit
+				userRepository.create(newUser);
 			}
 			else {
 				userRepository.create(newUser);
 			}
 
 			return redirect(routes.HomeController.index()).withCookies(
-				Http.Cookie.builder("logged", "true")
+				Http.Cookie.builder("email", newUser.getEmail())
 					.withHttpOnly(false)
 					.build());
 		}
@@ -94,29 +100,36 @@ public class UserController extends Controller {
 		}
 		else {
 			return redirect(routes.HomeController.index()).withCookies(
-				Http.Cookie.builder("logged", "true")
+				Http.Cookie.builder("email", user.getEmail())
 					.withHttpOnly(false)
 					.build());
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<UserData> boundForm = form.bindFromRequest(request);
 
-		User user = userRepository.getByEmail(boundForm.get().getEmail());
+		UserData data = boundForm.get();
+		User user = userRepository.getByEmail(data.getEmail());
 
 		// email is incorrect
 		if (user == null) {
-			return badRequest(user_update.render(form, new UserData(boundForm.get().getEmail()), "Wrong email address"));
+			return badRequest(user_update.render(form, new UserData(data.getEmail()), "Wrong email address"));
 		}
 		else {
+			// TODO maybe check if null
 			// do changes to diffuser here
+			user.setEmail(data.getEmail());
+			user.setPassword(data.getPassword());
+
 			userRepository.update(user);
 
 			return index();
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result delete(String email) {
 
 		User user = userRepository.getByEmail(email);

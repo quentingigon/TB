@@ -63,7 +63,23 @@ public class JPAUserRepository implements UserRepository{
 		return jpaApi.withTransaction(entityManager -> {
 			String mail = "'" + email + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM users WHERE email = " + mail, User.class);
+				"SELECT * FROM users WHERE email = " + mail,
+				User.class);
+			try {
+				return (User) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public User getById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String userId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM users WHERE user_id = " + userId,
+				User.class);
 			try {
 				return (User) query.getSingleResult();
 			} catch (NoResultException e) {
@@ -81,6 +97,21 @@ public class JPAUserRepository implements UserRepository{
 				"SELECT * FROM users", User.class);
 			try {
 				return (List<User>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllMemberIdsOfTeam(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String teamId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT members FROM team_members WHERE team_team_id = " + teamId);
+			try {
+				return (List<Integer>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

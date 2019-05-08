@@ -13,6 +13,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import services.FluxManager;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
@@ -60,24 +61,29 @@ public class ScheduleController extends Controller {
 		t.start();
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result index() {
 		return ok(schedule_page.render(getAllSchedules(), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
 		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
 			getAllFluxes(), getAllFluxes(), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
 		return ok(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), null, request));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
 		return ok(schedule_activation.render(form, getAllScreens(), new ScheduleData(name), null, request));
 	}
 
 	// TODO implement on frontend a way to choose an hour for a flux and then use table scheduled_flux to persist the info
+	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
@@ -127,6 +133,7 @@ public class ScheduleController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name) {
 		Schedule schedule = scheduleRepository.getByName(name);
 
@@ -151,6 +158,7 @@ public class ScheduleController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
@@ -178,6 +186,7 @@ public class ScheduleController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
@@ -195,6 +204,7 @@ public class ScheduleController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result delete(String name) {
 
 		Schedule schedule = scheduleRepository.getByName(name);

@@ -11,6 +11,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import views.html.*;
 
 import javax.inject.Inject;
@@ -36,15 +37,18 @@ public class ScreenController extends Controller {
 		this.form = formFactory.form(ScreenData.class);
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result index() {
 
 		return (ok(screen_page.render(getAllScreens(), null)));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result registerView() {
 		return ok(screen_register.render(form, null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateView(String mac) {
 		return ok(screen_update.render(form, new ScreenData(screenRepository.getByMacAddress(mac)), null));
 	}
@@ -93,6 +97,7 @@ public class ScreenController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result register(Http.Request request) {
 		//final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
@@ -141,6 +146,7 @@ public class ScreenController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
@@ -170,6 +176,7 @@ public class ScreenController extends Controller {
 		}
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result delete(String mac) {
 
 		Screen screen = screenRepository.getByMacAddress(mac);
