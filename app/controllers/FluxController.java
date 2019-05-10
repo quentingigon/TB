@@ -1,5 +1,6 @@
 package controllers;
 
+import controllers.actions.UserAuthentificationAction;
 import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;

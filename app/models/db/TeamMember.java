@@ -21,8 +21,7 @@ public class TeamMember {
 	}
 
 	public TeamMember(User user) {
-		// setEmail(user.getEmail());
-		// setPassword(user.getPassword());
+		userId = user.getId();
 	}
 
 	public TeamMember(String email, String password) {

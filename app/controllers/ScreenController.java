@@ -1,5 +1,6 @@
 package controllers;
 
+import controllers.actions.UserAuthentificationAction;
 import models.db.Screen;
 import models.db.WaitingScreen;
 import models.entities.ScreenData;

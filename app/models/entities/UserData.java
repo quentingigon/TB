@@ -13,6 +13,9 @@ public class UserData {
 
 	private String team;
 
+	// == admin or team_admin
+	private String admin;
+
 	public UserData() {
 	}
 
@@ -47,5 +50,13 @@ public class UserData {
 
 	public void setTeam(String team) {
 		this.team = team;
+	}
+
+	public String getAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(String admin) {
+		this.admin = admin;
 	}
 }

@@ -1,7 +1,10 @@
 package controllers;
 
+import controllers.actions.UserAuthentificationAction;
+import models.db.Admin;
 import models.db.TeamMember;
 import models.db.User;
+import models.entities.DataUtils;
 import models.entities.UserData;
 import models.repositories.TeamRepository;
 import models.repositories.UserRepository;
@@ -17,6 +20,7 @@ import views.html.user_register;
 import views.html.user_update;
 
 import javax.inject.Inject;
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,14 +34,16 @@ public class UserController extends Controller {
 
 	private final Form<UserData> form;
 
+	private DataUtils dataUtils;
+
 	@Inject
-	public UserController(FormFactory formFactory) {
+	public UserController(FormFactory formFactory, DataUtils dataUtils) {
+		this.dataUtils = dataUtils;
 		this.form = formFactory.form(UserData.class);
 	}
 
-	@With(UserAuthentificationAction.class)
 	public Result index() {
-		return ok(user_page.render(getAllUsers(), null));
+		return ok(user_page.render(dataUtils.getAllUsers(), null));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -46,7 +52,7 @@ public class UserController extends Controller {
 	}
 
 	public Result registerView() {
-		return ok(user_register.render(form, null));
+		return ok(user_register.render(form, dataUtils.getAllTeams(), null));
 	}
 
 	public Result loginView() {
@@ -56,28 +62,37 @@ public class UserController extends Controller {
 	public Result register(Http.Request request) {
 		final Form<UserData> boundForm = form.bindFromRequest(request);
 
-		User newUser = new User(boundForm.get().getEmail(),
-			boundForm.get().getPassword());
+		UserData data = boundForm.get();
+
+		User newUser = new User(data.getEmail(), data.getPassword());
 
 		// email is not unique
 		if (userRepository.getByEmail(newUser.getEmail()) != null) {
-			return badRequest(user_register.render(form, "email is already used"));
+			return badRequest(user_register.render(form, dataUtils.getAllTeams(), "email is already used"));
 
 		}
 		else {
+
+			newUser = userRepository.create(newUser);
+
 			// user created is part of a team
-			if (boundForm.get().getTeam() != null) {
+			if (data.getTeam() != null) {
 				TeamMember newMember = new TeamMember(newUser);
 
 				// set team
-//				newMember.setTeamId(teamRepository.getByName(boundForm.get().getTeam()).getId());
+				newMember.setTeamId(teamRepository.getByName(data.getTeam()).getId());
 
-//				userRepository.createMember(newMember);
-				// TODO fix this shit
-				userRepository.create(newUser);
+				userRepository.createMember(newMember);
 			}
-			else {
-				userRepository.create(newUser);
+			// user created is of admin type
+			else if (data.getAdmin() != null) {
+				data.setAdmin(data.getAdmin().toLowerCase());
+				if (data.getAdmin().equals("admin")) {
+					userRepository.createAdmin(new Admin(newUser.getId()));
+				}
+				else if (data.getAdmin().equals("team admin")) {
+					// TODO create team admin
+				}
 			}
 
 			return redirect(routes.HomeController.index()).withCookies(
@@ -88,7 +103,6 @@ public class UserController extends Controller {
 	}
 
 	public Result login(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<UserData> boundForm = form.bindFromRequest(request);
 
 		UserData data = boundForm.get();
@@ -136,20 +150,12 @@ public class UserController extends Controller {
 
 		// email is incorrect
 		if (user == null) {
-			return badRequest(user_page.render(getAllUsers(), "Wrong email address"));
+			return badRequest(user_page.render(dataUtils.getAllUsers(), "Wrong email address"));
 		}
 		else {
 			userRepository.delete(user);
 
 			return index();
 		}
-	}
-
-	private List<UserData> getAllUsers() {
-		List<UserData> data = new ArrayList<>();
-		for (User u: userRepository.getAll()) {
-			data.add(new UserData(u));
-		}
-		return data;
 	}
 }

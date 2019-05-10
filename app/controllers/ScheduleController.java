@@ -1,9 +1,8 @@
 package controllers;
 
-import models.db.Flux;
-import models.db.RunningSchedule;
-import models.db.Schedule;
-import models.db.Screen;
+import controllers.actions.UserAuthentificationAction;
+import models.db.*;
+import models.entities.DataUtils;
 import models.entities.FluxData;
 import models.entities.ScheduleData;
 import models.entities.ScreenData;
@@ -44,6 +43,12 @@ public class ScheduleController extends Controller {
 	FluxRepository fluxRepository;
 
 	@Inject
+	TeamRepository teamRepository;
+
+	@Inject
+	UserRepository userRepository;
+
+	@Inject
 	ScheduleFluxesRepository scheduleFluxesRepository;
 
 	private final FluxManager fluxManager;
@@ -52,40 +57,50 @@ public class ScheduleController extends Controller {
 
 	private Form<ScheduleData> form;
 
+	private DataUtils dataUtils;
+
 	@Inject
-	public ScheduleController(FormFactory formFactory, FluxManager fluxManager, RunningScheduleServiceManager serviceManager) {
+	public ScheduleController(FormFactory formFactory,
+							  FluxManager fluxManager,
+							  RunningScheduleServiceManager serviceManager,
+							  DataUtils dataUtils) {
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
 		this.serviceManager = serviceManager;
+		this.dataUtils = dataUtils;
 		Thread t = new Thread(this.fluxManager);
 		t.start();
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result index() {
-		return ok(schedule_page.render(getAllSchedules(), null));
+	public Result index(Http.Request request) {
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
 		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
-			getAllFluxes(), getAllFluxes(), null));
+			dataUtils.getAllFluxes(), dataUtils.getAllFluxes(), null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
-		return ok(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), null, request));
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), null, request));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
-		return ok(schedule_activation.render(form, getAllScreens(), new ScheduleData(name), null, request));
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new ScheduleData(name), null, request));
 	}
 
 	// TODO implement on frontend a way to choose an hour for a flux and then use table scheduled_flux to persist the info
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 
@@ -93,13 +108,13 @@ public class ScheduleController extends Controller {
 
 		// incorrect name
 		if (schedule == null) {
-			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
+			return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "Schedule does not exist"));
 		}
 		else {
 
 			RunningSchedule rs = new RunningSchedule(schedule);
 			if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
-				return badRequest(schedule_page.render(getAllSchedules(), "This schedule is already activated"));
+				return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "This schedule is already activated"));
 			}
 			rs = runningScheduleRepository.add(rs);
 
@@ -107,7 +122,7 @@ public class ScheduleController extends Controller {
 			for (String screenMac : data.getScreens()) {
 				Screen screen = screenRepository.getByMacAddress(screenMac);
 				if (screen == null) {
-					return badRequest(schedule_page.render(getAllSchedules(), "screen mac address does not exist : " + screenMac));
+					return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "screen mac address does not exist : " + screenMac));
 				}
 				rs.addToScreens(screenRepository.getByMacAddress(screenMac).getId());
 				screen.setRunningscheduleId(rs.getId());
@@ -129,17 +144,18 @@ public class ScheduleController extends Controller {
 			// the schedule is activated
 			serviceManager.addRunningSchedule(schedule.getId(), service2);
 
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result deactivate(String name) {
+	public Result deactivate(String name, Http.Request request) {
 		Schedule schedule = scheduleRepository.getByName(name);
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		// incorrect name
 		if (schedule == null) {
-			return badRequest(schedule_page.render(getAllSchedules(), "Schedule does not exist"));
+			return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "Schedule does not exist"));
 		}
 		else {
 			RunningSchedule rs = runningScheduleRepository.getByScheduleId(schedule.getId());
@@ -154,19 +170,24 @@ public class ScheduleController extends Controller {
 
 			serviceManager.removeRunningSchedule(schedule.getId());
 
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 
 		// schedule already exists
 		if (scheduleRepository.getByName(data.getName()) != null) {
-			return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "MAC address already exists", request));
+			return badRequest(schedule_creation.render(form,
+				dataUtils.getAllFluxesOfTeam(teamId),
+				dataUtils.getAllFluxesOfTeam(teamId),
+				"MAC address already exists",
+				request));
 		}
 		else {
 			Schedule schedule = new Schedule(data.getName());
@@ -174,7 +195,11 @@ public class ScheduleController extends Controller {
 			// TODO check for null
 			for (String fluxName: data.getFluxes()) {
 				if (fluxRepository.getByName(fluxName) == null) {
-					return badRequest(schedule_creation.render(form, getAllFluxes(), getAllFluxes(), "Flux name does not exists", request));
+					return badRequest(schedule_creation.render(form,
+						dataUtils.getAllFluxesOfTeam(teamId),
+						dataUtils.getAllFluxesOfTeam(teamId),
+						"Flux name does not exists",
+						request));
 				}
 				schedule.addToFluxes(fluxRepository.getByName(fluxName).getId());
 
@@ -182,42 +207,55 @@ public class ScheduleController extends Controller {
 
 			scheduleRepository.add(schedule);
 
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 
-		Schedule schedule = scheduleRepository.getByName(boundForm.get().getName());
+		ScheduleData data = boundForm.get();
+		Schedule schedule = scheduleRepository.getByName(data.getName());
 
 		// name is incorrect
 		if (schedule == null) {
-			return badRequest(schedule_update.render(form, new ScheduleData(boundForm.get().getName()), getAllFluxes(), getAllFluxes(), "MAC address does not exists"));
+			return badRequest(schedule_update.render(form,
+				new ScheduleData(data.getName()),
+				dataUtils.getAllFluxesOfTeam(teamId),
+				dataUtils.getAllFluxesOfTeam(teamId),
+				"MAC address does not exists"));
 		}
 		else {
 			// do changes to schedule here
 			scheduleRepository.update(schedule);
 
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result delete(String name) {
+	public Result delete(String name, Http.Request request) {
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		Schedule schedule = scheduleRepository.getByName(name);
 
 		// name is incorrect
 		if (schedule == null) {
-			return badRequest(schedule_page.render(getAllSchedules(), "Name in incorrect"));
+			return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "Name in incorrect"));
 		}
 		else {
 			scheduleRepository.delete(schedule);
 
-			return index();
+			return index(request);
 		}
+	}
+
+	private Integer getTeamIdOfUserByEmail(String email) {
+		return userRepository
+			.getMemberByUserEmail(email)
+			.getTeamId();
 	}
 
 	// TODO integrate with schedule etc
@@ -231,29 +269,5 @@ public class ScheduleController extends Controller {
 				timetable.put(i, null);
 		}
 		return timetable;
-	}
-
-	private List<FluxData> getAllFluxes() {
-		List<FluxData> data = new ArrayList<>();
-		for (Flux f: fluxRepository.getAll()) {
-			data.add(new FluxData(f));
-		}
-		return data;
-	}
-
-	private List<ScheduleData> getAllSchedules() {
-		List<ScheduleData> data = new ArrayList<>();
-		for (Schedule s: scheduleRepository.getAll()) {
-			data.add(new ScheduleData(s));
-		}
-		return data;
-	}
-
-	private List<ScreenData> getAllScreens() {
-		List<ScreenData> data = new ArrayList<>();
-		for (Screen s: screenRepository.getAll()) {
-			data.add(new ScreenData(s));
-		}
-		return data;
 	}
 }

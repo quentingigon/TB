@@ -1,5 +1,6 @@
 package models.repositories;
 
+import models.db.Admin;
 import models.db.TeamMember;
 import models.db.User;
 import play.db.jpa.JPAApi;
@@ -119,9 +120,52 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	@Override
-	public void createMember(TeamMember member) {
+	public TeamMember createMember(TeamMember member) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(member);
+		});
+		return member;
+	}
+
+	@Override
+	public TeamMember getMemberByUserEmail(String email) {
+		return jpaApi.withTransaction(entityManager -> {
+
+			User user = getByEmail(email);
+
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM teammember WHERE user_id = " + user.getId(),
+				TeamMember.class);
+			try {
+				return (TeamMember) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public Admin createAdmin(Admin admin) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(admin);
+		});
+		return admin;
+	}
+
+	@Override
+	public Admin getAdminByUserEmail(String email) {
+		return jpaApi.withTransaction(entityManager -> {
+
+			User user = getByEmail(email);
+
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM admin WHERE user_id = " + user.getId(),
+				Admin.class);
+			try {
+				return (Admin) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
 		});
 	}
 }

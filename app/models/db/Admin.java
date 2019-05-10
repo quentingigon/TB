@@ -23,6 +23,10 @@ public class Admin {
 		this.userId = userId;
 	}
 
+	public Admin(User user) {
+		this.userId = user.getId();
+	}
+
 	public Integer getId() {
 		return id;
 	}

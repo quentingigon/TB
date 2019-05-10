@@ -75,13 +75,13 @@ POST    /teams/delete/:name             controllers.TeamController.delete(name: 
 
 
 # Schedules
-GET     /schedules                      controllers.ScheduleController.index()
+GET     /schedules                      controllers.ScheduleController.index(request: Request)
 
 GET     /schedules/activate/            controllers.ScheduleController.activate(request: Request)
 
 GET     /schedules/activate/:name       controllers.ScheduleController.activateView(name: String, request: Request)
 
-GET     /schedules/deactivate/:name     controllers.ScheduleController.deactivate(name: String)
+GET     /schedules/deactivate/:name     controllers.ScheduleController.deactivate(name: String, request: Request)
 
 GET     /schedules/new                  controllers.ScheduleController.createView(request: Request)
 
@@ -91,7 +91,7 @@ GET     /schedules/update/:name         controllers.ScheduleController.updateVie
 
 POST    /schedules/update               controllers.ScheduleController.update(request: Request)
 
-POST    /schedules/delete/:name         controllers.ScheduleController.delete(name: String)
+POST    /schedules/delete/:name         controllers.ScheduleController.delete(name: String, request: Request)
 
 
 # Diffusers

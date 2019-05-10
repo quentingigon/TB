@@ -1,5 +1,6 @@
-package controllers;
+package controllers.actions;
 
+import models.db.User;
 import models.entities.UserData;
 import models.repositories.UserRepository;
 import play.data.Form;
@@ -32,7 +33,7 @@ public class UserAuthentificationAction extends play.mvc.Action.Simple {
 	public CompletionStage<Result> call(Http.Request req) {
 
 		if (req.cookie("email") != null) {
-			if (userRepository.getByEmail(req.cookie("email").value()) != null) {
+			if (userRepository.getMemberByUserEmail(req.cookie("email").value()) != null) {
 				return delegate.call(req);
 			}
 		}
