@@ -34,7 +34,7 @@
                             <td>
 
                                 <div class="button">
-                                    <a href="@routes.ScreenController.updateView(screen.getMac())">Update Screen</a>
+                                    <a class="btn btn-primary" href="@routes.ScreenController.updateView(screen.getMac())">Update Screen</a>
                                 </div>
                                 <form method="post" action="@routes.ScreenController.delete(screen.getMac())">
                                 @helper.CSRF.formField

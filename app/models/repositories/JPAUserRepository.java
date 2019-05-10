@@ -133,14 +133,19 @@ public class JPAUserRepository implements UserRepository{
 
 			User user = getByEmail(email);
 
-			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM teammember WHERE user_id = " + user.getId(),
-				TeamMember.class);
-			try {
-				return (TeamMember) query.getSingleResult();
-			} catch (NoResultException e) {
-				return null;
+			if (user != null) {
+				Query query = entityManager.createNativeQuery(
+					"SELECT * FROM teammember WHERE user_id = " + user.getId(),
+					TeamMember.class);
+				try {
+					return (TeamMember) query.getSingleResult();
+				} catch (NoResultException e) {
+					return null;
+				}
 			}
+			else
+				return null;
+
 		});
 	}
 
@@ -158,14 +163,19 @@ public class JPAUserRepository implements UserRepository{
 
 			User user = getByEmail(email);
 
-			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM admin WHERE user_id = " + user.getId(),
-				Admin.class);
-			try {
-				return (Admin) query.getResultList();
-			} catch (NoResultException e) {
-				return null;
+			if (user != null) {
+				Query query = entityManager.createNativeQuery(
+					"SELECT * FROM admin WHERE user_id = " + user.getId(),
+					Admin.class);
+				try {
+					return (Admin) query.getResultList();
+				} catch (NoResultException e) {
+					return null;
+				}
 			}
+			else
+				return null;
+
 		});
 	}
 }

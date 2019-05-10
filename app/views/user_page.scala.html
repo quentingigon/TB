@@ -29,7 +29,8 @@
 
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-secondary" href="@routes.UserController.updateView(user.getEmail)" >Update User</button>
+
+                                <a class="btn btn-primary" href="@routes.UserController.updateView(user.getEmail)">Update</a>
                                 <form method="post" action="@routes.UserController.delete(user.getEmail)">
                                     @helper.CSRF.formField
                                 <button type="submit" class="btn btn-danger">Delete User</button>

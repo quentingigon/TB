@@ -35,7 +35,7 @@
 
                             <td>
                                 <div class="button">
-                                    <a href="@routes.FluxController.updateView(flux.getName)">Update Flux</a>
+                                    <a class="btn btn-primary" href="@routes.FluxController.updateView(flux.getName)">Update Flux</a>
                                 </div>
                                 <form method="post" action="@routes.FluxController.delete(flux.getName)">
                                     @helper.CSRF.formField
@@ -48,6 +48,6 @@
             </tbody>
         </table>
 
-        <a type="button" class="btn btn-primary" role="button" href="@routes.FluxController.create()">Create new Flux</a>
+        <a class="btn btn-primary" role="button" href="@routes.FluxController.create()">Create new Flux</a>
     </div>
 }

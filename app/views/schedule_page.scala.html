@@ -31,8 +31,9 @@
 
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-secondary" href="@routes.ScheduleController.updateView(runningSchedule.getName)" >Update Schedule</button>
-                                <a type="button" class="btn btn-secondary" href="@routes.ScheduleController.activateView(runningSchedule.getName)">Activate Schedule</a>
+
+                                <a class="btn btn-secondary" href="@routes.ScheduleController.updateView(runningSchedule.getName)">Update Schedule</a>
+                                <a class="btn btn-secondary" href="@routes.ScheduleController.activateView(runningSchedule.getName)">Activate Schedule</a>
 
                                 <form method="get" action="@routes.ScheduleController.deactivate(runningSchedule.getName)">
                                     @helper.CSRF.formField
@@ -51,6 +52,6 @@
             </tbody>
         </table>
 
-        <a type="button" class="btn btn-primary" role="button" href="@routes.ScheduleController.create()">Create new Schedule</a>
+        <a class="btn btn-primary" role="button" href="@routes.ScheduleController.create()">Create new Schedule</a>
     </div>
 }

@@ -10,6 +10,7 @@ public interface TeamRepository {
 
 	Team add(Team team);
 	Team getByName(String name);
+	Team getById(Integer id);
 
 	List<Team> getAll();
 

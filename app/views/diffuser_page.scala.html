@@ -29,10 +29,9 @@
 
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-secondary" href="@routes.DiffuserController.updateView(diffuser.getName)" >Update Diffuser</button>
 
-
-                                <a type="button" class="btn btn-secondary" href="@routes.DiffuserController.activateView(diffuser.getName)">Activate Diffuser</a>
+                                <a class="btn btn-secondary" href="@routes.DiffuserController.updateView(diffuser.getName)">Update Diffuser</a>
+                                <a class="btn btn-secondary" href="@routes.DiffuserController.activateView(diffuser.getName)">Activate Diffuser</a>
 
 
                                 </form>
@@ -53,6 +52,6 @@
             </tbody>
         </table>
 
-        <a type="button" class="btn btn-primary" role="button" href="@routes.DiffuserController.create()">Create new Diffuser</a>
+        <a class="btn btn-primary" role="button" href="@routes.DiffuserController.create()">Create new Diffuser</a>
     </div>
 }

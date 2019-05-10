@@ -40,6 +40,20 @@ public class JPATeamRepository implements TeamRepository {
 	}
 
 	@Override
+	public Team getById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String teamId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM team WHERE team_id = " + teamId, Team.class);
+			try {
+				return (Team) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<Team> getAll() {
 		return jpaApi.withTransaction(entityManager -> {

@@ -87,7 +87,11 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
 		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(schedule_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), null, request));
+		return ok(schedule_creation.render(form,
+			dataUtils.getAllFluxes(), // TODO change
+			dataUtils.getAllFluxesOfTeam(teamId),
+			null,
+			request));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -136,8 +140,9 @@ public class ScheduleController extends Controller {
 			RunningScheduleService service2 = new RunningScheduleService(
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
 				screens,
-				fluxRepository.getAll(), // fallbackfluxes TODO
-				getTimeTable(schedule));
+				fluxRepository.getAllFluxIdsOfTeam(teamId), // fallbackfluxes TODO
+				getTimeTable(schedule),
+				fluxRepository);
 
 			service2.addObserver(fluxManager);
 
@@ -160,10 +165,13 @@ public class ScheduleController extends Controller {
 		else {
 			RunningSchedule rs = runningScheduleRepository.getByScheduleId(schedule.getId());
 
+			// TODO do it with triggers
 			// remove RunningSchedule reference from all concerned screens
-			for (Screen s : screenRepository.getAllByRunningScheduleId(rs.getId())) {
-				s.setRunningscheduleId(null);
-				screenRepository.update(s);
+			if (rs != null && screenRepository.getAllByRunningScheduleId(rs.getId()) != null) {
+				for (Screen s : screenRepository.getAllByRunningScheduleId(rs.getId())) {
+					s.setRunningscheduleId(null);
+					screenRepository.update(s);
+				}
 			}
 
 			runningScheduleRepository.delete(rs);
@@ -186,7 +194,7 @@ public class ScheduleController extends Controller {
 			return badRequest(schedule_creation.render(form,
 				dataUtils.getAllFluxesOfTeam(teamId),
 				dataUtils.getAllFluxesOfTeam(teamId),
-				"MAC address already exists",
+				"Schedule name already exists",
 				request));
 		}
 		else {
@@ -202,10 +210,13 @@ public class ScheduleController extends Controller {
 						request));
 				}
 				schedule.addToFluxes(fluxRepository.getByName(fluxName).getId());
-
 			}
 
-			scheduleRepository.add(schedule);
+			schedule = scheduleRepository.add(schedule);
+
+			Team team = teamRepository.getById(teamId);
+			team.addToSchedules(schedule.getId());
+			teamRepository.update(team);
 
 			return index(request);
 		}
@@ -259,14 +270,43 @@ public class ScheduleController extends Controller {
 	}
 
 	// TODO integrate with schedule etc
-	private HashMap<Integer, Flux> getTimeTable(Schedule schedule) {
+	private HashMap<Integer, Integer> getTimeTable(Schedule schedule) {
 
-		HashMap<Integer, Flux> timetable = new HashMap<>();
+		List<ScheduledFlux> scheduledFluxes = scheduleRepository.getAllScheduledFluxesByScheduleId(schedule.getId());
+		Flux lastFlux = new Flux();
+		long lastFluxDuration = 0;
+		boolean noFluxSent;
+
+		HashMap<Integer, Integer> timetable = new HashMap<>();
 		for (int i = 0; i < blockNumber; i++) {
-			if (i == 1)
-				timetable.put(i, fluxRepository.getById(1));
-			else
-				timetable.put(i, null);
+
+			noFluxSent = true;
+
+			// if duration of last inserted ScheduledFlux is still not finished iterating over
+			// we put last flux in the schedule
+			if (lastFluxDuration != 0) {
+				lastFluxDuration--;
+				timetable.put(i, lastFlux.getId());
+			}
+			else {
+				// check if we must insert fluxes at a certain hour
+				for (ScheduledFlux sf : scheduledFluxes) {
+					// a flux is set to begin at this block
+					if (sf.getStartBlock().equals(i)) {
+						Flux flux = fluxRepository.getById(sf.getFluxId());
+						lastFlux = flux;
+						lastFluxDuration = flux.getDuration();
+						timetable.put(i, flux.getId());
+						noFluxSent = false;
+						break;
+					}
+				}
+
+				if (noFluxSent) {
+					// if no flux is set at this block
+					timetable.put(i, -1);
+				}
+			}
 		}
 		return timetable;
 	}

@@ -15,14 +15,14 @@ public class LocatedFlux {
 	private Integer fluxId;
 
 	@Column(name="site_id")
-	private Integer siteI;
+	private Integer siteId;
 
 	public LocatedFlux() {
 	}
 
-	public LocatedFlux(Integer fluxId, Integer siteI) {
+	public LocatedFlux(Integer fluxId, Integer siteId) {
 		this.fluxId = fluxId;
-		this.siteI = siteI;
+		this.siteId = siteId;
 	}
 
 	public Integer getId() {
@@ -37,11 +37,11 @@ public class LocatedFlux {
 		this.fluxId = fluxId;
 	}
 
-	public Integer getSiteI() {
-		return siteI;
+	public Integer getSiteId() {
+		return siteId;
 	}
 
-	public void setSiteI(Integer siteI) {
-		this.siteI = siteI;
+	public void setSiteId(Integer siteI) {
+		this.siteId = siteI;
 	}
 }

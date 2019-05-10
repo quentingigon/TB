@@ -3,6 +3,7 @@ package services;
 import models.db.Flux;
 import models.db.RunningSchedule;
 import models.db.Screen;
+import models.repositories.FluxRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,30 +15,28 @@ import static services.BlockUtils.blockNumber;
 
 public class RunningScheduleService extends Observable implements Runnable {
 
+	// TODO WARNING !!!! maybe it's a "static" instance of FluxRepository and is not updated afterwards
+	private FluxRepository fluxRepository;
+
 	private RunningSchedule runningSchedule;
 	private List<Flux> fluxes;
 	private List<Screen> screens;
 
-	private volatile HashMap<Integer, Flux> timetable;
-	private List<Flux> fallbackFluxes;
+	private volatile HashMap<Integer, Integer> timetable;
+	private List<Integer> fallbackFluxIds;
 
 	private boolean running;
 
-	public RunningScheduleService(RunningSchedule runningSchedule, List<Flux> fluxes, List<Screen> screens) {
-		this.runningSchedule = runningSchedule;
-		this.fluxes = fluxes;
-		this.screens = screens;
-		running = true;
-	}
-
 	public RunningScheduleService(RunningSchedule runningSchedule,
 								  List<Screen> screens,
-								  List<Flux> fallbackFluxes,
-								  HashMap<Integer, Flux> timetable) {
+								  List<Integer> fallbackFluxIds,
+								  HashMap<Integer, Integer> timetable,
+								  FluxRepository fluxRepository) {
 		this.runningSchedule = runningSchedule;
 		this.screens = screens;
 		this.timetable = timetable;
-		this.fallbackFluxes = fallbackFluxes;
+		this.fallbackFluxIds = fallbackFluxIds;
+		this.fluxRepository = fluxRepository;
 		running = true;
 	}
 
@@ -48,16 +47,47 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 			int blockIndex = 0;
 			Flux lastFlux = new Flux();
+			int siteId = 0;
 
 			do {
-				Flux currentFlux = timetable.get(blockIndex++);
+				Flux currentFlux = fluxRepository.getById(timetable.get(blockIndex++));
 
 				// if a flux is scheduled for that block
 				if (currentFlux != null) {
 
-					// send event to observer
-					sendFluxEvent(currentFlux);
+					// current flux is a located one
+					if (fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()) != null) {
+						siteId = fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()).getSiteId();
 
+						// lists of screens to send the flux
+						List<Screen> screensWithSameSiteId = screens;
+						List<Screen> screensWithDifferentSiteId = new ArrayList<>();
+
+						for (Screen s : screens) {
+							// if flux and screen are not restricted to the same site
+							if (siteId != s.getSiteId()) {
+								screensWithDifferentSiteId.add(s);
+								screensWithSameSiteId.remove(s);
+							}
+						}
+
+						// all screens are related to the same site as the flux
+						if (screensWithDifferentSiteId.isEmpty()) {
+							// send event to observer
+							sendFluxEvent(currentFlux, screens);
+						}
+						else {
+							sendFluxEvent(currentFlux, screensWithSameSiteId);
+							// TODO send backup or error flux
+							// sendFluxEvent(currentFlux, screensWithDifferentSiteId);
+						}
+					}
+					// current flux is a general one
+					else {
+						siteId = -1;
+
+						sendFluxEvent(currentFlux, screens);
+					}
 					lastFlux = currentFlux;
 				}
 				// choose from the unscheduled fluxes
@@ -67,7 +97,9 @@ public class RunningScheduleService extends Observable implements Runnable {
 					boolean sent = false;
 
 					// TODO optimize
-					for (Flux flux : fallbackFluxes) {
+					for (Integer fluxId : fallbackFluxIds) {
+
+						Flux flux = fluxRepository.getById(fluxId);
 
 						if (!sent) {
 							// if this flux can be inserted in the remaining blocks
@@ -76,8 +108,9 @@ public class RunningScheduleService extends Observable implements Runnable {
 								// update timetable
 								scheduleFlux(flux, blockIndex);
 
+								// TODO fallback are general or located ?
 								// send event to observer
-								sendFluxEvent(flux);
+								sendFluxEvent(flux, screens);
 
 								lastFlux = flux;
 								sent = true;
@@ -95,36 +128,11 @@ public class RunningScheduleService extends Observable implements Runnable {
 					e.printStackTrace();
 				}
 			} while (blockIndex < blockNumber && running);
-
-			/*
-			if (!fluxes.isEmpty()) {
-
-				// make rotation
-				fluxes.add(fluxes.get(0));
-				Flux flux = fluxes.remove(0);
-
-				FluxEvent event = new FluxEvent(flux, screens);
-
-				setChanged();
-				notifyObservers(event);
-
-				try {
-					if (Thread.currentThread().isInterrupted()) {
-						throw new InterruptedException("Thread interrupted");
-					}
-					Thread.sleep(flux.getDuration());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-			 */
 		}
 	}
 
-	private void sendFluxEvent(Flux flux) {
-		FluxEvent event = new FluxEvent(flux, screens);
-
+	private void sendFluxEvent(Flux flux, List<Screen> screenList) {
+		FluxEvent event = new FluxEvent(flux, screenList);
 		setChanged();
 		notifyObservers(event);
 	}
@@ -132,30 +140,30 @@ public class RunningScheduleService extends Observable implements Runnable {
 	public void scheduleFlux(Flux flux, int blockIndex) {
 		for (int i = 0; i < flux.getDuration(); i++) {
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
-			timetable.put(blockIndex + i, flux);
+			this.timetable.put(blockIndex + i, flux.getId());
 		}
 	}
 
 	// TODO maybe optimize
 	public void removeScheduledFlux(Flux flux) {
 		for (int i = 0; i < flux.getDuration(); i++) {
-			if (timetable.get(i) == flux) {
-				timetable.remove(i);
+			if (this.timetable.get(i).equals(flux.getId())) {
+				this.timetable.remove(i);
 			}
 		}
 	}
 
 	private int getNumberOfBlocksToNextScheduledFlux(int blockIndex) {
-		List<Flux> fluxes = new ArrayList<>(timetable.values());
+		List<Integer> fluxes = new ArrayList<>(timetable.values());
 		int n = 0;
 
 		// max 900 iterations and that case will never happen, so it should
 		// be fast enough
-		for (Flux flux: fluxes.subList(blockIndex, fluxes.size())) {
-			n++;
-			if (flux != null) {
+		for (Integer fluxId: fluxes.subList(blockIndex, fluxes.size() - 1)) {
+			if (fluxId != -1) {
 				break;
 			}
+			n++;
 		}
 		return n;
 	}

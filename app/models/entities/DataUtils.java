@@ -57,7 +57,8 @@ public class DataUtils {
 	public List<ScheduleData> getAllSchedulesOfTeam(int teamId) {
 		List<ScheduleData> data = new ArrayList<>();
 		for (Integer scheduleId : scheduleRepository.getAllScheduleIdsOfTeam(teamId)) {
-			data.add(new ScheduleData(scheduleRepository.getById(scheduleId)));
+			if (scheduleRepository.getById(scheduleId) != null)
+				data.add(new ScheduleData(scheduleRepository.getById(scheduleId)));
 		}
 		return data;
 	}

@@ -1,8 +1,8 @@
 package models.db;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name="schedule", schema="public")
@@ -16,20 +16,20 @@ public class Schedule {
 	@Column(name="name")
 	private String name;
 
-	@ElementCollection
-	private List<Integer> fluxes;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> fluxes;
 
-	@ElementCollection
-	private List<Integer> fallbacks;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> fallbacks;
 
 	public Schedule() {
-		fallbacks = new ArrayList<>();
-		fluxes = new ArrayList<>();
+		fallbacks = new HashSet<>();
+		fluxes = new HashSet<>();
 	}
 
 	public Schedule(String name) {
 		this.name = name;
-		fallbacks = new ArrayList<>();
+		fallbacks = new HashSet<>();
 	}
 
 	public Integer getId() {
@@ -40,17 +40,18 @@ public class Schedule {
 		this.id = id;
 	}
 
-	public List<Integer> getFluxes() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getFluxes() {
 		return fluxes;
 	}
 
-	public void setFluxes(List<Integer> fluxes) {
+	public void setFluxes(Set<Integer> fluxes) {
 		this.fluxes = fluxes;
 	}
 
 	public void addToFluxes(Integer fluxId) {
 		if (this.fluxes == null) {
-			this.fluxes = new ArrayList<>();
+			this.fluxes = new HashSet<>();
 		}
 		this.fluxes.add(fluxId);
 	}
@@ -63,11 +64,12 @@ public class Schedule {
 		this.name = name;
 	}
 
-	public List<Integer> getFallbacks() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getFallbacks() {
 		return fallbacks;
 	}
 
-	public void setFallbacks(List<Integer> fallbacks) {
+	public void setFallbacks(Set<Integer> fallbacks) {
 		this.fallbacks = fallbacks;
 	}
 }

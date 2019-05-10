@@ -16,6 +16,8 @@ public interface FluxRepository {
 
 	Flux getByName(String name);
 	Flux getById(Integer id);
+	LocatedFlux getLocatedFluxByFluxId(Integer id);
+	GeneralFlux getGeneralFluxByFluxId(Integer id);
 
 	List<Flux> getAll();
 	List<Integer> getAllFluxIdsOfTeam(Integer id);

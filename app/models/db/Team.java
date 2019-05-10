@@ -3,8 +3,8 @@ package models.db;
 import models.entities.TeamData;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name="team", schema="public")
@@ -18,23 +18,23 @@ public class Team {
 	@Column(name="name")
 	private String name;
 
-	@ElementCollection
-	private List<Integer> screens;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> screens;
 
-	@ElementCollection
-	private List<Integer> groups;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> groups;
 
-	@ElementCollection
-	private List<Integer> schedules;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> schedules;
 
-	@ElementCollection
-	private List<Integer> diffusers;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> diffusers;
 
-	@ElementCollection
-	private List<Integer> fluxes;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> fluxes;
 
-	@ElementCollection
-	private List<Integer> members;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> members;
 
 	public Team() {
 	}
@@ -42,23 +42,16 @@ public class Team {
 	public Team(String name) {
 		this.name = name;
 
-		this.fluxes = new ArrayList<>();
-		this.diffusers = new ArrayList<>();
-		this.schedules = new ArrayList<>();
-		this.groups = new ArrayList<>();
+		this.fluxes = new HashSet<>();
+		this.diffusers = new HashSet<>();
+		this.schedules = new HashSet<>();
+		this.groups = new HashSet<>();
+		this.screens = new HashSet<>();
+		this.members = new HashSet<>();
 	}
 
 	public Team(TeamData data) {
 		name = data.getName();
-
-
-	}
-
-	private void fillFluxes(List<String> fluxesNames) {
-		fluxes = new ArrayList<>();
-		for (String name: fluxesNames) {
-
-		}
 	}
 
 	public Integer getId() {
@@ -73,11 +66,12 @@ public class Team {
 		this.name = name;
 	}
 
-	public List<Integer> getGroups() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getGroups() {
 		return groups;
 	}
 
-	public void setGroups(List<Integer> screenGroups) {
+	public void setGroups(Set<Integer> screenGroups) {
 		this.groups = screenGroups;
 	}
 
@@ -85,23 +79,27 @@ public class Team {
 		this.groups.add(group);
 	}
 
-	public List<Integer> getSchedules() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getSchedules() {
 		return schedules;
 	}
 
-	public void setSchedules(List<Integer> schedules) {
+	public void setSchedules(Set<Integer> schedules) {
 		this.schedules = schedules;
 	}
 
 	public void addToSchedules(Integer schedule) {
+		if (this.schedules == null)
+			this.schedules = new HashSet<>();
 		this.schedules.add(schedule);
 	}
 
-	public List<Integer> getDiffusers() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getDiffusers() {
 		return diffusers;
 	}
 
-	public void setDiffusers(List<Integer> diffusers) {
+	public void setDiffusers(Set<Integer> diffusers) {
 		this.diffusers = diffusers;
 	}
 
@@ -109,11 +107,12 @@ public class Team {
 		this.diffusers.add(diffuser);
 	}
 
-	public List<Integer> getFluxes() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getFluxes() {
 		return fluxes;
 	}
 
-	public void setFluxes(List<Integer> fluxes) {
+	public void setFluxes(Set<Integer> fluxes) {
 		this.fluxes = fluxes;
 	}
 
@@ -121,25 +120,33 @@ public class Team {
 		this.fluxes.add(flux);
 	}
 
-	public List<Integer> getScreens() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getScreens() {
 		return screens;
 	}
 
-	public void setScreens(List<Integer> screens) {
+	public void setScreens(Set<Integer> screens) {
 		this.screens = screens;
 	}
 
 	public void addScreen(Integer s) {
 		if (screens == null)
-			screens = new ArrayList<>();
+			screens = new HashSet<>();
 		screens.add(s);
 	}
 
-	public List<Integer> getMembers() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getMembers() {
 		return members;
 	}
 
-	public void setMembers(List<Integer> members) {
+	public void setMembers(Set<Integer> members) {
 		this.members = members;
+	}
+
+	public void addMember(Integer m) {
+		if (members == null)
+			members = new HashSet<>();
+		members.add(m);
 	}
 }

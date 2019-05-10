@@ -1,6 +1,5 @@
 package services;
 
-import akka.stream.javadsl.Source;
 import controllers.EventSourceControllerS;
 
 import javax.inject.Inject;
@@ -15,9 +14,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 
 	private final EventSourceControllerS eventController;
 
-	private FluxEvent currentFlux;
 	private List<FluxEvent> fluxEvents;
-	private Source<String, ?> source;
 
 	private boolean running;
 
@@ -34,8 +31,6 @@ public class FluxManager extends Observable implements Runnable, Observer {
 	private void deactivate() {
 		running = false;
 	}
-
-
 
 	@Override
 	public synchronized void update(Observable o, Object arg) {
@@ -54,7 +49,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 
 			// there are flux events to send
 			if (!fluxEvents.isEmpty()) {
-				currentFlux = fluxEvents.remove(0);
+				FluxEvent currentFlux = fluxEvents.remove(0);
 
 				boolean bool = true;
 
@@ -92,9 +87,5 @@ public class FluxManager extends Observable implements Runnable, Observer {
 				}
 			}
 		}
-	}
-
-	public Source<String, ?> getSource() {
-		return source;
 	}
 }

@@ -2,6 +2,7 @@ package models.repositories;
 
 import models.db.RunningSchedule;
 import models.db.Schedule;
+import models.db.ScheduledFlux;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -92,6 +93,22 @@ public class JPAScheduleRepository implements ScheduleRepository {
 				"SELECT DISTINCT schedules FROM team_schedules WHERE team_team_id = " + scheduleId);
 			try {
 				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<ScheduledFlux> getAllScheduledFluxesByScheduleId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM scheduled_flux WHERE schedule_id = " + scheduleId,
+				ScheduledFlux.class);
+			try {
+				return (List<ScheduledFlux>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

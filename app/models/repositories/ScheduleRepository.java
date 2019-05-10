@@ -3,6 +3,7 @@ package models.repositories;
 import com.google.inject.ImplementedBy;
 import models.db.RunningSchedule;
 import models.db.Schedule;
+import models.db.ScheduledFlux;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface ScheduleRepository {
 
 	List<Schedule> getAll();
 	List<Integer> getAllScheduleIdsOfTeam(Integer id);
+	List<ScheduledFlux> getAllScheduledFluxesByScheduleId(Integer id);
 
 	void update(Schedule schedule);
 	void delete(Schedule schedule);

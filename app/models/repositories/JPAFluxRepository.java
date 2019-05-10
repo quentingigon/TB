@@ -72,6 +72,36 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
+	public LocatedFlux getLocatedFluxByFluxId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			Flux flux = getById(id);
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM locatedflux WHERE flux_id = " + flux.getId(),
+				LocatedFlux.class);
+			try {
+				return (LocatedFlux) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public GeneralFlux getGeneralFluxByFluxId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			Flux flux = getById(id);
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM generalflux WHERE flux_id = " + flux.getId(),
+				GeneralFlux.class);
+			try {
+				return (GeneralFlux) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<Flux> getAll() {
 		return jpaApi.withTransaction(entityManager -> {

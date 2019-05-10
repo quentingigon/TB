@@ -37,7 +37,7 @@ public class JPAScreenRepository implements ScreenRepository {
 		return jpaApi.withTransaction(entityManager -> {
 			String ID = "'" + id + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM screen WHERE id = " + ID, Screen.class);
+				"SELECT * FROM screen WHERE screen_id = " + ID, Screen.class);
 			try {
 				return (Screen) query.getSingleResult();
 			} catch (NoResultException e) {
