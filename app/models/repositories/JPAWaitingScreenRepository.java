@@ -27,7 +27,7 @@ public class JPAWaitingScreenRepository implements WaitingScreenRepository {
 	@Override
 	public void delete(WaitingScreen waitingScreen) {
 		jpaApi.withTransaction(entityManager -> {
-			entityManager.remove(waitingScreen);
+			entityManager.remove(entityManager.contains(waitingScreen) ? waitingScreen : entityManager.merge(waitingScreen));
 		});
 	}
 

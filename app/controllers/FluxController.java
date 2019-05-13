@@ -4,9 +4,12 @@ import controllers.actions.UserAuthentificationAction;
 import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
+import models.db.Team;
 import models.entities.FluxData;
 import models.repositories.FluxRepository;
 import models.repositories.SiteRepository;
+import models.repositories.TeamRepository;
+import models.repositories.UserRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -33,6 +36,12 @@ public class FluxController extends Controller {
 	@Inject
 	SiteRepository siteRepository;
 
+	@Inject
+	UserRepository userRepository;
+
+	@Inject
+	TeamRepository teamRepository;
+
 	private Form<FluxData> form;
 
 	@Inject
@@ -58,6 +67,7 @@ public class FluxController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		FluxData data = boundForm.get();
 
@@ -81,19 +91,24 @@ public class FluxController extends Controller {
 		}
 		else {
 
+			newFlux = fluxRepository.addFlux(newFlux);
+
 			// general flux
 			if (data.getSite() == null) {
-				newFlux = fluxRepository.addFlux(newFlux);
 				fluxRepository.addGeneralFlux(new GeneralFlux(newFlux.getId()));
 
 			}
 			// located flux
 			else {
-				newFlux = fluxRepository.addFlux(newFlux);
 				fluxRepository.addLocatedFlux(new LocatedFlux(newFlux.getId(),
 					siteRepository.getByName(data.getSite()).getId()));
 			}
 
+			if (teamId != null) {
+				Team team = teamRepository.getById(teamId);
+				team.addToFluxes(newFlux.getId());
+				teamRepository.update(team);
+			}
 
 			return index();
 		}
@@ -134,6 +149,12 @@ public class FluxController extends Controller {
 			fluxRepository.delete(flux);
 			return index();
 		}
+	}
+
+	private Integer getTeamIdOfUserByEmail(String email) {
+		return userRepository
+			.getMemberByUserEmail(email)
+			.getTeamId();
 	}
 
 	private List<FluxData> getAllFluxes() {

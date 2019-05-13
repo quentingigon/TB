@@ -72,4 +72,11 @@ public class Schedule {
 	public void setFallbacks(Set<Integer> fallbacks) {
 		this.fallbacks = fallbacks;
 	}
+
+	public void addToFallbacks(Integer fluxId) {
+		if (this.fallbacks == null) {
+			this.fallbacks = new HashSet<>();
+		}
+		this.fallbacks.add(fluxId);
+	}
 }

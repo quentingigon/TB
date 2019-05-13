@@ -8,6 +8,8 @@ public class DiffuserData {
 
 	private String name;
 	private String fluxName;
+	private String startTime;
+	private String validity;
 	private List<String> screens;
 
 	public DiffuserData() {
@@ -43,5 +45,21 @@ public class DiffuserData {
 
 	public void setScreens(List<String> screens) {
 		this.screens = screens;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getValidity() {
+		return validity;
+	}
+
+	public void setValidity(String validity) {
+		this.validity = validity;
 	}
 }

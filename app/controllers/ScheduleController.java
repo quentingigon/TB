@@ -133,8 +133,8 @@ public class ScheduleController extends Controller {
 
 				screens.add(screen);
 				screenRepository.update(screen);
-				runningScheduleRepository.update(rs);
 			}
+			runningScheduleRepository.update(rs);
 
 			// add service as observer of FluxManager
 			RunningScheduleService service2 = new RunningScheduleService(
@@ -189,8 +189,15 @@ public class ScheduleController extends Controller {
 
 		ScheduleData data = boundForm.get();
 
+		if (data.getName().equals("")) {
+			return badRequest(schedule_creation.render(form,
+				dataUtils.getAllFluxesOfTeam(teamId),
+				dataUtils.getAllFluxesOfTeam(teamId),
+				"You must enter a name for the schedule",
+				request));
+		}
 		// schedule already exists
-		if (scheduleRepository.getByName(data.getName()) != null) {
+		else if (scheduleRepository.getByName(data.getName()) != null) {
 			return badRequest(schedule_creation.render(form,
 				dataUtils.getAllFluxesOfTeam(teamId),
 				dataUtils.getAllFluxesOfTeam(teamId),
@@ -200,9 +207,8 @@ public class ScheduleController extends Controller {
 		else {
 			Schedule schedule = new Schedule(data.getName());
 
-			// TODO check for null
 			for (String fluxName: data.getFluxes()) {
-				if (fluxRepository.getByName(fluxName) == null) {
+				if (fluxName != null && fluxRepository.getByName(fluxName) == null) {
 					return badRequest(schedule_creation.render(form,
 						dataUtils.getAllFluxesOfTeam(teamId),
 						dataUtils.getAllFluxesOfTeam(teamId),
@@ -212,8 +218,20 @@ public class ScheduleController extends Controller {
 				schedule.addToFluxes(fluxRepository.getByName(fluxName).getId());
 			}
 
+			for (String fluxName: data.getFallbackFluxes()) {
+				if (fluxName != null && fluxRepository.getByName(fluxName) == null) {
+					return badRequest(schedule_creation.render(form,
+						dataUtils.getAllFluxesOfTeam(teamId),
+						dataUtils.getAllFluxesOfTeam(teamId),
+						"Flux name does not exists",
+						request));
+				}
+				schedule.addToFallbacks(fluxRepository.getByName(fluxName).getId());
+			}
+
 			schedule = scheduleRepository.add(schedule);
 
+			// TODO do it with triggers
 			Team team = teamRepository.getById(teamId);
 			team.addToSchedules(schedule.getId());
 			teamRepository.update(team);

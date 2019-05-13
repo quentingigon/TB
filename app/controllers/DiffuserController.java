@@ -125,8 +125,10 @@ public class DiffuserController extends Controller {
 			// update associated RunningScheduleService
 			for (Integer id: runningScheduleIds) {
 				RunningScheduleService rss = serviceManager.getServiceById(id);
-				// TODO change 100 with correct value
-				rss.scheduleFlux(diffusedFlux, 100);
+				// TODO change 100 with correct value -> data.getStartTime()
+				if (rss != null) {
+					rss.scheduleFlux(diffusedFlux, 100);
+				}
 			}
 
 

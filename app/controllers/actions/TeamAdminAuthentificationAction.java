@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class AdminAuthentificationAction extends play.mvc.Action.Simple {
+public class TeamAdminAuthentificationAction extends play.mvc.Action.Simple {
 
 	@Inject
 	UserRepository userRepository;
@@ -23,7 +23,7 @@ public class AdminAuthentificationAction extends play.mvc.Action.Simple {
 	private final Form<UserData> form;
 
 	@Inject
-	public AdminAuthentificationAction(HttpExecutionContext executionContext, FormFactory formFactory) {
+	public TeamAdminAuthentificationAction(HttpExecutionContext executionContext, FormFactory formFactory) {
 		this.executionContext = executionContext;
 		this.form = formFactory.form(UserData.class);
 	}
@@ -31,12 +31,13 @@ public class AdminAuthentificationAction extends play.mvc.Action.Simple {
 	public CompletionStage<Result> call(Http.Request req) {
 
 		if (req.cookie("email") != null) {
+			// TODO replace getAdmin by get TeamAdmin -> need triggers ?
 			if (userRepository.getAdminByUserEmail(req.cookie("email").value()) != null) {
 				return delegate.call(req);
 			}
 		}
 
 		return CompletableFuture.supplyAsync(() -> "", executionContext.current())
-			.thenApply(result -> badRequest(user_login.render(form, "You must be an admin to access this page")));
+			.thenApply(result -> badRequest(user_login.render(form, "You must be a team admin to access this page")));
 	}
 }

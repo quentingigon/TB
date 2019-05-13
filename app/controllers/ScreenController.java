@@ -100,7 +100,6 @@ public class ScreenController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result register(Http.Request request) {
-		//final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 
 		ScreenData data = boundForm.get();
@@ -119,7 +118,7 @@ public class ScreenController extends Controller {
 
 			if (ws == null) {
 				return badRequest(screen_register.render(form,
-					"You must first get a registration code by going to this address: /auth?mac=<YOurMacAddress>"));
+					"You must first get a registration code by going to this address: /auth?mac=<YourMacAddress>"));
 			}
 
 			// if code is correct -> add screen to DB
@@ -136,7 +135,7 @@ public class ScreenController extends Controller {
 				newScreen.setName(data.getName());
 
 				screenRepository.add(newScreen);
-				// waitingScreenRepository.delete(ws);
+				waitingScreenRepository.delete(ws);
 
 				return index();
 			}
@@ -149,7 +148,6 @@ public class ScreenController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
-		// final DynamicForm boundForm = formFactory.form().bindFromRequest(request);
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 
 		ScreenData data = boundForm.get();
