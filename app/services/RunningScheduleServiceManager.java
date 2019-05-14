@@ -25,7 +25,9 @@ public class RunningScheduleServiceManager {
 
 	public void removeRunningSchedule(Integer scheduleId) {
 		System.out.println("Deactivated service : " + tasks.get(scheduleId));
-		tasks.remove(scheduleId).setRunning(false);
+		if (tasks.get(scheduleId) != null) {
+			tasks.remove(scheduleId).setRunning(false);
+		}
 	}
 
 	public RunningScheduleService getServiceById(Integer id) {

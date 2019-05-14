@@ -7,7 +7,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.user_login;
+import views.html.user.user_login;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;

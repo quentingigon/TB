@@ -7,6 +7,159 @@
 
 @main("Schedule Creation Page") {
 
+    <style>
+            body {
+                color: #404E67;
+                background: #F5F7FA;
+                font-family: 'Open Sans', sans-serif;
+            }
+            .table-wrapper {
+                width: 700px;
+                margin: 30px auto;
+                background: #fff;
+                padding: 20px;
+                box-shadow: 0 1px 1px rgba(0,0,0,.05);
+            }
+            .table-title {
+                padding-bottom: 10px;
+                margin: 0 0 10px;
+            }
+            .table-title h2 {
+                margin: 6px 0 0;
+                font-size: 22px;
+            }
+            .table-title .add-new {
+                float: right;
+                height: 30px;
+                font-weight: bold;
+                font-size: 12px;
+                text-shadow: none;
+                min-width: 100px;
+                border-radius: 50px;
+                line-height: 13px;
+            }
+            .table-title .add-new i {
+                margin-right: 4px;
+            }
+            table.table {
+                table-layout: fixed;
+            }
+            table.table tr th, table.table tr td {
+                border-color: #e9e9e9;
+            }
+            table.table th i {
+                font-size: 13px;
+                margin: 0 5px;
+                cursor: pointer;
+            }
+            table.table th:last-child {
+                width: 100px;
+            }
+            table.table td a {
+                cursor: pointer;
+                display: inline-block;
+                margin: 0 5px;
+                min-width: 24px;
+            }
+            table.table td a.add {
+                color: #27C46B;
+            }
+            table.table td a.edit {
+                color: #FFC107;
+            }
+            table.table td a.delete {
+                color: #E34724;
+            }
+            table.table td i {
+                font-size: 19px;
+            }
+            table.table td a.add i {
+                font-size: 24px;
+                margin-right: -1px;
+                position: relative;
+                top: 3px;
+            }
+            table.table .form-control {
+                height: 32px;
+                line-height: 32px;
+                box-shadow: none;
+                border-radius: 2px;
+            }
+            table.table .form-control.error {
+                border-color: #f50000;
+            }
+            table.table td .add {
+                display: none;
+            }
+    </style>
+
+    <script type="text/javascript">
+
+
+            $(document).ready(function(){
+
+                $('#DynamicTable').SetEditable({ $addButton: $('#addNewRow')});
+
+
+                $('[data-toggle="tooltip"]').tooltip();
+                var actions = $("table td:last-child").html();
+                // Append table with add row form on add new button click
+                $(".add-new").click(function(){
+                    $(this).attr("disabled", "disabled");
+                    var index = $("table tbody tr:last-child").index();
+                    var row = '<tr>' +
+                            '<td><select name="fluxes[]" id="inputFluxes2" class="form-control" multiple="multiple" data-editable="1" >\n' +
+                            '                @for(flux <- fluxes) {\n' +
+                            '                    <option>@flux.getName</option>\n' +
+                            '                }\n' +
+                            '                </select></td>' +
+                            '<td data-editable="1"> <div>\n' +
+                            '   <input type="text" name="scheduledFluxes[]">\n' +
+                            '                    </div></td>' +
+                            '<td>' + actions + '</td>' +
+                            '</tr>';
+                    $("table").append(row);
+                    $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+                // Add row on add button click
+                $(document).on("click", ".add", function(){
+                    var empty = false;
+                    var input = $(this).parents("tr").find('input[type="text"]');
+                    input.each(function(){
+                        if(!$(this).val()){
+                            $(this).addClass("error");
+                            empty = true;
+                        } else{
+                            $(this).removeClass("error");
+                        }
+                    });
+                    $(this).parents("tr").find(".error").first().focus();
+                    if(!empty){
+                        input.each(function(){
+                            $(this).parent("td").html($(this).val());
+                        });
+                        $(this).parents("tr").find(".add, .edit").toggle();
+                        $(".add-new").removeAttr("disabled");
+                    }
+                });
+                // Edit row on edit button click
+                $(document).on("click", ".edit", function(){
+                    $(this).parents("tr").find("td:not(:last-child)").each(function(){
+                        $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
+                    });
+                    $(this).parents("tr").find(".add, .edit").toggle();
+                    $(".add-new").attr("disabled", "disabled");
+                });
+                // Delete row on delete button click
+                $(document).on("click", ".delete", function(){
+                    $(this).parents("tr").remove();
+                    $(".add-new").removeAttr("disabled");
+                });
+            });
+    </script>
+
+
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
         @if(error != null) {
@@ -24,7 +177,7 @@
             </div>
 
             <div class="form-group col-md-4">
-                <label for="inputFluxes">Fluxes</label>
+                <label for="inputFluxes">FallbackFluxes</label>
                 <select name="fluxes[]" id="inputFluxes" class="form-control" multiple="multiple" >
                 @for(flux <- fluxes) {
                     <option>@flux.getName</option>
@@ -33,24 +186,38 @@
             </div>
 
             <div class="container">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="form-group">
-                            <div class="input-group date" id="datetimepicker3" data-target-input="nearest">
-                                <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker3"/>
-                                <div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-clock-o"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <script type="text/javascript">
-                            $(function () {
-                                $('#datetimepicker3').datetimepicker({
-                                    format: 'LT'
-                                });
-                            });
-                    </script>
+                <div class="table-wrapper">
+                    <table class="table table-bordered table-striped table-hover table-condensed  text-center" id="DynamicTable">
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    Full Name
+                                </th>
+                                <th class="text-center">
+                                    WebSite
+                                </th>
+                                <th class="text-center">
+                                    Contact No
+                                </th>
+                                <th class="text-center">
+                                    <button id="addNewRow" class="btn btn-primary btn-sm">Add New Row</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    John M
+                                </td>
+                                <td>
+                                    http://john-m.com
+                                </td>
+                                <td>
+                                    9876543210
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

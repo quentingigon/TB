@@ -3,9 +3,7 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.DataUtils;
-import models.entities.FluxData;
 import models.entities.ScheduleData;
-import models.entities.ScreenData;
 import models.repositories.*;
 import play.data.Form;
 import play.data.FormFactory;
@@ -16,17 +14,17 @@ import play.mvc.With;
 import services.FluxManager;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
-import views.html.schedule_activation;
-import views.html.schedule_creation;
-import views.html.schedule_page;
-import views.html.schedule_update;
+import views.html.schedule.schedule_activation;
+import views.html.schedule.schedule_creation;
+import views.html.schedule.schedule_page;
+import views.html.schedule.schedule_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static services.BlockUtils.blockNumber;
+import static services.BlockUtils.*;
 
 public class ScheduleController extends Controller {
 
@@ -287,6 +285,17 @@ public class ScheduleController extends Controller {
 			.getTeamId();
 	}
 
+	private int getBlockNumberOfTime(String time) {
+
+		int hours = Integer.valueOf(time.split(":")[0]);
+		int minutes = Integer.valueOf(time.split(":")[1]);
+
+		int hoursToBlock = (hours - beginningHour / activeTime) * blockNumber * blockDuration;
+
+		// TODO warning: only works with blockDuration == 1 so better change it
+		return hoursToBlock + minutes;
+	}
+
 	// TODO integrate with schedule etc
 	private HashMap<Integer, Integer> getTimeTable(Schedule schedule) {
 
@@ -316,6 +325,7 @@ public class ScheduleController extends Controller {
 						lastFluxDuration = flux.getDuration();
 						timetable.put(i, flux.getId());
 						noFluxSent = false;
+						scheduledFluxes.remove(sf);
 						break;
 					}
 				}

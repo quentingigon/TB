@@ -16,9 +16,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import views.html.flux_creation;
-import views.html.flux_page;
-import views.html.flux_update;
+import views.html.flux.flux_creation;
+import views.html.flux.flux_page;
+import views.html.flux.flux_update;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;

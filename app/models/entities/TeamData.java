@@ -7,6 +7,7 @@ import java.util.List;
 public class TeamData {
 
 	private String name;
+	private List<String> admins;
 	private List<String> members;
 	private List<String> fluxes;
 	private List<String> screens;
@@ -79,5 +80,13 @@ public class TeamData {
 
 	public void setGroups(List<String> groups) {
 		this.groups = groups;
+	}
+
+	public List<String> getAdmins() {
+		return admins;
+	}
+
+	public void setAdmins(List<String> admins) {
+		this.admins = admins;
 	}
 }

@@ -14,15 +14,12 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import views.html.user_login;
-import views.html.user_page;
-import views.html.user_register;
-import views.html.user_update;
+import views.html.user.user_login;
+import views.html.user.user_page;
+import views.html.user.user_register;
+import views.html.user.user_update;
 
 import javax.inject.Inject;
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserController extends Controller {
 
@@ -89,9 +86,6 @@ public class UserController extends Controller {
 				data.setAdmin(data.getAdmin().toLowerCase());
 				if (data.getAdmin().equals("admin")) {
 					userRepository.createAdmin(new Admin(newUser.getId()));
-				}
-				else if (data.getAdmin().equals("team admin")) {
-					// TODO create team admin
 				}
 			}
 

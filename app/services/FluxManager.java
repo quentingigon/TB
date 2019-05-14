@@ -57,10 +57,16 @@ public class FluxManager extends Observable implements Runnable, Observer {
 				do {
 					// setChanged();
 					//source = Source.single(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
-					System.out.println("Sending event : " + currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+					System.out.println("Sending event : " + currentFlux.getFlux().getType().toLowerCase() + "?" + currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
 					//notifyObservers(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
 
-					eventController.send(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
+					eventController.send(
+						currentFlux.getFlux().getType().toLowerCase() +
+							"?" +
+							currentFlux.getFlux().getUrl() +
+							"|" +
+							String.join(",", currentFlux.getMacs())
+					);
 
 					System.out.println("Source updated " + currentFlux.getFlux());
 

@@ -10,10 +10,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import views.html.schedule_creation;
-import views.html.team_creation;
-import views.html.team_page;
-import views.html.team_update;
+import views.html.team.team_creation;
+import views.html.team.team_page;
+import views.html.team.team_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -152,6 +151,22 @@ public class TeamController extends Controller {
 					}
 
 					team.addMember(userRepository.getByEmail(email).getId());
+				}
+			}
+			if (data.getAdmins() != null) {
+				for (String email: data.getAdmins()) {
+					if (userRepository.getByEmail(email) == null) {
+						return badRequest(team_update.render(form,
+							getAllFluxes(),
+							getAllScreens(),
+							getAllMembers(),
+							getAllSchedules(),
+							getAllDiffusers(),
+							new TeamData(data.getName()),
+							"User email address does not exists - admin"));
+					}
+
+					team.addAdmin(userRepository.getByEmail(email).getId());
 				}
 			}
 			if (data.getSchedules() != null) {

@@ -36,6 +36,9 @@ public class Team {
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> members;
 
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> admins;
+
 	public Team() {
 	}
 
@@ -148,5 +151,20 @@ public class Team {
 		if (members == null)
 			members = new HashSet<>();
 		members.add(m);
+	}
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getAdmins() {
+		return admins;
+	}
+
+	public void setAdmins(Set<Integer> admins) {
+		this.admins = admins;
+	}
+
+	public void addAdmin(Integer a) {
+		if (admins == null)
+			admins = new HashSet<>();
+		admins.add(a);
 	}
 }

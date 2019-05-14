@@ -7,7 +7,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.user_login;
+import views.html.user.user_login;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +31,7 @@ public class TeamAdminAuthentificationAction extends play.mvc.Action.Simple {
 	public CompletionStage<Result> call(Http.Request req) {
 
 		if (req.cookie("email") != null) {
-			// TODO replace getAdmin by get TeamAdmin -> need triggers ?
+			// TODO replace getAdmins by get TeamAdmin -> need triggers ?
 			if (userRepository.getAdminByUserEmail(req.cookie("email").value()) != null) {
 				return delegate.call(req);
 			}

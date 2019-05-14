@@ -14,6 +14,8 @@ public interface ScheduleRepository {
 	Schedule getByName(String name);
 	Schedule getById(Integer id);
 
+	ScheduledFlux addScheduledFlux(ScheduledFlux scheduledFlux);
+
 	List<Schedule> getAll();
 	List<Integer> getAllScheduleIdsOfTeam(Integer id);
 	List<ScheduledFlux> getAllScheduledFluxesByScheduleId(Integer id);

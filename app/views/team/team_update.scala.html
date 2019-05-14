@@ -64,6 +64,15 @@
             </div>
 
             <div class="form-group col-md-4">
+                <label for="inputAdmins">Admins</label>
+                <select name="admins[]" id="inputAdmins" class="form-control" multiple="multiple" >
+                @for(member <- members) {
+                    <option>@member.getEmail</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
                 <label for="inputSchedules">Schedules</label>
                 <select name="schedules[]" id="inputSchedules" class="form-control" multiple="multiple" >
                 @for(schedule <- schedules) {

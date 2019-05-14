@@ -15,10 +15,10 @@ import play.mvc.Result;
 import play.mvc.With;
 import services.RunningScheduleService;
 import services.RunningScheduleServiceManager;
-import views.html.diffuser_activation;
-import views.html.diffuser_creation;
-import views.html.diffuser_page;
-import views.html.diffuser_update;
+import views.html.diffuser.diffuser_activation;
+import views.html.diffuser.diffuser_creation;
+import views.html.diffuser.diffuser_page;
+import views.html.diffuser.diffuser_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

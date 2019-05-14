@@ -9,6 +9,7 @@ public class ScheduleData {
 
 	private String name;
 	private List<String> fluxes;
+	private List<String> scheduledFluxes;
 	private List<String> fallbackFluxes;
 	private List<String> screens;
 
@@ -55,5 +56,13 @@ public class ScheduleData {
 
 	public void setScreens(List<String> screens) {
 		this.screens = screens;
+	}
+
+	public List<String> getScheduledFluxes() {
+		return scheduledFluxes;
+	}
+
+	public void setScheduledFluxes(List<String> scheduledFluxes) {
+		this.scheduledFluxes = scheduledFluxes;
 	}
 }

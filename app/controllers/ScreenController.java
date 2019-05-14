@@ -13,7 +13,11 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import views.html.*;
+import views.html.eventsource;
+import views.html.screen.screen_code;
+import views.html.screen.screen_page;
+import views.html.screen.screen_register;
+import views.html.screen.screen_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

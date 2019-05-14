@@ -6,6 +6,7 @@ import akka.stream.scaladsl.Source
 import controllers.EventActorManager.{Register, SendMessage, UnRegister}
 import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes
+import play.api.libs.EventSource.EventNameExtractor
 import play.api.mvc._
 import play.libs.EventSource
 
@@ -20,6 +21,8 @@ extends AbstractController(cc) {
 
 
   private[this] val manager = system.actorOf(EventActorManager.props)
+
+  implicit def pair[E]: EventNameExtractor[E] = EventNameExtractor[E](_ => Some("test1"))
 
   def send(event: String) =  {
     print("Send event to screens : " + event)
@@ -43,6 +46,7 @@ extends AbstractController(cc) {
         }
 
     val eventSource = Source.fromGraph(source.map(EventSource.Event.event))
+
 
     Ok.chunked(eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
 
