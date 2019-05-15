@@ -95,11 +95,14 @@
 
     <script type="text/javascript">
 
+            function changeRowFunc(rowId) {
+                var selectBox = rowId;
+                var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+                $('#' + selectBox.id).replaceWith(selectedValue);
+                //document.getElementById(selectBox.id).value = "defaultValue";
+            }
 
             $(document).ready(function(){
-
-                $('#DynamicTable').SetEditable({ $addButton: $('#addNewRow')});
-
 
                 $('[data-toggle="tooltip"]').tooltip();
                 var actions = $("table td:last-child").html();
@@ -107,15 +110,15 @@
                 $(".add-new").click(function(){
                     $(this).attr("disabled", "disabled");
                     var index = $("table tbody tr:last-child").index();
-                    var row = '<tr>' +
-                            '<td><select name="fluxes[]" id="inputFluxes2" class="form-control" multiple="multiple" data-editable="1" >\n' +
+                    var rowId = "inputFluxes" + index;
+                    var row = '<tr class="flux-row">' +
+                            '<td> <select id="' + rowId + '" class="form-control new-row-flux" multiple="multiple" onchange="changeRowFunc(' + rowId + ')">\n' +
                             '                @for(flux <- fluxes) {\n' +
                             '                    <option>@flux.getName</option>\n' +
                             '                }\n' +
                             '                </select></td>' +
-                            '<td data-editable="1"> <div>\n' +
-                            '   <input type="text" name="scheduledFluxes[]">\n' +
-                            '                    </div></td>' +
+                            '<td>  <input type="text" class="form-control new-row-time" name="flux_time" >\n' +
+                            '</td>' +
                             '<td>' + actions + '</td>' +
                             '</tr>';
                     $("table").append(row);
@@ -156,6 +159,25 @@
                     $(this).parents("tr").remove();
                     $(".add-new").removeAttr("disabled");
                 });
+
+                $("#form").submit( function(e) {
+                    e.preventDefault();
+                    alert("coucou");
+                    var index = 0;
+                    var fluxes = [];
+                    $(".flux-row").forEach( function() {
+                        var fluxName = $(".flux-row > td")[index++].innerHTML;
+                        var fluxTime = $(".flux-row > td")[index++].innerHTML;
+                        index++;
+                        fluxes.push(fluxName + "|" + fluxTime);
+                    });
+
+                    $('<input name="' + "scheduledFluxes[]" + '" />')
+                            .val(fluxes)
+                            .appendTo("#form");
+
+                    return true;
+                })
             });
     </script>
 
@@ -169,51 +191,39 @@
             </div>
         }
 
-        @helper.form(routes.ScheduleController.create()) {
+        @helper.form(routes.ScheduleController.create(), '_id -> "form") {
             @helper.CSRF.formField
             <div class="form-group">
                 <label for="inputName">Name</label>
                 <input name="name" type="text" class="form-control" id="inputName" placeholder="Schedule name...">
             </div>
 
-            <div class="form-group col-md-4">
-                <label for="inputFluxes">FallbackFluxes</label>
-                <select name="fluxes[]" id="inputFluxes" class="form-control" multiple="multiple" >
-                @for(flux <- fluxes) {
-                    <option>@flux.getName</option>
-                }
-                </select>
-            </div>
-
             <div class="container">
                 <div class="table-wrapper">
-                    <table class="table table-bordered table-striped table-hover table-condensed  text-center" id="DynamicTable">
+                    <div class="table-title">
+                        <div class="row">
+                            <div class="col-sm-8"><h2>Fluxes</h2></div>
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center">
-                                    Full Name
-                                </th>
-                                <th class="text-center">
-                                    WebSite
-                                </th>
-                                <th class="text-center">
-                                    Contact No
-                                </th>
-                                <th class="text-center">
-                                    <button id="addNewRow" class="btn btn-primary btn-sm">Add New Row</button>
-                                </th>
+                                <th>Name</th>
+                                <th>Time</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
+                                <td>John Doe</td>
+                                <td>08:00</td>
                                 <td>
-                                    John M
-                                </td>
-                                <td>
-                                    http://john-m.com
-                                </td>
-                                <td>
-                                    9876543210
+                                    <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
+                                    <a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                                    <a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
                                 </td>
                             </tr>
                         </tbody>
