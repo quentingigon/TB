@@ -4,6 +4,7 @@ import com.google.inject.ImplementedBy;
 import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
+import models.db.ScheduledFlux;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public interface FluxRepository {
 	Flux addFlux(Flux flux);
 	LocatedFlux addLocatedFlux(LocatedFlux flux);
 	GeneralFlux addGeneralFlux(GeneralFlux flux);
+	ScheduledFlux addScheduledFlux(ScheduledFlux flux);
 
 	Flux getByName(String name);
 	Flux getById(Integer id);

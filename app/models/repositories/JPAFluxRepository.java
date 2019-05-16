@@ -3,6 +3,7 @@ package models.repositories;
 import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
+import models.db.ScheduledFlux;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -37,6 +38,14 @@ public class JPAFluxRepository implements FluxRepository {
 
 	@Override
 	public GeneralFlux addGeneralFlux(GeneralFlux flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(flux);
+		});
+		return flux;
+	}
+
+	@Override
+	public ScheduledFlux addScheduledFlux(ScheduledFlux flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(flux);
 		});

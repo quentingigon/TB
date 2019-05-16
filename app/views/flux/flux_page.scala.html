@@ -1,7 +1,7 @@
 @import models.db.Screen
 @import models.entities.FluxData
 
-@(fluxes: List[FluxData], error: String)
+@(fluxes: List[FluxData], error: String)(implicit request: Http.Request)
 
 
 @main("Fluxes Main Page") {

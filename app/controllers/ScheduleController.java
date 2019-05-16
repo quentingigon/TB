@@ -76,19 +76,40 @@ public class ScheduleController extends Controller {
 		return ok(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), null));
 	}
 
+	private Result indexWithErrorMessage(Http.Request request, String error) {
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), error));
+	}
+
 	@With(UserAuthentificationAction.class)
-	public Result updateView(String name) {
+	public Result updateView(Http.Request request, String name) {
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
-			dataUtils.getAllFluxes(), dataUtils.getAllFluxes(), null));
+			dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), null));
+	}
+
+	private Result updateViewWithErrorMessage(Http.Request request, String name, String error) {
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
+			dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
 		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_creation.render(form,
-			dataUtils.getAllFluxes(), // TODO change
+			dataUtils.getAllFluxesOfTeam(teamId),
 			dataUtils.getAllFluxesOfTeam(teamId),
 			null,
+			request));
+	}
+
+	private Result createViewWithErrorMessage(Http.Request request, String error) {
+		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_creation.render(form,
+			dataUtils.getAllFluxesOfTeam(teamId),
+			dataUtils.getAllFluxesOfTeam(teamId),
+			error,
 			request));
 	}
 
@@ -110,21 +131,23 @@ public class ScheduleController extends Controller {
 
 		// incorrect name
 		if (schedule == null) {
-			return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "Schedule does not exist"));
+			return indexWithErrorMessage(request, "Schedule does not exist");
 		}
 		else {
 
+			// create runningSchedule
 			RunningSchedule rs = new RunningSchedule(schedule);
 			if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
-				return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "This schedule is already activated"));
+				return indexWithErrorMessage(request, "This schedule is already activated");
 			}
 			rs = runningScheduleRepository.add(rs);
+			// TODO use trigger to avoid add + merge -> set rs id of screen for each screen of rs at insert
 
 			List<Screen> screens = new ArrayList<>();
 			for (String screenMac : data.getScreens()) {
 				Screen screen = screenRepository.getByMacAddress(screenMac);
 				if (screen == null) {
-					return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "screen mac address does not exist : " + screenMac));
+					return indexWithErrorMessage(request, "screen mac address does not exist : " + screenMac);
 				}
 				rs.addToScreens(screenRepository.getByMacAddress(screenMac).getId());
 				screen.setRunningscheduleId(rs.getId());
@@ -138,7 +161,7 @@ public class ScheduleController extends Controller {
 			RunningScheduleService service2 = new RunningScheduleService(
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
 				screens,
-				fluxRepository.getAllFluxIdsOfTeam(teamId), // fallbackfluxes TODO
+				new ArrayList<>(schedule.getFallbacks()),
 				getTimeTable(schedule),
 				fluxRepository);
 
@@ -188,48 +211,48 @@ public class ScheduleController extends Controller {
 		ScheduleData data = boundForm.get();
 
 		if (data.getName().equals("")) {
-			return badRequest(schedule_creation.render(form,
-				dataUtils.getAllFluxesOfTeam(teamId),
-				dataUtils.getAllFluxesOfTeam(teamId),
-				"You must enter a name for the schedule",
-				request));
+			return createViewWithErrorMessage(request, "You must enter a name for the new schedule");
 		}
 		// schedule already exists
 		else if (scheduleRepository.getByName(data.getName()) != null) {
-			return badRequest(schedule_creation.render(form,
-				dataUtils.getAllFluxesOfTeam(teamId),
-				dataUtils.getAllFluxesOfTeam(teamId),
-				"Schedule name already exists",
-				request));
+			return createViewWithErrorMessage(request, "Schedule name already exists");
 		}
 		else {
 			Schedule schedule = new Schedule(data.getName());
 
-			for (String fluxName: data.getFluxes()) {
-				if (fluxName != null && fluxRepository.getByName(fluxName) == null) {
-					return badRequest(schedule_creation.render(form,
-						dataUtils.getAllFluxesOfTeam(teamId),
-						dataUtils.getAllFluxesOfTeam(teamId),
-						"Flux name does not exists",
-						request));
-				}
-				schedule.addToFluxes(fluxRepository.getByName(fluxName).getId());
-			}
+			for (String fluxData: data.getFluxes()) {
 
-			for (String fluxName: data.getFallbackFluxes()) {
-				if (fluxName != null && fluxRepository.getByName(fluxName) == null) {
-					return badRequest(schedule_creation.render(form,
-						dataUtils.getAllFluxesOfTeam(teamId),
-						dataUtils.getAllFluxesOfTeam(teamId),
-						"Flux name does not exists",
-						request));
+				String[] fluxDatas = fluxData.split("#");
+				String fluxName = fluxDatas[0];
+
+				if (fluxName == null || fluxRepository.getByName(fluxName) == null) {
+					return createViewWithErrorMessage(request, "Flux name does not exists");
 				}
-				schedule.addToFallbacks(fluxRepository.getByName(fluxName).getId());
+
+				String fluxTime;
+
+				// we must create a ScheduledFlux for this entry
+				if (fluxDatas[1] != null) {
+					fluxTime = fluxDatas[1];
+
+					// TODO set schedule_id of sf with a trigger at the creation of the schedule
+					ScheduledFlux sf = new ScheduledFlux();
+					sf.setFluxId(fluxRepository.getByName(fluxName).getId());
+					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
+					sf = fluxRepository.addScheduledFlux(sf);
+
+					schedule.addToFluxes(sf.getId());
+				}
+				// we must add a un-scheduled flux -> fallback flux
+				else {
+					schedule.addToFallbacks(fluxRepository.getByName(fluxName).getId());
+				}
+
 			}
 
 			schedule = scheduleRepository.add(schedule);
 
-			// TODO do it with triggers
+			// add new schedule to current user's team
 			Team team = teamRepository.getById(teamId);
 			team.addToSchedules(schedule.getId());
 			teamRepository.update(team);
@@ -248,11 +271,7 @@ public class ScheduleController extends Controller {
 
 		// name is incorrect
 		if (schedule == null) {
-			return badRequest(schedule_update.render(form,
-				new ScheduleData(data.getName()),
-				dataUtils.getAllFluxesOfTeam(teamId),
-				dataUtils.getAllFluxesOfTeam(teamId),
-				"MAC address does not exists"));
+			return updateViewWithErrorMessage(request, data.getName(), "Schedule name does not exists");
 		}
 		else {
 			// do changes to schedule here
@@ -322,7 +341,7 @@ public class ScheduleController extends Controller {
 					if (sf.getStartBlock().equals(i)) {
 						Flux flux = fluxRepository.getById(sf.getFluxId());
 						lastFlux = flux;
-						lastFluxDuration = flux.getDuration();
+						lastFluxDuration = flux.getDuration(); // TODO ptetre -1
 						timetable.put(i, flux.getId());
 						noFluxSent = false;
 						scheduledFluxes.remove(sf);

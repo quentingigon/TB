@@ -87,7 +87,7 @@ GET     /schedules/new                  controllers.ScheduleController.createVie
 
 POST    /schedules/new                  controllers.ScheduleController.create(request: Request)
 
-GET     /schedules/update/:name         controllers.ScheduleController.updateView(name: String)
+GET     /schedules/update/:name         controllers.ScheduleController.updateView(request: Request, name: String)
 
 POST    /schedules/update               controllers.ScheduleController.update(request: Request)
 
