@@ -46,8 +46,8 @@ CREATE TABLE teammember
   );
 
 
-DROP TABLE IF EXISTS admin CASCADE;
-CREATE TABLE admin
+DROP TABLE IF EXISTS admins CASCADE;
+CREATE TABLE admins
   (
     admin_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users (user_id)
