@@ -8,7 +8,7 @@ public class ScheduledFlux {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="schedule_flux_id")
+	@Column(name="scheduled_flux_id")
 	private Integer id;
 
 	@Column(name="schedule_id")

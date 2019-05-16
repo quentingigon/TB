@@ -98,7 +98,7 @@
             function changeRowFunc(rowId) {
                 var selectBox = rowId;
                 var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-                $('#' + selectBox.id).replaceWith(selectedValue);
+                $('#' + selectBox.id).val(selectedValue);
                 //document.getElementById(selectBox.id).value = "defaultValue";
             }
 
@@ -112,7 +112,7 @@
                     var index = $("table tbody tr:last-child").index();
                     var rowId = "inputFluxes" + index;
                     var row = '<tr class="flux-row">' +
-                            '<td> <select id="' + rowId + '" class="form-control new-row-flux" multiple="multiple" onchange="changeRowFunc(' + rowId + ')">\n' +
+                            '<td> <select type="text" id="' + rowId + '" class="form-control new-row-flux" multiple="multiple" onchange="changeRowFunc(' + rowId + ')">\n' +
                             '                @for(flux <- fluxes) {\n' +
                             '                    <option>@flux.getName</option>\n' +
                             '                }\n' +
@@ -127,29 +127,52 @@
                 });
                 // Add row on add button click
                 $(document).on("click", ".add", function(){
-                    var empty = false;
+                    var time_empty = false;
+                    var flux_empty = false;
                     var input = $(this).parents("tr").find('input[type="text"]');
+                    var select = $(this).parents("tr").find('select[type="text"]');
+                    var hiddenValue = "";
                     input.each(function(){
                         if(!$(this).val()){
                             $(this).addClass("error");
-                            empty = true;
+                            time_empty = true;
+                        } else{
+                            $(this).removeClass("error");
+                        }
+                    });
+                    select.each(function(){
+                        if(!$(this).val()){
+                            $(this).addClass("error");
+                            flux_empty = true;
                         } else{
                             $(this).removeClass("error");
                         }
                     });
                     $(this).parents("tr").find(".error").first().focus();
-                    if(!empty){
-                        input.each(function(){
+                    if(!flux_empty){
+                        select.each(function(){
+                            hiddenValue += $(this).val();
                             $(this).parent("td").html($(this).val());
                         });
                         $(this).parents("tr").find(".add, .edit").toggle();
                         $(".add-new").removeAttr("disabled");
                     }
+                    hiddenValue += "#";
+                    if(!time_empty){
+                        input.each(function(){
+                            hiddenValue += $(this).val();
+                            $(this).parent("td").html($(this).val());
+                        });
+                        $(this).parents("tr").find(".add, .edit").toggle();
+                        $(".add-new").removeAttr("disabled");
+                    }
+
+                    $(this).html('<input name="fluxes[]" type="hidden" class="form-control" value="' + hiddenValue + '">');
                 });
                 // Edit row on edit button click
                 $(document).on("click", ".edit", function(){
                     $(this).parents("tr").find("td:not(:last-child)").each(function(){
-                        $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
+                        $(this).html('<input name="' + $(this).attr("name") + '" type="text" class="form-control" value="' + $(this).text() + '">');
                     });
                     $(this).parents("tr").find(".add, .edit").toggle();
                     $(".add-new").attr("disabled", "disabled");
