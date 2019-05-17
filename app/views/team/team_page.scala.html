@@ -3,7 +3,7 @@
 @(teams: util.List[TeamData], error: String)
 
 
-@main("Screens Main Page") {
+@main("Team Main Page") {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
@@ -26,11 +26,17 @@
                 @for(team <- teams) {
                     <tr>
                         <td>@team.getName()</td>
-                        <td>@team.getMembers().length</td>
+                        <td>@if(team.getMembers() != null) {
+                            team.getMembers().length
+                        }</td>
                         <td>
                             <div class="button">
                                 <a href="@routes.TeamController.updateView(team.getName())">Update Team</a>
                             </div>
+                            <form method="post" action="@routes.TeamController.delete(team.getName)">
+                                @helper.CSRF.formField
+                            <button type="submit" class="btn btn-danger">Delete Team</button>
+                            </form>
                         </td>
                     </tr>
                 }

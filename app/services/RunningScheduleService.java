@@ -123,7 +123,7 @@ public class RunningScheduleService extends Observable implements Runnable {
 					if (Thread.currentThread().isInterrupted()) {
 						throw new InterruptedException("Thread interrupted");
 					}
-					Thread.sleep(blockDuration * 60000);
+					Thread.sleep((long) blockDuration * 60000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -6499,7 +6499,7 @@
 											"top": 110,
 											"width": 129.68896484375,
 											"height": 13,
-											"text": "+admin: TeamMember",
+											"text": "+admins: TeamMember",
 											"horizontalAlignment": 0
 										}
 									],
@@ -10559,7 +10559,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFpxC5en6dVC9U="
 							},
-							"name": "admin",
+							"name": "admins",
 							"type": {
 								"$ref": "AAAAAAFpuq9Nx7fKPSs="
 							}

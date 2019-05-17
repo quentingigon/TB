@@ -1,8 +1,9 @@
 package controllers;
 
 import controllers.actions.UserAuthentificationAction;
-import models.db.*;
-import models.entities.*;
+import models.db.Team;
+import models.entities.DataUtils;
+import models.entities.TeamData;
 import models.repositories.*;
 import play.data.Form;
 import play.data.FormFactory;
@@ -16,7 +17,8 @@ import views.html.team.team_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TeamController extends Controller {
 
@@ -40,38 +42,61 @@ public class TeamController extends Controller {
 
 	private Form<TeamData> form;
 
+	private DataUtils dataUtils;
+
 	@Inject
-	public TeamController(FormFactory formFactory) {
+	public TeamController(FormFactory formFactory, DataUtils dataUtils) {
+		this.dataUtils = dataUtils;
 		this.form = formFactory.form(TeamData.class);
 	}
 
 	//@With(UserAuthentificationAction.class)
 	public Result index() {
-		List<TeamData> data = new ArrayList<>();
-		for (Team t: teamRepository.getAll()) {
-			TeamData td = new TeamData(t);
-			List<String> members = new ArrayList<>();
-			members.add("user1");
-			td.setMembers(members);
-			data.add(td);
-		}
-		return ok(team_page.render(data, null));
+		return ok(team_page.render(dataUtils.getAllTeams(), null));
 	}
 
 	//@With(UserAuthentificationAction.class)
 	public Result createView() {
-		return ok(team_creation.render(form, getAllScreens(), null));
+		return ok(team_creation.render(form,
+			dataUtils.getAllFluxes(),
+			dataUtils.getAllScreens(),
+			dataUtils.getAllUsers(),
+			dataUtils.getAllSchedules(),
+			dataUtils.getAllDiffusers(),
+			null));
+	}
+
+	private Result createViewWithErrorMessage(String error) {
+		return badRequest(team_creation.render(form,
+			dataUtils.getAllFluxes(),
+			dataUtils.getAllScreens(),
+			dataUtils.getAllUsers(),
+			dataUtils.getAllSchedules(),
+			dataUtils.getAllDiffusers(),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String teamName) {
 		Team team = teamRepository.getByName(teamName);
 		return ok(team_update.render(form,
-			getAllFluxes(),
-			getAllScreens(),
-			getAllMembers(),
-			getAllSchedules(),
-			getAllDiffusers(),
+			dataUtils.getAllFluxes(),
+			dataUtils.getAllScreens(),
+			dataUtils.getAllUsers(),
+			dataUtils.getAllSchedules(),
+			dataUtils.getAllDiffusers(),
+			new TeamData(team),
+			null));
+	}
+
+	private Result updateViewWithErrorMessage(String teamName, String error) {
+		Team team = teamRepository.getByName(teamName);
+		return badRequest(team_update.render(form,
+			dataUtils.getAllFluxes(),
+			dataUtils.getAllScreens(),
+			dataUtils.getAllUsers(),
+			dataUtils.getAllSchedules(),
+			dataUtils.getAllDiffusers(),
 			new TeamData(team),
 			null));
 	}
@@ -83,19 +108,19 @@ public class TeamController extends Controller {
 		TeamData data = boundForm.get();
 
 		if (teamRepository.getByName(data.getName()) != null) {
-			// team already exists
-			return badRequest(team_creation.render(form, getAllScreens(), "Team name already exists"));
+			return createViewWithErrorMessage("Team name already exists");
 		}
 		else {
-			Team newTeam = new Team(data.getName());
+			Team team = new Team(data.getName());
 
-			if (data.getScreens() != null) {
-				for (String mac: data.getScreens()) {
-					newTeam.addScreen(screenRepository.getByMacAddress(mac).getId());
-				}
+			Result error = checkDataIntegrity(data);
+			if (error != null) {
+				return error;
 			}
 
-			teamRepository.add(newTeam);
+			fillTeamFromTeamData(team, data);
+
+			teamRepository.add(team);
 
 			return index();
 		}
@@ -110,114 +135,16 @@ public class TeamController extends Controller {
 		Team team = teamRepository.getByName(data.getName());
 
 		if (team == null) {
-			// team does not exists
-			return badRequest(team_update.render(form,
-				getAllFluxes(),
-				getAllScreens(),
-				getAllMembers(),
-				getAllSchedules(),
-				getAllDiffusers(),
-				new TeamData(data.getName()),
-				"Team name does not exists"));
+			return updateViewWithErrorMessage(data.getName(), "Team name does not exists");
 		}
 		else {
-			if (data.getFluxes() != null) {
-				for (String fluxName: data.getFluxes()) {
-					if (fluxRepository.getByName(fluxName) == null) {
-						return badRequest(team_update.render(form,
-							getAllFluxes(),
-							getAllScreens(),
-							getAllMembers(),
-							getAllSchedules(),
-							getAllDiffusers(),
-							new TeamData(data.getName()),
-							"Flux name does not exists"));
-					}
 
-					team.addToFluxes(fluxRepository.getByName(fluxName).getId());
-				}
-			}
-			if (data.getMembers() != null) {
-				for (String email: data.getMembers()) {
-					if (userRepository.getByEmail(email) == null) {
-						return badRequest(team_update.render(form,
-							getAllFluxes(),
-							getAllScreens(),
-							getAllMembers(),
-							getAllSchedules(),
-							getAllDiffusers(),
-							new TeamData(data.getName()),
-							"User email address does not exists"));
-					}
-
-					team.addMember(userRepository.getByEmail(email).getId());
-				}
-			}
-			if (data.getAdmins() != null) {
-				for (String email: data.getAdmins()) {
-					if (userRepository.getByEmail(email) == null) {
-						return badRequest(team_update.render(form,
-							getAllFluxes(),
-							getAllScreens(),
-							getAllMembers(),
-							getAllSchedules(),
-							getAllDiffusers(),
-							new TeamData(data.getName()),
-							"User email address does not exists - admin"));
-					}
-
-					team.addAdmin(userRepository.getByEmail(email).getId());
-				}
-			}
-			if (data.getSchedules() != null) {
-				for (String scheduleName: data.getSchedules()) {
-					if (scheduleRepository.getByName(scheduleName) == null) {
-						return badRequest(team_update.render(form,
-							getAllFluxes(),
-							getAllScreens(),
-							getAllMembers(),
-							getAllSchedules(),
-							getAllDiffusers(),
-							new TeamData(data.getName()),
-							"Schedule name does not exists"));
-					}
-
-					team.addToSchedules(scheduleRepository.getByName(scheduleName).getId());
-				}
-			}
-			if (data.getDiffusers() != null) {
-				for (String diffuserName: data.getDiffusers()) {
-					if (diffuserRepository.getByName(diffuserName) == null) {
-						return badRequest(team_update.render(form,
-							getAllFluxes(),
-							getAllScreens(),
-							getAllMembers(),
-							getAllSchedules(),
-							getAllDiffusers(),
-							new TeamData(data.getName()),
-							"Diffuser name does not exists"));
-					}
-
-					team.addToDiffusers(diffuserRepository.getByName(diffuserName).getId());
-				}
+			Result error = checkDataIntegrity(data);
+			if (error != null) {
+				return error;
 			}
 
-			if (data.getScreens() != null) {
-				for (String screenMAC: data.getScreens()) {
-					if (screenRepository.getByMacAddress(screenMAC) == null) {
-						return badRequest(team_update.render(form,
-							getAllFluxes(),
-							getAllScreens(),
-							getAllMembers(),
-							getAllSchedules(),
-							getAllDiffusers(),
-							new TeamData(data.getName()),
-							"Diffuser name does not exists"));
-					}
-
-					team.addScreen(screenRepository.getByMacAddress(screenMAC).getId());
-				}
-			}
+			updateTeamFromTeamData(team, data);
 
 			teamRepository.update(team);
 
@@ -239,43 +166,141 @@ public class TeamController extends Controller {
 		}
 	}
 
-	private List<ScreenData> getAllScreens() {
-		List<ScreenData> data = new ArrayList<>();
-		for (Screen s: screenRepository.getAll()) {
-			data.add(new ScreenData(s));
+	private void fillTeamFromTeamData(Team team, TeamData data) {
+		for (String fluxName: data.getFluxes()) {
+			team.addToFluxes(fluxRepository.getByName(fluxName).getId());
 		}
-		return data;
+
+		for (String email: data.getMembers()) {
+			team.addMember(userRepository.getByEmail(email).getId());
+		}
+
+		for (String email: data.getAdmins()) {
+			team.addAdmin(userRepository.getByEmail(email).getId());
+		}
+
+		for (String scheduleName: data.getSchedules()) {
+			team.addToSchedules(scheduleRepository.getByName(scheduleName).getId());
+		}
+
+		for (String diffuserName: data.getDiffusers()) {
+			team.addToDiffusers(diffuserRepository.getByName(diffuserName).getId());
+		}
+
+		for (String screenMAC: data.getScreens()) {
+			team.addScreen(screenRepository.getByMacAddress(screenMAC).getId());
+		}
 	}
 
-	private List<FluxData> getAllFluxes() {
-		List<FluxData> data = new ArrayList<>();
-		for (Flux f: fluxRepository.getAll()) {
-			data.add(new FluxData(f));
+	// For now this function replace all data of the team by the new one
+	private void updateTeamFromTeamData(Team team, TeamData data) {
+		Set<Integer> ids = new HashSet<>();
+
+		for (String fluxName: data.getFluxes()) {
+			ids.add(fluxRepository.getByName(fluxName).getId());
 		}
-		return data;
+		team.setFluxes(ids);
+		ids.clear();
+
+		for (String email: data.getMembers()) {
+			ids.add(userRepository.getByEmail(email).getId());
+		}
+		team.setMembers(ids);
+		ids.clear();
+
+		for (String email: data.getAdmins()) {
+			ids.add(userRepository.getByEmail(email).getId());
+		}
+		team.setAdmins(ids);
+		ids.clear();
+
+		for (String scheduleName: data.getSchedules()) {
+			ids.add(scheduleRepository.getByName(scheduleName).getId());
+		}
+		team.setSchedules(ids);
+		ids.clear();
+
+		for (String diffuserName: data.getDiffusers()) {
+			ids.add(diffuserRepository.getByName(diffuserName).getId());
+		}
+		team.setDiffusers(ids);
+		ids.clear();
+
+		for (String screenMAC: data.getScreens()) {
+			ids.add(screenRepository.getByMacAddress(screenMAC).getId());
+		}
+		team.setScreens(ids);
 	}
 
-	private List<ScheduleData> getAllSchedules() {
-		List<ScheduleData> data = new ArrayList<>();
-		for (Schedule s: scheduleRepository.getAll()) {
-			data.add(new ScheduleData(s));
-		}
-		return data;
-	}
+	private Result checkDataIntegrity(TeamData data) {
 
-	private List<DiffuserData> getAllDiffusers() {
-		List<DiffuserData> data = new ArrayList<>();
-		for (Diffuser d: diffuserRepository.getAll()) {
-			data.add(new DiffuserData(d));
-		}
-		return data;
-	}
+		Result error = null;
 
-	private List<UserData> getAllMembers() {
-		List<UserData> data = new ArrayList<>();
-		for (User u: userRepository.getAll()) {
-			data.add(new UserData(u));
+		if (data.getFluxes() != null) {
+			for (String fluxName: data.getFluxes()) {
+				if (fluxRepository.getByName(fluxName) == null) {
+					error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists");
+				}
+			}
 		}
-		return data;
+		else {
+			data.setFluxes(new ArrayList<>());
+		}
+
+		if (data.getMembers() != null) {
+			for (String email: data.getMembers()) {
+				if (userRepository.getByEmail(email) == null) {
+					error = updateViewWithErrorMessage(data.getName(), "User email address does not exists");
+				}
+			}
+		}
+		else {
+			data.setMembers(new ArrayList<>());
+		}
+
+		if (data.getAdmins() != null) {
+			for (String email: data.getAdmins()) {
+				if (userRepository.getByEmail(email) == null) {
+					error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists - admin");
+				}
+			}
+		}
+		else {
+			data.setAdmins(new ArrayList<>());
+		}
+
+		if (data.getSchedules() != null) {
+			for (String scheduleName: data.getSchedules()) {
+				if (scheduleRepository.getByName(scheduleName) == null) {
+					error = updateViewWithErrorMessage(data.getName(), "Schedule name does not exists");
+				}
+			}
+		}
+		else {
+			data.setSchedules(new ArrayList<>());
+		}
+
+		if (data.getDiffusers() != null) {
+			for (String diffuserName: data.getDiffusers()) {
+				if (diffuserRepository.getByName(diffuserName) == null) {
+					error = updateViewWithErrorMessage(data.getName(), "Diffuser name does not exists");
+				}
+			}
+		}
+		else {
+			data.setDiffusers(new ArrayList<>());
+		}
+
+		if (data.getScreens() != null) {
+			for (String screenMAC: data.getScreens()) {
+				if (screenRepository.getByMacAddress(screenMAC) == null) {
+					error = updateViewWithErrorMessage(data.getName(), "Screen MAC address does not exists");
+				}
+			}
+		}
+		else {
+			data.setScreens(new ArrayList<>());
+		}
+		return error;
 	}
 }

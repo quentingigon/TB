@@ -132,14 +132,6 @@
                     var input = $(this).parents("tr").find('input[type="text"]');
                     var select = $(this).parents("tr").find('select[type="text"]');
                     var hiddenValue = "";
-                    input.each(function(){
-                        if(!$(this).val()){
-                            $(this).addClass("error");
-                            time_empty = true;
-                        } else{
-                            $(this).removeClass("error");
-                        }
-                    });
                     select.each(function(){
                         if(!$(this).val()){
                             $(this).addClass("error");
@@ -154,8 +146,7 @@
                             hiddenValue += $(this).val();
                             $(this).parent("td").html($(this).val());
                         });
-                        $(this).parents("tr").find(".add, .edit").toggle();
-                        $(".add-new").removeAttr("disabled");
+
                     }
                     hiddenValue += "#";
                     if(!time_empty){
@@ -163,10 +154,9 @@
                             hiddenValue += $(this).val();
                             $(this).parent("td").html($(this).val());
                         });
-                        $(this).parents("tr").find(".add, .edit").toggle();
-                        $(".add-new").removeAttr("disabled");
                     }
-
+                    $(this).parents("tr").find(".add, .edit").toggle();
+                    $(".add-new").removeAttr("disabled");
                     $(this).html('<input name="fluxes[]" type="hidden" class="form-control" value="' + hiddenValue + '">');
                 });
                 // Edit row on edit button click
@@ -182,25 +172,6 @@
                     $(this).parents("tr").remove();
                     $(".add-new").removeAttr("disabled");
                 });
-
-                $("#form").submit( function(e) {
-                    e.preventDefault();
-                    alert("coucou");
-                    var index = 0;
-                    var fluxes = [];
-                    $(".flux-row").forEach( function() {
-                        var fluxName = $(".flux-row > td")[index++].innerHTML;
-                        var fluxTime = $(".flux-row > td")[index++].innerHTML;
-                        index++;
-                        fluxes.push(fluxName + "|" + fluxTime);
-                    });
-
-                    $('<input name="' + "scheduledFluxes[]" + '" />')
-                            .val(fluxes)
-                            .appendTo("#form");
-
-                    return true;
-                })
             });
     </script>
 

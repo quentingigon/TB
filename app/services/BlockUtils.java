@@ -4,11 +4,11 @@ public class BlockUtils {
 
 	// TODO comment + more variables
 
-	public static final Integer beginningHour = 8; // inclusive
-	public static final Integer EndHour = 23; // exclusive
-	public static final Integer activeTime = EndHour - beginningHour;
+	public static final double beginningHour = 8; // inclusive
+	public static final double endHour = 23; // exclusive
+	public static final double activeTime = endHour - beginningHour;
 
 	// minutes
-	public static final Integer blockDuration = 1;
-	public static final Integer blockNumber = 60 / blockDuration * activeTime;
+	public static final double blockDuration = 1;
+	public static final double blockNumber = 60 / blockDuration * activeTime;
 }

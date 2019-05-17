@@ -30,6 +30,12 @@ public class DataUtils {
 	public DataUtils() {
 	}
 
+	public Integer getTeamIdOfUserByEmail(String email) {
+		return userRepository
+			.getMemberByUserEmail(email)
+			.getTeamId();
+	}
+
 	public List<ScreenData> getAllScreensOfTeam(int teamId) {
 		List<ScreenData> data = new ArrayList<>();
 		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
@@ -107,6 +113,14 @@ public class DataUtils {
 		List<TeamData> data = new ArrayList<>();
 		for (Team t: teamRepository.getAll()) {
 			data.add(new TeamData(t));
+		}
+		return data;
+	}
+
+	public List<DiffuserData> getAllDiffusers() {
+		List<DiffuserData> data = new ArrayList<>();
+		for (Diffuser d: diffuserRepository.getAll()) {
+			data.add(new DiffuserData(d));
 		}
 		return data;
 	}

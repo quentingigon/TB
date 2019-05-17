@@ -3,7 +3,17 @@
 
 @import java.util
 @import models.entities.ScreenData
-@(form: Form[TeamData], screens: util.List[ScreenData], error: String)
+@import models.entities.FluxData
+@import models.entities.UserData
+@import models.entities.ScheduleData
+@import models.entities.DiffuserData
+@(form: Form[TeamData],
+        fluxes: util.List[FluxData],
+        screens: util.List[ScreenData],
+        members: util.List[UserData],
+        schedules: util.List[ScheduleData],
+        diffusers: util.List[DiffuserData],
+        error: String)
 
 
 @main("Team Creation Page") {
@@ -31,6 +41,51 @@
                     @for(screen <- screens) {
                         <option>@screen.getMac</option>
                     }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputFluxes">Fluxes</label>
+                <select name="fluxes[]" id="inputFluxes" class="form-control" multiple="multiple" >
+                @for(flux <- fluxes) {
+                    <option>@flux.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputSchedules">Schedules</label>
+                <select name="schedules[]" id="inputSchedules" class="form-control" multiple="multiple" >
+                @for(schedule <- schedules) {
+                    <option>@schedule.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputMembers">Members</label>
+                <select name="members[]" id="inputMembers" class="form-control" multiple="multiple" >
+                @for(member <- members) {
+                    <option>@member.getEmail</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputAdmins">Admins</label>
+                <select name="admins[]" id="inputAdmins" class="form-control" multiple="multiple" >
+                @for(member <- members) {
+                    <option>@member.getEmail</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputDiffusers">Diffusers</label>
+                <select name="diffusers[]" id="inputDiffusers" class="form-control" multiple="multiple" >
+                @for(diffuser <- diffusers) {
+                    <option>@diffuser.getName</option>
+                }
                 </select>
             </div>
 

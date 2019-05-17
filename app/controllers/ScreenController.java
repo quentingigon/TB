@@ -2,10 +2,13 @@ package controllers;
 
 import controllers.actions.UserAuthentificationAction;
 import models.db.Screen;
+import models.db.Team;
 import models.db.WaitingScreen;
+import models.entities.DataUtils;
 import models.entities.ScreenData;
 import models.repositories.ScreenRepository;
 import models.repositories.SiteRepository;
+import models.repositories.TeamRepository;
 import models.repositories.WaitingScreenRepository;
 import play.data.Form;
 import play.data.FormFactory;
@@ -33,19 +36,24 @@ public class ScreenController extends Controller {
 	ScreenRepository screenRepository;
 
 	@Inject
+	TeamRepository teamRepository;
+
+	@Inject
 	WaitingScreenRepository waitingScreenRepository;
 
 	private Form<ScreenData> form;
 
+	private DataUtils dataUtils;
+
 	@Inject
-	public ScreenController(FormFactory formFactory) {
+	public ScreenController(FormFactory formFactory, DataUtils dataUtils) {
 		this.form = formFactory.form(ScreenData.class);
+		this.dataUtils = dataUtils;
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result index() {
-
-		return (ok(screen_page.render(getAllScreens(), null)));
+		return (ok(screen_page.render(dataUtils.getAllScreens(), null)));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -105,6 +113,7 @@ public class ScreenController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result register(Http.Request request) {
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScreenData data = boundForm.get();
 		String macAdr = data.getMac();
@@ -140,6 +149,11 @@ public class ScreenController extends Controller {
 
 				screenRepository.add(newScreen);
 				waitingScreenRepository.delete(ws);
+
+				// add new schedule to current user's team
+				Team team = teamRepository.getById(teamId);
+				team.addScreen(newScreen.getId());
+				teamRepository.update(team);
 
 				return index();
 			}

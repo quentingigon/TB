@@ -72,31 +72,31 @@ public class ScheduleController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result index(Http.Request request) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), null));
 	}
 
 	private Result indexWithErrorMessage(Http.Request request, String error) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(Http.Request request, String name) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
 			dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), null));
 	}
 
 	private Result updateViewWithErrorMessage(Http.Request request, String name, String error) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
 			dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_creation.render(form,
 			dataUtils.getAllFluxesOfTeam(teamId),
 			dataUtils.getAllFluxesOfTeam(teamId),
@@ -105,7 +105,7 @@ public class ScheduleController extends Controller {
 	}
 
 	private Result createViewWithErrorMessage(Http.Request request, String error) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_creation.render(form,
 			dataUtils.getAllFluxesOfTeam(teamId),
 			dataUtils.getAllFluxesOfTeam(teamId),
@@ -115,7 +115,7 @@ public class ScheduleController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new ScheduleData(name), null, request));
 	}
 
@@ -123,7 +123,7 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 
@@ -177,7 +177,7 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name, Http.Request request) {
 		Schedule schedule = scheduleRepository.getByName(name);
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		// incorrect name
 		if (schedule == null) {
@@ -206,7 +206,7 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 
@@ -220,6 +220,8 @@ public class ScheduleController extends Controller {
 		else {
 			Schedule schedule = new Schedule(data.getName());
 
+			List<ScheduledFlux> scheduledFluxes = new ArrayList<>();
+
 			for (String fluxData: data.getFluxes()) {
 
 				String[] fluxDatas = fluxData.split("#");
@@ -231,26 +233,41 @@ public class ScheduleController extends Controller {
 
 				String fluxTime;
 
+
+
 				// we must create a ScheduledFlux for this entry
-				if (fluxDatas[1] != null) {
+				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
 					fluxTime = fluxDatas[1];
+					int fluxHour = Integer.valueOf(fluxTime.split((":"))[0]);
+
+					if (fluxHour < beginningHour || fluxHour > endHour) {
+						return createViewWithErrorMessage(request,
+							"Time for flux: " + fluxName + " is not within bounds: " + beginningHour + " -> " + endHour);
+					}
 
 					// TODO set schedule_id of sf with a trigger at the creation of the schedule
 					ScheduledFlux sf = new ScheduledFlux();
 					sf.setFluxId(fluxRepository.getByName(fluxName).getId());
 					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
-					sf = fluxRepository.addScheduledFlux(sf);
+					scheduledFluxes.add(sf);
+					// sf = fluxRepository.addScheduledFlux(sf);
 
-					schedule.addToFluxes(sf.getId());
+					// schedule.addToFluxes(sf.getId());
 				}
 				// we must add a un-scheduled flux -> fallback flux
 				else {
 					schedule.addToFallbacks(fluxRepository.getByName(fluxName).getId());
 				}
-
 			}
 
 			schedule = scheduleRepository.add(schedule);
+
+			for (ScheduledFlux sf: scheduledFluxes) {
+				sf.setScheduleId(schedule.getId());
+				sf = fluxRepository.addScheduledFlux(sf);
+				schedule.addToFluxes(sf.getId());
+			}
+			scheduleRepository.update(schedule);
 
 			// add new schedule to current user's team
 			Team team = teamRepository.getById(teamId);
@@ -264,7 +281,7 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 		Schedule schedule = scheduleRepository.getByName(data.getName());
@@ -283,7 +300,7 @@ public class ScheduleController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result delete(String name, Http.Request request) {
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		Schedule schedule = scheduleRepository.getByName(name);
 
@@ -298,21 +315,15 @@ public class ScheduleController extends Controller {
 		}
 	}
 
-	private Integer getTeamIdOfUserByEmail(String email) {
-		return userRepository
-			.getMemberByUserEmail(email)
-			.getTeamId();
-	}
-
 	private int getBlockNumberOfTime(String time) {
 
 		int hours = Integer.valueOf(time.split(":")[0]);
 		int minutes = Integer.valueOf(time.split(":")[1]);
 
-		int hoursToBlock = (hours - beginningHour / activeTime) * blockNumber * blockDuration;
+		double hoursToBlock = (hours - beginningHour) / activeTime * blockNumber * blockDuration;
 
 		// TODO warning: only works with blockDuration == 1 so better change it
-		return hoursToBlock + minutes;
+		return (int) hoursToBlock + minutes;
 	}
 
 	// TODO integrate with schedule etc
