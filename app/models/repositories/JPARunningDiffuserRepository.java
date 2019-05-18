@@ -40,6 +40,20 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 	}
 
 	@Override
+	public RunningDiffuser getByDiffuserId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String diffuserId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM runningdiffuser WHERE diffuser_id = " + diffuserId, RunningDiffuser.class);
+			try {
+				return (RunningDiffuser) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<RunningDiffuser> getAll() {
 		return jpaApi.withTransaction(entityManager -> {

@@ -18,6 +18,7 @@ import views.html.diffuser.diffuser_page;
 import views.html.diffuser.diffuser_update;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -101,7 +102,6 @@ public class DiffuserController extends Controller {
 		return badRequest(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), error, request));
 	}
 
-	// TODO activation page to select flux and screens
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 
@@ -115,9 +115,7 @@ public class DiffuserController extends Controller {
 		if (diffuser == null) {
 			return activateViewWithErrorMessage(data.getName(), request, "Diffuser name does not exists");
 		}
-		else if (Integer.valueOf(data.getStartTime()) < 0 || Integer.valueOf(data.getStartTime()) > blockNumber) {
-			return activateViewWithErrorMessage(data.getName(), request, "Start time must be between 0 and " + blockNumber);
-		}
+
 		else {
 
 			// get names of RunningSchedules concerned by the new Diffuser
@@ -135,14 +133,13 @@ public class DiffuserController extends Controller {
 				scheduleIds.add(scheduleRepository.getById(rs.getScheduleId()).getId());
 			}
 
+			// no runningschedule are associated with the screens used by the diffuser
+			if (runningScheduleIds.isEmpty()) {
+				return activateViewWithErrorMessage(data.getName(), request, "None of the selected screens are active");
+			}
+
 			// Flux to add to schedules and services
 			Flux diffusedFlux = fluxRepository.getById(diffuser.getFlux());
-
-			// create new runningDiffuser
-			RunningDiffuser rd = new RunningDiffuser(diffuser);
-			rd.setDiffuserId(diffuser.getId());
-			rd.addToScreens(screenRepository.getByMacAddress("1234").getId());
-			runningDiffuserRepository.add(rd);
 
 			// update associated Schedule timetable
 			for (Integer id: scheduleIds) {
@@ -151,7 +148,7 @@ public class DiffuserController extends Controller {
 				// and updating schedule
 				ScheduledFlux sf = new ScheduledFlux();
 				sf.setScheduleId(schedule.getId());
-				sf.setStartBlock(Integer.valueOf(data.getStartTime()));
+				sf.setStartBlock(diffuser.getStartBlock());
 				sf.setFluxId(diffusedFlux.getId());
 				sf = fluxRepository.addScheduledFlux(sf);
 				schedule.addToFluxes(sf.getId());
@@ -162,9 +159,16 @@ public class DiffuserController extends Controller {
 			for (Integer id: runningScheduleIds) {
 				RunningScheduleService rss = serviceManager.getServiceByScheduleId(id);
 				if (rss != null) {
-					rss.scheduleFlux(diffusedFlux, Integer.valueOf(data.getStartTime()));
+					rss.scheduleFlux(diffusedFlux, diffuser.getStartBlock());
 				}
 			}
+
+			// create new runningDiffuser
+			RunningDiffuser rd = new RunningDiffuser(diffuser);
+			rd.setDiffuserId(diffuser.getId());
+			rd.addToScreens(screenRepository.getByMacAddress("1234").getId());
+			rd.setFluxId(diffusedFlux.getId());
+			runningDiffuserRepository.add(rd);
 
 			return index(request);
 		}
@@ -180,7 +184,7 @@ public class DiffuserController extends Controller {
 		}
 		else {
 
-			RunningDiffuser rd = runningDiffuserRepository.getByName(name);
+			RunningDiffuser rd = runningDiffuserRepository.getByDiffuserId(diffuser.getId());
 
 			Set<Integer> screenIds = new HashSet<>(rd.getScreens());
 			for (Integer id: screenIds) {
@@ -216,9 +220,14 @@ public class DiffuserController extends Controller {
 			return createViewWithErrorMessage(request, "Name is already taken");
 		}
 		else {
+			Result error = checkDataIntegrity(data, "create", request);
+			if (error != null) {
+				return error;
+			}
 			Diffuser diffuser = new Diffuser(data.getName());
 			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.valueOf(data.getValidity()));
+			diffuser.setStartBlock(dataUtils.getBlockNumberOfTime(data.getStartTime()));
 
 			diffuser = diffuserRepository.add(diffuser);
 
@@ -234,14 +243,23 @@ public class DiffuserController extends Controller {
 	public Result update(Http.Request request) {
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
 
-		Diffuser diffuser = diffuserRepository.getByName(boundForm.get().getName());
+		DiffuserData data = boundForm.get();
+		Diffuser diffuser = diffuserRepository.getByName(data.getName());
 
 		// name is incorrect
 		if (diffuser == null) {
-			return updateViewWithErrorMessage(boundForm.get().getName(), "Diffuser name does not exists");
+			return updateViewWithErrorMessage(data.getName(), "Diffuser name does not exists");
 		}
 		else {
 
+			Result error = checkDataIntegrity(data, "update", request);
+			if (error != null) {
+				return error;
+			}
+			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
+			diffuser.setValidity(Integer.valueOf(data.getValidity()));
+			diffuser.setName(data.getName());
+			diffuser.setStartBlock(dataUtils.getBlockNumberOfTime(data.getStartTime()));
 
 			// do changes to diffuser here
 			diffuserRepository.update(diffuser);
@@ -263,5 +281,54 @@ public class DiffuserController extends Controller {
 
 			return index(request);
 		}
+	}
+
+	// TODO additional checks
+	private Result checkDataIntegrity(DiffuserData data, String action, Http.Request request) {
+
+		Result error = null;
+
+		if (data.getValidity() == null) {
+			if (action.equals("create"))
+				error = createViewWithErrorMessage(request, "You must enter a validity");
+			else if (action.equals("update"))
+				error = updateViewWithErrorMessage(data.getName(), "You must enter a validity");
+		}
+
+		if (data.getFluxName() != null) {
+			if (fluxRepository.getByName(data.getFluxName()) ==  null) {
+				if (action.equals("create"))
+					error = createViewWithErrorMessage(request, "Flux does not exists");
+				else if (action.equals("update"))
+					error = updateViewWithErrorMessage(data.getName(), "Flux does not exists");
+
+			}
+		}
+		else {
+			data.setFluxName("");
+		}
+
+		if (data.getStartTime() == null) {
+			if (action.equals("create"))
+				error = createViewWithErrorMessage(request, "You must enter a start time");
+			else if (action.equals("update"))
+				error = updateViewWithErrorMessage(data.getName(), "You must enter a start time");
+		}
+
+		if (data.getScreens() != null) {
+			for (String screenMAC: data.getScreens()) {
+				if (screenRepository.getByMacAddress(screenMAC) == null) {
+					if (action.equals("create"))
+						error = createViewWithErrorMessage(request, "Screen MAC address does not exists");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "Screen MAC address does not exists");
+				}
+			}
+		}
+		else {
+			data.setScreens(new ArrayList<>());
+		}
+
+		return error;
 	}
 }

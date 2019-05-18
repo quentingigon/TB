@@ -56,6 +56,20 @@ public class JPARunningScheduleRepository implements RunningScheduleRepository {
 	}
 
 	@Override
+	public Integer getRunningScheduleIdByScreenId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String screenId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT runningschedule_runningschedule_id FROM runningschedule_screens WHERE screens = " + screenId);
+			try {
+				return (Integer) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<RunningSchedule> getAll() {
 		return jpaApi.withTransaction(entityManager -> {

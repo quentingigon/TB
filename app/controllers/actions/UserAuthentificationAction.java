@@ -31,8 +31,10 @@ public class UserAuthentificationAction extends play.mvc.Action.Simple {
 
 	public CompletionStage<Result> call(Http.Request req) {
 
+		// TODO add teamadmin
 		if (req.cookie("email") != null) {
-			if (userRepository.getMemberByUserEmail(req.cookie("email").value()) != null) {
+			if (userRepository.getMemberByUserEmail(req.cookie("email").value()) != null ||
+				userRepository.getAdminByUserEmail(req.cookie("email").value()) != null) {
 				return delegate.call(req);
 			}
 		}

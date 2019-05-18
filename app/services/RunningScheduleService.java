@@ -27,6 +27,8 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	private boolean running;
 
+	private FluxEvent lastFluxEvent;
+
 	public RunningScheduleService(RunningSchedule runningSchedule,
 								  List<Screen> screens,
 								  List<Integer> fallbackFluxIds,
@@ -38,6 +40,7 @@ public class RunningScheduleService extends Observable implements Runnable {
 		this.fallbackFluxIds = fallbackFluxIds;
 		this.fluxRepository = fluxRepository;
 		running = true;
+		lastFluxEvent = null;
 	}
 
 	@Override
@@ -46,7 +49,6 @@ public class RunningScheduleService extends Observable implements Runnable {
 		while (running) {
 
 			int blockIndex = 0;
-			Flux lastFlux = new Flux();
 			int siteId = 0;
 
 			do {
@@ -88,7 +90,6 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 						sendFluxEvent(currentFlux, screens);
 					}
-					lastFlux = currentFlux;
 				}
 				// choose from the unscheduled fluxes
 				else {
@@ -99,9 +100,8 @@ public class RunningScheduleService extends Observable implements Runnable {
 					// TODO optimize
 					for (Integer fluxId : fallbackFluxIds) {
 
-						Flux flux = fluxRepository.getById(fluxId);
-
 						if (!sent) {
+							Flux flux = fluxRepository.getById(fluxId);
 							// if this flux can be inserted in the remaining blocks
 							if (flux.getDuration() <= freeBlocksN) {
 
@@ -112,7 +112,6 @@ public class RunningScheduleService extends Observable implements Runnable {
 								// send event to observer
 								sendFluxEvent(flux, screens);
 
-								lastFlux = flux;
 								sent = true;
 							}
 						}
@@ -133,14 +132,40 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	private void sendFluxEvent(Flux flux, List<Screen> screenList) {
 		FluxEvent event = new FluxEvent(flux, screenList);
+		lastFluxEvent = event;
 		setChanged();
 		notifyObservers(event);
+	}
+
+	public void resendLastFluxEvent() {
+		if (lastFluxEvent != null) {
+			setChanged();
+			notifyObservers(lastFluxEvent);
+		}
+	}
+
+	public void resendLastFluxEventToScreens(List<Screen> screenList) {
+		if (lastFluxEvent != null) {
+			setChanged();
+			notifyObservers(new FluxEvent(lastFluxEvent.getFlux(), screenList));
+		}
+	}
+
+	public void sendFluxToScreensImmediately(Flux flux, List<Screen> screenList) {
+		sendFluxEvent(flux, screenList);
 	}
 
 	public void scheduleFlux(Flux flux, int blockIndex) {
 		for (int i = 0; i < flux.getDuration(); i++) {
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
 			this.timetable.put(blockIndex + i, flux.getId());
+		}
+	}
+
+	public void scheduleFluxIfPossible(Flux flux, int blockIndex) {
+		// if we can schedule the flux in the timetable (enough space until next scheduled flux)
+		if (!timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getDuration()) {
+			scheduleFlux(flux, blockIndex);
 		}
 	}
 

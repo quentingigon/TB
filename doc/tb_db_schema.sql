@@ -161,7 +161,9 @@ DROP TABLE IF EXISTS diffuser CASCADE;
 CREATE TABLE diffuser
   (
     diffuser_id SERIAL PRIMARY KEY,
+    flux_id INTEGER,
     name VARCHAR(20),
+    start_block INT,
     validity BIGINT
   );
 
@@ -257,8 +259,11 @@ CREATE FUNCTION delete_screens_of_runningschedule()
 RETURNS TRIGGER
 AS $$
 BEGIN
-DELETE FROM runningschedule_screens
+    DELETE FROM runningschedule_screens
     WHERE runningschedule_runningschedule_id = OLD.runningschedule_id;
+
+    DELETE FROM runningdiffuser
+    WHERE schedule_id = OLD.schedule_id;
 RETURN OLD;
 END;
 $$
@@ -270,7 +275,7 @@ CREATE FUNCTION delete_screens_of_runningdiffuser()
 RETURNS TRIGGER
 AS $$
 BEGIN
-DELETE FROM runningdiffuser_screens
+    DELETE FROM runningdiffuser_screens
     WHERE runningdiffuser_runningdiffuser_id = OLD.runningdiffuser_id;
 RETURN OLD;
 END;

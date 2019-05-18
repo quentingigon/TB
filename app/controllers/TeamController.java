@@ -55,6 +55,10 @@ public class TeamController extends Controller {
 		return ok(team_page.render(dataUtils.getAllTeams(), null));
 	}
 
+	public Result indexWithErrorMessage(String error) {
+		return ok(team_page.render(dataUtils.getAllTeams(), error));
+	}
+
 	//@With(UserAuthentificationAction.class)
 	public Result createView() {
 		return ok(team_creation.render(form,
@@ -123,7 +127,7 @@ public class TeamController extends Controller {
 		else {
 			Team team = new Team(data.getName());
 
-			Result error = checkDataIntegrity(data);
+			Result error = checkDataIntegrity(data, "create");
 			if (error != null) {
 				return error;
 			}
@@ -149,7 +153,7 @@ public class TeamController extends Controller {
 		}
 		else {
 
-			Result error = checkDataIntegrity(data);
+			Result error = checkDataIntegrity(data, "update");
 			if (error != null) {
 				return error;
 			}
@@ -168,7 +172,7 @@ public class TeamController extends Controller {
 
 		if (team == null) {
 			// team does not exists
-			return badRequest(team_page.render(null, "Team name does not exists"));
+			return indexWithErrorMessage("Team name does not exists");
 		}
 		else {
 			teamRepository.delete(team);
@@ -203,14 +207,17 @@ public class TeamController extends Controller {
 	}
 
 
-	private Result checkDataIntegrity(TeamData data) {
+	private Result checkDataIntegrity(TeamData data, String action) {
 
 		Result error = null;
 
 		if (data.getFluxes() != null) {
 			for (String fluxName: data.getFluxes()) {
 				if (fluxRepository.getByName(fluxName) == null) {
-					error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists");
+					if (action.equals("create"))
+						error = createViewWithErrorMessage("Flux name does not exists");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists");
 				}
 			}
 		}
@@ -221,7 +228,10 @@ public class TeamController extends Controller {
 		if (data.getMembers() != null) {
 			for (String email: data.getMembers()) {
 				if (userRepository.getByEmail(email) == null) {
-					error = updateViewWithErrorMessage(data.getName(), "User email address does not exists");
+					if (action.equals("create"))
+						error = createViewWithErrorMessage("User email address does not exists");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "User email address does not exists");
 				}
 			}
 		}
@@ -232,7 +242,10 @@ public class TeamController extends Controller {
 		if (data.getAdmins() != null) {
 			for (String email: data.getAdmins()) {
 				if (userRepository.getByEmail(email) == null) {
-					error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists - admin");
+					if (action.equals("create"))
+						error = createViewWithErrorMessage("Flux name does not exists - admin");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists - admin");
 				}
 			}
 		}
@@ -243,7 +256,10 @@ public class TeamController extends Controller {
 		if (data.getSchedules() != null) {
 			for (String scheduleName: data.getSchedules()) {
 				if (scheduleRepository.getByName(scheduleName) == null) {
-					error = updateViewWithErrorMessage(data.getName(), "Schedule name does not exists");
+					if (action.equals("create"))
+						error = createViewWithErrorMessage("Schedule name does not exists");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "Schedule name does not exists");
 				}
 			}
 		}
@@ -254,7 +270,10 @@ public class TeamController extends Controller {
 		if (data.getDiffusers() != null) {
 			for (String diffuserName: data.getDiffusers()) {
 				if (diffuserRepository.getByName(diffuserName) == null) {
-					error = updateViewWithErrorMessage(data.getName(), "Diffuser name does not exists");
+					if (action.equals("create"))
+						error = createViewWithErrorMessage("Diffuser name does not exists");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "Diffuser name does not exists");
 				}
 			}
 		}
@@ -265,7 +284,10 @@ public class TeamController extends Controller {
 		if (data.getScreens() != null) {
 			for (String screenMAC: data.getScreens()) {
 				if (screenRepository.getByMacAddress(screenMAC) == null) {
-					error = updateViewWithErrorMessage(data.getName(), "Screen MAC address does not exists");
+					if (action.equals("create"))
+						error = createViewWithErrorMessage("Screen MAC address does not exists");
+					else if (action.equals("update"))
+						error = updateViewWithErrorMessage(data.getName(), "Screen MAC address does not exists");
 				}
 			}
 		}

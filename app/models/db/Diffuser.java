@@ -20,6 +20,9 @@ public class Diffuser {
 	@Column(name="flux_id")
 	private Integer flux;
 
+	@Column(name="start_block")
+	private Integer startBlock;
+
 	public Diffuser() {
 	}
 
@@ -54,4 +57,14 @@ public class Diffuser {
 	public void setFlux(Integer flux) {
 		this.flux = flux;
 	}
+
+	public Integer getStartBlock() {
+		return startBlock;
+	}
+
+	public void setStartBlock(Integer startBlock) {
+		this.startBlock = startBlock;
+	}
+
+
 }

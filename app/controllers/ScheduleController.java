@@ -245,7 +245,7 @@ public class ScheduleController extends Controller {
 					// TODO set schedule_id of sf with a trigger at the creation of the schedule
 					ScheduledFlux sf = new ScheduledFlux();
 					sf.setFluxId(fluxRepository.getByName(fluxName).getId());
-					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
+					sf.setStartBlock(dataUtils.getBlockNumberOfTime(fluxTime));
 					scheduledFluxes.add(sf);
 					// sf = fluxRepository.addScheduledFlux(sf);
 
@@ -311,18 +311,4 @@ public class ScheduleController extends Controller {
 			return index(request);
 		}
 	}
-
-	private int getBlockNumberOfTime(String time) {
-
-		int hours = Integer.valueOf(time.split(":")[0]);
-		int minutes = Integer.valueOf(time.split(":")[1]);
-
-		double hoursToBlock = (hours - beginningHour) / activeTime * blockNumber * blockDuration;
-
-		// TODO warning: only works with blockDuration == 1 so better change it
-		return (int) hoursToBlock + minutes;
-	}
-
-
-
 }

@@ -10,7 +10,6 @@ import models.entities.FluxData;
 import models.repositories.FluxRepository;
 import models.repositories.SiteRepository;
 import models.repositories.TeamRepository;
-import models.repositories.UserRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -22,11 +21,8 @@ import views.html.flux.flux_page;
 import views.html.flux.flux_update;
 
 import javax.inject.Inject;
-import javax.xml.crypto.Data;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import static services.BlockUtils.blockNumber;
 
@@ -37,9 +33,6 @@ public class FluxController extends Controller {
 
 	@Inject
 	SiteRepository siteRepository;
-
-	@Inject
-	UserRepository userRepository;
 
 	@Inject
 	TeamRepository teamRepository;
@@ -84,11 +77,9 @@ public class FluxController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
-		Integer teamId = getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		FluxData data = boundForm.get();
-
-
 
 		// flux already exists
 		if (fluxRepository.getByName(data.getName()) != null) {
@@ -170,19 +161,6 @@ public class FluxController extends Controller {
 		}
 	}
 
-	private Integer getTeamIdOfUserByEmail(String email) {
-		return userRepository
-			.getMemberByUserEmail(email)
-			.getTeamId();
-	}
-
-	private List<FluxData> getAllFluxes() {
-		List<FluxData> data = new ArrayList<>();
-		for (Flux f: fluxRepository.getAll()) {
-			data.add(new FluxData(f));
-		}
-		return data;
-	}
 
 	private boolean isValidURL(String urlStr) {
 		try {

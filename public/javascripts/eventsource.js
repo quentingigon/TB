@@ -1,6 +1,13 @@
 function displayFlux(url) {
+    $("#footer0").css("display", "none");
     $("#frame0").attr('src', url);
-    // maybe display text message in footer ?
+    $("#footer0").css("display", "inline-block");
+
+}
+
+function displayFooterText(text) {
+    $("#footer0").css("display", "inline-block");
+    $("#footer0").html(text);
 }
 
 function getCookie(name) {
@@ -21,12 +28,25 @@ $(document).ready(function () {
     var macAdress = getCookie("mac");
 
     evtSource.addEventListener('message', function(e) {
-        var url = e.data.substr(0, e.data.indexOf("|"));
+        var type = e.data.substr(0, e.data.indexOf("?"));
+        var data = e.data.substr(e.data.indexOf("?") + 1, e.data.indexOf("|") - type.length - 1);
         var macs = e.data.substr(e.data.indexOf("|") + 1).split(",");
 
         if (macs.includes(macAdress)) {
-            displayFlux(url);
+            if (type === "url") {
+                displayFlux(data);
+            }
+            else if (type === "image") {
+
+            }
+            else if (type === "text") {
+                displayFooterText(data);
+            }
+            else if (type === "video") {
+
+            }
         }
+
     });
 
 });

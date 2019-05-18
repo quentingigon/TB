@@ -10,6 +10,7 @@ public interface RunningDiffuserRepository {
 
 	RunningDiffuser add(RunningDiffuser diffuser);
 	RunningDiffuser getByName(String name);
+	RunningDiffuser getByDiffuserId(Integer id);
 
 	List<RunningDiffuser> getAll();
 

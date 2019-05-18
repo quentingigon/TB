@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 public class Filters extends DefaultHttpFilters {
 	@Inject
-	public Filters(GzipFilter gzip, LogginFilter logginFilter) {
-		super(gzip, logginFilter);
+	public Filters(GzipFilter gzip) {
+		super(gzip);
 	}
 }

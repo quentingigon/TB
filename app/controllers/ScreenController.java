@@ -1,28 +1,29 @@
 package controllers;
 
 import controllers.actions.UserAuthentificationAction;
+import models.db.RunningSchedule;
 import models.db.Screen;
 import models.db.Team;
 import models.db.WaitingScreen;
 import models.entities.DataUtils;
 import models.entities.ScreenData;
-import models.repositories.ScreenRepository;
-import models.repositories.SiteRepository;
-import models.repositories.TeamRepository;
-import models.repositories.WaitingScreenRepository;
+import models.repositories.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import services.RunningScheduleService;
+import services.RunningScheduleServiceManager;
 import views.html.eventsource;
-import views.html.screen.*;
+import views.html.screen.screen_code;
+import views.html.screen.screen_creation;
+import views.html.screen.screen_page;
+import views.html.screen.screen_update;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ScreenController extends Controller {
 
@@ -38,12 +39,19 @@ public class ScreenController extends Controller {
 	@Inject
 	WaitingScreenRepository waitingScreenRepository;
 
+	@Inject
+	RunningScheduleRepository runningScheduleRepository;
+
 	private Form<ScreenData> form;
 
 	private DataUtils dataUtils;
+	private final RunningScheduleServiceManager serviceManager;
 
 	@Inject
-	public ScreenController(FormFactory formFactory, DataUtils dataUtils) {
+	public ScreenController(FormFactory formFactory,
+							DataUtils dataUtils,
+							RunningScheduleServiceManager serviceManager) {
+		this.serviceManager = serviceManager;
 		this.form = formFactory.form(ScreenData.class);
 		this.dataUtils = dataUtils;
 	}
@@ -101,8 +109,29 @@ public class ScreenController extends Controller {
 		// screen registered
 		else {
 
+			// Timer task used to force a resend of current flux for the screen
+			TimerTask task = new TimerTask() {
+				public void run() {
+					RunningSchedule rs = runningScheduleRepository.getById(
+						runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId())
+					);
+					if (rs != null) {
+						RunningScheduleService rss = serviceManager.getServiceByScheduleId(rs.getScheduleId());
+						List<Screen> screenList = new ArrayList<>();
+						screenList.add(screen);
+						System.out.println("FORCE SEND");
+						rss.resendLastFluxEventToScreens(screenList);
+					}
+				}
+			};
+			Timer timer = new Timer("Timer");
+
+			long delay = 2000L;
+			timer.schedule(task, delay);
+
 			// screen already logged in
 			if (screen.isLogged()) {
+				// used to update a screen who just connected and so avoid waiting for the next tick to display a value
 				return ok(eventsource.render()).withCookies(
 					Http.Cookie.builder("mac", macAdr)
 						.withHttpOnly(false)

@@ -2,6 +2,7 @@ package controllers;
 
 import controllers.actions.UserAuthentificationAction;
 import models.db.Admin;
+import models.db.Team;
 import models.db.TeamMember;
 import models.db.User;
 import models.entities.DataUtils;
@@ -75,6 +76,7 @@ public class UserController extends Controller {
 	public Result register(Http.Request request) {
 		final Form<UserData> boundForm = form.bindFromRequest(request);
 
+
 		UserData data = boundForm.get();
 
 		User newUser = new User(data.getEmail(), data.getPassword());
@@ -86,23 +88,30 @@ public class UserController extends Controller {
 		else {
 
 			newUser = userRepository.create(newUser);
+			//Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+			//Team team = teamRepository.getById(teamId);
 
 			// user created is part of a team
 			if (data.getTeam() != null) {
-				TeamMember newMember = new TeamMember(newUser);
+				TeamMember member = new TeamMember(newUser);
 
 				// set team
-				newMember.setTeamId(teamRepository.getByName(data.getTeam()).getId());
+				member.setTeamId(teamRepository.getByName(data.getTeam()).getId());
 
-				userRepository.createMember(newMember);
+				userRepository.createMember(member);
+				//team.addMember(member.getUserId());
 			}
 			// user created is of admin type
 			else if (data.getAdmin() != null) {
 				data.setAdmin(data.getAdmin().toLowerCase());
 				if (data.getAdmin().equals("admin")) {
-					userRepository.createAdmin(new Admin(newUser.getId()));
+					Admin admin = new Admin(newUser.getId());
+					admin = userRepository.createAdmin(admin);
+					//team.addAdmin(admin.getId());
 				}
 			}
+
+			//teamRepository.update(team);
 
 			return redirect(routes.HomeController.index()).withCookies(
 				Http.Cookie.builder("email", newUser.getEmail())
