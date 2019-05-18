@@ -1,10 +1,12 @@
 package services;
 
+import play.inject.ApplicationLifecycle;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
-import javax.inject.*;
-import play.inject.ApplicationLifecycle;
 
 /**
  * This class demonstrates how to run code when the
@@ -18,7 +20,7 @@ import play.inject.ApplicationLifecycle;
  * in the {@link Module} class to see how this happens.
  *
  * This class needs to run code when the server stops. It uses the
- * application's {@link ApplicationLifecycle} to register a stop hook.
+ * application's {@link ApplicationLifecycle} to create a stop hook.
  */
 @Singleton
 public class ApplicationTimer {
@@ -34,10 +36,11 @@ public class ApplicationTimer {
         this.clock = clock;
         this.appLifecycle = appLifecycle;
         // This code is called when the application starts.
+        // TODO start active RunningSchedules here
         start = clock.instant();
         logger.info("ApplicationTimer demo: Starting application at " + start);
 
-        // When the application starts, register a stop hook with the
+        // When the application starts, create a stop hook with the
         // ApplicationLifecycle object. The code inside the stop hook will
         // be run when the application stops.
         appLifecycle.addStopHook(() -> {

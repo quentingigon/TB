@@ -43,17 +43,33 @@ public class UserController extends Controller {
 		return ok(user_page.render(dataUtils.getAllUsers(), null));
 	}
 
+	public Result indexWithErrorMessage(String error) {
+		return badRequest(user_page.render(dataUtils.getAllUsers(), error));
+	}
+
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String email) {
 		return ok(user_update.render(form, new UserData(userRepository.getByEmail(email)), null));
+	}
+
+	public Result updateViewWithErrorMessage(String email, String error) {
+		return badRequest(user_update.render(form, new UserData(email), error));
 	}
 
 	public Result registerView() {
 		return ok(user_register.render(form, dataUtils.getAllTeams(), null));
 	}
 
+	public Result registerViewWithErrorMessage(String error) {
+		return badRequest(user_register.render(form, dataUtils.getAllTeams(), error));
+	}
+
 	public Result loginView() {
 		return ok(user_login.render(form, null));
+	}
+
+	public Result loginViewWithErrorMessage(String error) {
+		return badRequest(user_login.render(form, error));
 	}
 
 	public Result register(Http.Request request) {
@@ -65,8 +81,7 @@ public class UserController extends Controller {
 
 		// email is not unique
 		if (userRepository.getByEmail(newUser.getEmail()) != null) {
-			return badRequest(user_register.render(form, dataUtils.getAllTeams(), "email is already used"));
-
+			return registerViewWithErrorMessage("Email is already used");
 		}
 		else {
 
@@ -104,7 +119,7 @@ public class UserController extends Controller {
 		User user = userRepository.get(data.getEmail(), data.getPassword());
 
 		if (user == null) {
-			return badRequest(user_login.render(form, "Wrong user info"));
+			return loginViewWithErrorMessage("Wrong credentials");
 		}
 		else {
 			return redirect(routes.HomeController.index()).withCookies(
@@ -123,7 +138,7 @@ public class UserController extends Controller {
 
 		// email is incorrect
 		if (user == null) {
-			return badRequest(user_update.render(form, new UserData(data.getEmail()), "Wrong email address"));
+			return updateViewWithErrorMessage(data.getEmail(), "Wrong email address");
 		}
 		else {
 			// TODO maybe check if null
@@ -144,7 +159,7 @@ public class UserController extends Controller {
 
 		// email is incorrect
 		if (user == null) {
-			return badRequest(user_page.render(dataUtils.getAllUsers(), "Wrong email address"));
+			return indexWithErrorMessage("Wrong email address");
 		}
 		else {
 			userRepository.delete(user);

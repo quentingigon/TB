@@ -21,19 +21,19 @@ POST    /fluxes/delete/:name            controllers.FluxController.delete(name: 
 
 
 # Screens
-GET     /screens                        controllers.ScreenController.index()
+GET     /screens                        controllers.ScreenController.index(request: Request)
 
 GET     /screens/auth                   controllers.ScreenController.authentification(request: Request)
 
-GET     /screens/register               controllers.ScreenController.registerView
+GET     /screens/register               controllers.ScreenController.createView
 
-POST    /screens/register               controllers.ScreenController.register(request: Request)
+POST    /screens/register               controllers.ScreenController.create(request: Request)
 
 GET     /screens/update/:name           controllers.ScreenController.updateView(name: String)
 
 POST    /screens/update                 controllers.ScreenController.update(request: Request)
 
-POST    /screens/delete/:mac            controllers.ScreenController.delete(mac: String)
+POST    /screens/delete/:mac            controllers.ScreenController.delete(request: Request, mac: String)
 
 
 # Events
@@ -95,15 +95,15 @@ POST    /schedules/delete/:name         controllers.ScheduleController.delete(na
 
 
 # Diffusers
-GET     /diffusers                      controllers.DiffuserController.index()
+GET     /diffusers                      controllers.DiffuserController.index(request: Request)
 
 GET     /diffusers/activate/:name       controllers.DiffuserController.activateView(name: String, request: Request)
 
 GET     /diffusers/activate             controllers.DiffuserController.activate(request: Request)
 
-GET     /diffusers/deactivate/:name     controllers.DiffuserController.deactivate(name: String)
+GET     /diffusers/deactivate/:name     controllers.DiffuserController.deactivate(request: Request, name: String)
 
-GET     /diffusers/new                  controllers.DiffuserController.createView()
+GET     /diffusers/new                  controllers.DiffuserController.createView(request: Request)
 
 POST    /diffusers/new                  controllers.DiffuserController.create(request: Request)
 
@@ -111,7 +111,7 @@ GET     /diffusers/update/:name         controllers.DiffuserController.updateVie
 
 POST    /diffusers/update               controllers.DiffuserController.update(request: Request)
 
-POST    /diffusers/delete/:name         controllers.DiffuserController.delete(name: String)
+POST    /diffusers/delete/:name         controllers.DiffuserController.delete(request: Request, name: String)
 
 
 # Map static resources from the /public folder to the /assets URL path

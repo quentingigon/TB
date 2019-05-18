@@ -17,10 +17,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import views.html.eventsource;
-import views.html.screen.screen_code;
-import views.html.screen.screen_page;
-import views.html.screen.screen_register;
-import views.html.screen.screen_update;
+import views.html.screen.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -52,18 +49,32 @@ public class ScreenController extends Controller {
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result index() {
-		return (ok(screen_page.render(dataUtils.getAllScreens(), null)));
+	public Result index(Http.Request request) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(screen_page.render(dataUtils.getAllScreensOfTeam(teamId), null));
+	}
+
+	public Result indexWithErrorMessage(Http.Request request, String error) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(screen_page.render(dataUtils.getAllScreensOfTeam(teamId), error));
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result registerView() {
-		return ok(screen_register.render(form, null));
+	public Result createView() {
+		return ok(screen_creation.render(form, null));
+	}
+
+	public Result createViewWithErrorMessage(String error) {
+		return badRequest(screen_creation.render(form, error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String mac) {
 		return ok(screen_update.render(form, new ScreenData(screenRepository.getByMacAddress(mac)), null));
+	}
+
+	public Result updateViewWithErrorMessage(String mac, String error) {
+		return badRequest(screen_update.render(form, new ScreenData(screenRepository.getByMacAddress(mac)), error));
 	}
 
 	public Result authentification(Http.Request request) {
@@ -111,7 +122,7 @@ public class ScreenController extends Controller {
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result register(Http.Request request) {
+	public Result create(Http.Request request) {
 		final Form<ScreenData> boundForm = form.bindFromRequest(request);
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
@@ -120,18 +131,18 @@ public class ScreenController extends Controller {
 
 		// screen is already known
 		if (screenRepository.getByMacAddress(macAdr) != null) {
-			return badRequest(screen_register.render(form, "Screen already exists, by MAC"));
+			return createViewWithErrorMessage("Screen already exists");
 		}
 		else if (data.getCode() == null) {
-			return badRequest(screen_register.render(form, "You must enter a registration code"));
+			return createViewWithErrorMessage("You must enter a registration code");
 		}
 		else {
 			String code = data.getCode();
 			WaitingScreen ws = waitingScreenRepository.getByMac(macAdr);
 
 			if (ws == null) {
-				return badRequest(screen_register.render(form,
-					"You must first get a registration code by going to this address: /auth?mac=<YourMacAddress>"));
+				return createViewWithErrorMessage(
+					"You must first get a registration code by going to this address: /auth?mac=<YourMacAddress>");
 			}
 
 			// if code is correct -> add screen to DB
@@ -140,7 +151,7 @@ public class ScreenController extends Controller {
 				Screen newScreen = new Screen(macAdr);
 
 				if (siteRepository.getByName(data.getSite().toLowerCase()) == null) {
-					return badRequest(screen_register.render(form, "Bad site name"));
+					return createViewWithErrorMessage("Bad site name");
 				}
 				newScreen.setSiteId(siteRepository.getByName(data.getSite().toLowerCase()).getId());
 				newScreen.setResolution(data.getResolution());
@@ -155,11 +166,11 @@ public class ScreenController extends Controller {
 				team.addScreen(newScreen.getId());
 				teamRepository.update(team);
 
-				return index();
+				return index(request);
 			}
 			else {
 				// wrong code
-				return registerView();
+				return createView();
 			}
 		}
 	}
@@ -174,12 +185,12 @@ public class ScreenController extends Controller {
 
 		if (screen == null) {
 			// screen is not known
-			return badRequest(screen_update.render(form, null, "MAC address already exists"));
+			return updateViewWithErrorMessage(data.getMac(), "MAC address does not exists");
 		}
 		else {
 			// update screen
 			if (siteRepository.getByName(data.getSite().toLowerCase()) == null) {
-				return badRequest(screen_register.render(form, "Bad site name"));
+				return updateViewWithErrorMessage(data.getMac(), "Bad site name");
 			}
 			screen.setSiteId(siteRepository.getByName(data.getSite().toLowerCase()).getId());
 
@@ -189,22 +200,23 @@ public class ScreenController extends Controller {
 
 			screenRepository.update(screen);
 
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result delete(String mac) {
-
+	public Result delete(Http.Request request, String mac) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		Screen screen = screenRepository.getByMacAddress(mac);
 
 		if (screen == null) {
 			// screen is not known
-			return badRequest(screen_page.render(getAllScreens(), "MAC address does not exists"));
+			return badRequest(screen_page.render(dataUtils.getAllScreensOfTeam(teamId), "MAC address does not exists"));
 		}
 		else {
+			// TODO triggers to delete entry in team_screens
 			screenRepository.delete(screen);
-			return index();
+			return index(request);
 		}
 	}
 
@@ -212,13 +224,5 @@ public class ScreenController extends Controller {
 		UUID uniqueKey = UUID.randomUUID();
 
 		return uniqueKey.toString().substring(0, 5);
-	}
-
-	private List<ScreenData> getAllScreens() {
-		List<ScreenData> data = new ArrayList<>();
-		for (Screen s: screenRepository.getAll()) {
-			data.add(new ScreenData(s));
-		}
-		return data;
 	}
 }

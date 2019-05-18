@@ -39,7 +39,9 @@ public class DataUtils {
 	public List<ScreenData> getAllScreensOfTeam(int teamId) {
 		List<ScreenData> data = new ArrayList<>();
 		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
-			data.add(new ScreenData(screenRepository.getById(screenId)));
+			if (screenRepository.getById(screenId) != null) {
+				data.add(new ScreenData());
+			}
 		}
 		return data;
 	}

@@ -84,7 +84,7 @@ public class Screen {
 		this.resolution = resolution;
 	}
 
-	public Integer getRunningscheduleId() {
+	public Integer getRunningScheduleId() {
 		return runningscheduleId;
 	}
 

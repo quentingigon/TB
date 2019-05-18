@@ -233,8 +233,6 @@ public class ScheduleController extends Controller {
 
 				String fluxTime;
 
-
-
 				// we must create a ScheduledFlux for this entry
 				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
 					fluxTime = fluxDatas[1];
@@ -352,7 +350,7 @@ public class ScheduleController extends Controller {
 					if (sf.getStartBlock().equals(i)) {
 						Flux flux = fluxRepository.getById(sf.getFluxId());
 						lastFlux = flux;
-						lastFluxDuration = flux.getDuration(); // TODO ptetre -1
+						lastFluxDuration = flux.getDuration() - 1;
 						timetable.put(i, flux.getId());
 						noFluxSent = false;
 						scheduledFluxes.remove(sf);

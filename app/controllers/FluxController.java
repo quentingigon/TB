@@ -5,6 +5,7 @@ import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
 import models.db.Team;
+import models.entities.DataUtils;
 import models.entities.FluxData;
 import models.repositories.FluxRepository;
 import models.repositories.SiteRepository;
@@ -21,6 +22,7 @@ import views.html.flux.flux_page;
 import views.html.flux.flux_update;
 
 import javax.inject.Inject;
+import javax.xml.crypto.Data;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,14 +46,21 @@ public class FluxController extends Controller {
 
 	private Form<FluxData> form;
 
+	private DataUtils dataUtils;
+
 	@Inject
-	public FluxController(FormFactory formFactory) {
+	public FluxController(FormFactory formFactory, DataUtils dataUtils) {
+		this.dataUtils = dataUtils;
 		this.form = formFactory.form(FluxData.class);
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result index() {
-		return ok(flux_page.render(getAllFluxes(), null));
+		return ok(flux_page.render(dataUtils.getAllFluxes(), null));
+	}
+
+	private Result indexWithErrorMessage() {
+		return badRequest(flux_page.render(dataUtils.getAllFluxes(), null));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -59,9 +68,17 @@ public class FluxController extends Controller {
 		return ok(flux_creation.render(form, null));
 	}
 
+	private Result createViewWithErrorMessage(String error) {
+		return badRequest(flux_creation.render(form, error));
+	}
+
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
 		return ok(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), null));
+	}
+
+	private Result updateViewWithMessage(String name, String error) {
+		return badRequest(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), error));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -71,25 +88,27 @@ public class FluxController extends Controller {
 
 		FluxData data = boundForm.get();
 
-		Flux newFlux = new Flux(data);
+
 
 		// flux already exists
 		if (fluxRepository.getByName(data.getName()) != null) {
-			return badRequest(flux_creation.render(form, "Flux already exists"));
+			return createViewWithErrorMessage("Flux already exists");
 		}
 		// bar url
 		else if (!isValidURL(data.getUrl())) {
-			return badRequest(flux_creation.render(form, "URL format is wrong"));
+			return createViewWithErrorMessage("URL format is wrong");
 		}
 		// duration not a number
-		else if (data.getDuration().matches("-?\\d+(\\.\\d+)?")) {
-			return badRequest(flux_creation.render(form, "You must enter a number for duration"));
+		else if (!isInteger(data.getDuration())) {
+			return createViewWithErrorMessage("You must enter an integer for duration");
 		}
 		// flux duration is too long
 		else if (Integer.valueOf(data.getDuration()) > blockNumber) {
-			return badRequest(flux_creation.render(form, "Flux duration is too long"));
+			return createViewWithErrorMessage("Flux duration is too long");
 		}
 		else {
+
+			Flux newFlux = new Flux(data);
 
 			newFlux = fluxRepository.addFlux(newFlux);
 
@@ -124,7 +143,7 @@ public class FluxController extends Controller {
 
 		// flux does not exist
 		if (flux == null) {
-			return badRequest(flux_creation.render(form, "Flux name does not exists"));
+			return updateViewWithMessage(data.getName(), "Flux name does not exists");
 		}
 		// update flux
 		else {
@@ -171,6 +190,16 @@ public class FluxController extends Controller {
 			return true;
 		}
 		catch (MalformedURLException e) {
+			return false;
+		}
+	}
+
+	private boolean isInteger( String input ) {
+		try {
+			Integer.parseInt( input );
+			return true;
+		}
+		catch( Exception e ) {
 			return false;
 		}
 	}

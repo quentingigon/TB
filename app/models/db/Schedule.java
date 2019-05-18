@@ -56,6 +56,13 @@ public class Schedule {
 		this.fluxes.add(fluxId);
 	}
 
+	public void removeFromFluxes(Integer fluxId) {
+		if (this.fluxes == null) {
+			this.fluxes = new HashSet<>();
+		}
+		this.fluxes.remove(fluxId);
+	}
+
 	public String getName() {
 		return name;
 	}

@@ -2,10 +2,7 @@ package controllers;
 
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
-import models.entities.DiffuserData;
-import models.entities.FluxData;
-import models.entities.ScheduleData;
-import models.entities.ScreenData;
+import models.entities.*;
 import models.repositories.*;
 import play.data.Form;
 import play.data.FormFactory;
@@ -21,10 +18,10 @@ import views.html.diffuser.diffuser_page;
 import views.html.diffuser.diffuser_update;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import static services.BlockUtils.blockNumber;
 
 public class DiffuserController extends Controller {
 
@@ -46,19 +43,31 @@ public class DiffuserController extends Controller {
 	@Inject
 	RunningDiffuserRepository runningDiffuserRepository;
 
+	@Inject
+	TeamRepository teamRepository;
+
 	private Form<DiffuserData> form;
 
 	private final RunningScheduleServiceManager serviceManager;
 
+	private DataUtils dataUtils;
+
 	@Inject
-	public DiffuserController(FormFactory formFactory, RunningScheduleServiceManager serviceManager) {
+	public DiffuserController(FormFactory formFactory, RunningScheduleServiceManager serviceManager, DataUtils dataUtils) {
+		this.dataUtils = dataUtils;
 		this.form = formFactory.form(DiffuserData.class);
 		this.serviceManager = serviceManager;
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result index() {
-		return ok(diffuser_page.render(getAllDiffusers(), null));
+	public Result index(Http.Request request) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(diffuser_page.render(dataUtils.getAllDiffusersOfTeam(teamId), null));
+	}
+
+	public Result indexWithErrorMessage(Http.Request request, String error) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(diffuser_page.render(dataUtils.getAllDiffusersOfTeam(teamId), error));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -66,14 +75,30 @@ public class DiffuserController extends Controller {
 		return ok(diffuser_update.render(form, new DiffuserData(name), null));
 	}
 
+	public Result updateViewWithErrorMessage(String name, String error) {
+		return badRequest(diffuser_update.render(form, new DiffuserData(name), error));
+	}
+
 	@With(UserAuthentificationAction.class)
-	public Result createView() {
-		return ok(diffuser_creation.render(form, getAllFluxes(), null));
+	public Result createView(Http.Request request) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(diffuser_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), null));
+	}
+
+	public Result createViewWithErrorMessage(Http.Request request, String error) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(diffuser_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
-		return ok(diffuser_activation.render(form, getAllScreens(), new DiffuserData(name), null, request));
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), null, request));
+	}
+
+	public Result activateViewWithErrorMessage(String name, Http.Request request, String error) {
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), error, request));
 	}
 
 	// TODO activation page to select flux and screens
@@ -88,7 +113,10 @@ public class DiffuserController extends Controller {
 
 		// incorrect name
 		if (diffuser == null) {
-			return badRequest(diffuser_page.render(getAllDiffusers(), "Diffuser name does not exist"));
+			return activateViewWithErrorMessage(data.getName(), request, "Diffuser name does not exists");
+		}
+		else if (Integer.valueOf(data.getStartTime()) < 0 || Integer.valueOf(data.getStartTime()) > blockNumber) {
+			return activateViewWithErrorMessage(data.getName(), request, "Start time must be between 0 and " + blockNumber);
 		}
 		else {
 
@@ -97,10 +125,10 @@ public class DiffuserController extends Controller {
 			Set<Integer> runningScheduleIds = new HashSet<>();
 			for (String mac: data.getScreens()) {
 				if (screenRepository.getByMacAddress(mac) == null) {
-					return badRequest(diffuser_page.render(getAllDiffusers(), "Screen mac address does not exist"));
+					return activateViewWithErrorMessage(data.getName(), request, "Screen MAC address does not exists");
 				}
 				// get running schedule + all ids
-				RunningSchedule rs = runningScheduleRepository.getById(screenRepository.getByMacAddress(mac).getRunningscheduleId());
+				RunningSchedule rs = runningScheduleRepository.getById(screenRepository.getByMacAddress(mac).getRunningScheduleId());
 				runningScheduleIds.add(rs.getId());
 
 				// get associated schedule
@@ -119,66 +147,86 @@ public class DiffuserController extends Controller {
 			// update associated Schedule timetable
 			for (Integer id: scheduleIds) {
 				Schedule schedule = scheduleRepository.getById(id);
-				// TODO update schedule's timetable
+				// update schedule's timetable by adding a new entry for ScheduledFlux
+				// and updating schedule
+				ScheduledFlux sf = new ScheduledFlux();
+				sf.setScheduleId(schedule.getId());
+				sf.setStartBlock(Integer.valueOf(data.getStartTime()));
+				sf.setFluxId(diffusedFlux.getId());
+				sf = fluxRepository.addScheduledFlux(sf);
+				schedule.addToFluxes(sf.getId());
+				scheduleRepository.update(schedule);
 			}
 
 			// update associated RunningScheduleService
 			for (Integer id: runningScheduleIds) {
 				RunningScheduleService rss = serviceManager.getServiceById(id);
-				// TODO change 100 with correct value -> data.getStartTime()
 				if (rss != null) {
-					rss.scheduleFlux(diffusedFlux, 100);
+					rss.scheduleFlux(diffusedFlux, Integer.valueOf(data.getStartTime()));
 				}
 			}
 
-
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result deactivate(String name) {
+	public Result deactivate(Http.Request request, String name) {
 		Diffuser diffuser = diffuserRepository.getByName(name);
 
 		// incorrect name
 		if (diffuser == null) {
-			return badRequest(diffuser_page.render(getAllDiffusers(), "Diffuser name does not exist"));
+			return indexWithErrorMessage(request, "Diffuser name does not exist");
 		}
 		else {
 
 			RunningDiffuser rd = runningDiffuserRepository.getByName(name);
 
-			Set<Integer> scheduleIds = new HashSet<>(rd.getScreens());
+			Set<Integer> screenIds = new HashSet<>(rd.getScreens());
+			for (Integer id: screenIds) {
 
-			runningDiffuserRepository.delete(rd);
+				Screen screen = screenRepository.getById(id);
 
-			// TODO modify associated RunningSchedule
+				if (screen.getRunningScheduleId() != null) {
+					RunningSchedule rs = runningScheduleRepository.getById(screen.getRunningScheduleId());
 
-			for (Integer id: scheduleIds) {
+					Schedule schedule = scheduleRepository.getById(rs.getScheduleId());
+					schedule.removeFromFluxes(diffuser.getFlux());
+					scheduleRepository.update(schedule);
+
+				}
 				serviceManager.getServiceById(id).removeScheduledFlux(fluxRepository.getById(diffuser.getFlux()));
 			}
 
-			return index();
+			runningDiffuserRepository.delete(rd);
+
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
+		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		DiffuserData data = boundForm.get();
 
 		// diffuser already exists
 		if (diffuserRepository.getByName(data.getName()) != null) {
-			return badRequest(diffuser_creation.render(form, getAllFluxes(), "Name is already taken"));
+			return createViewWithErrorMessage(request, "Name is already taken");
 		}
 		else {
 			Diffuser diffuser = new Diffuser(data.getName());
 			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
+			diffuser.setValidity(Integer.valueOf(data.getValidity()));
 
-			diffuserRepository.add(diffuser);
+			diffuser = diffuserRepository.add(diffuser);
 
-			return index();
+			Team team = teamRepository.getById(teamId);
+			team.addToDiffusers(diffuser.getId());
+			teamRepository.update(team);
+
+			return index(request);
 		}
 	}
 
@@ -190,63 +238,30 @@ public class DiffuserController extends Controller {
 
 		// name is incorrect
 		if (diffuser == null) {
-			// TODO error + correct redirect
-			return badRequest(diffuser_update.render(form, new DiffuserData(boundForm.get().getName()), "Diffuser name does not exists"));
+			return updateViewWithErrorMessage(boundForm.get().getName(), "Diffuser name does not exists");
 		}
 		else {
+
+
 			// do changes to diffuser here
 			diffuserRepository.update(diffuser);
 
-			return index();
+			return index(request);
 		}
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result delete(String name) {
+	public Result delete(Http.Request request, String name) {
 
 		Diffuser diffuser = diffuserRepository.getByName(name);
 
-		// name is incorrect
 		if (diffuser == null) {
-			// TODO error + correct redirect
-			return badRequest(diffuser_page.render(getAllDiffusers(), "Diffuser name does not exists"));
+			return indexWithErrorMessage(request, "Diffuser name does not exists");
 		}
 		else {
 			diffuserRepository.delete(diffuser);
 
-			return index();
+			return index(request);
 		}
-	}
-
-	private List<FluxData> getAllFluxes() {
-		List<FluxData> data = new ArrayList<>();
-		for (Flux f: fluxRepository.getAll()) {
-			data.add(new FluxData(f));
-		}
-		return data;
-	}
-
-	private List<ScheduleData> getAllSchedules() {
-		List<ScheduleData> data = new ArrayList<>();
-		for (Schedule s: scheduleRepository.getAll()) {
-			data.add(new ScheduleData(s));
-		}
-		return data;
-	}
-
-	private List<ScreenData> getAllScreens() {
-		List<ScreenData> data = new ArrayList<>();
-		for (Screen s: screenRepository.getAll()) {
-			data.add(new ScreenData(s));
-		}
-		return data;
-	}
-
-	private List<DiffuserData> getAllDiffusers() {
-		List<DiffuserData> data = new ArrayList<>();
-		for (Diffuser d: diffuserRepository.getAll()) {
-			data.add(new DiffuserData(d));
-		}
-		return data;
 	}
 }
