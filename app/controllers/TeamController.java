@@ -81,10 +81,15 @@ public class TeamController extends Controller {
 		Team team = teamRepository.getByName(teamName);
 		return ok(team_update.render(form,
 			dataUtils.getAllFluxes(),
+			dataUtils.getAllFluxesOfTeam(team.getId()),
 			dataUtils.getAllScreens(),
+			dataUtils.getAllScreensOfTeam(team.getId()),
 			dataUtils.getAllUsers(),
+			dataUtils.getAllMembersOfTeam(team.getId()),
 			dataUtils.getAllSchedules(),
+			dataUtils.getAllSchedulesOfTeam(team.getId()),
 			dataUtils.getAllDiffusers(),
+			dataUtils.getAllDiffusersOfTeam(team.getId()),
 			new TeamData(team),
 			null));
 	}
@@ -93,10 +98,15 @@ public class TeamController extends Controller {
 		Team team = teamRepository.getByName(teamName);
 		return badRequest(team_update.render(form,
 			dataUtils.getAllFluxes(),
+			dataUtils.getAllFluxesOfTeam(team.getId()),
 			dataUtils.getAllScreens(),
+			dataUtils.getAllScreensOfTeam(team.getId()),
 			dataUtils.getAllUsers(),
+			dataUtils.getAllMembersOfTeam(team.getId()),
 			dataUtils.getAllSchedules(),
+			dataUtils.getAllSchedulesOfTeam(team.getId()),
 			dataUtils.getAllDiffusers(),
+			dataUtils.getAllDiffusersOfTeam(team.getId()),
 			new TeamData(team),
 			null));
 	}
@@ -144,7 +154,7 @@ public class TeamController extends Controller {
 				return error;
 			}
 
-			updateTeamFromTeamData(team, data);
+			fillTeamFromTeamData(team, data);
 
 			teamRepository.update(team);
 
@@ -192,45 +202,6 @@ public class TeamController extends Controller {
 		}
 	}
 
-	// For now this function replace all data of the team by the new one
-	private void updateTeamFromTeamData(Team team, TeamData data) {
-		Set<Integer> ids = new HashSet<>();
-
-		for (String fluxName: data.getFluxes()) {
-			ids.add(fluxRepository.getByName(fluxName).getId());
-		}
-		team.setFluxes(ids);
-		ids.clear();
-
-		for (String email: data.getMembers()) {
-			ids.add(userRepository.getByEmail(email).getId());
-		}
-		team.setMembers(ids);
-		ids.clear();
-
-		for (String email: data.getAdmins()) {
-			ids.add(userRepository.getByEmail(email).getId());
-		}
-		team.setAdmins(ids);
-		ids.clear();
-
-		for (String scheduleName: data.getSchedules()) {
-			ids.add(scheduleRepository.getByName(scheduleName).getId());
-		}
-		team.setSchedules(ids);
-		ids.clear();
-
-		for (String diffuserName: data.getDiffusers()) {
-			ids.add(diffuserRepository.getByName(diffuserName).getId());
-		}
-		team.setDiffusers(ids);
-		ids.clear();
-
-		for (String screenMAC: data.getScreens()) {
-			ids.add(screenRepository.getByMacAddress(screenMAC).getId());
-		}
-		team.setScreens(ids);
-	}
 
 	private Result checkDataIntegrity(TeamData data) {
 

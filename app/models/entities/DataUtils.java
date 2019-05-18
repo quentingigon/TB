@@ -5,7 +5,10 @@ import models.repositories.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static services.BlockUtils.blockNumber;
 
 public class DataUtils {
 
@@ -40,7 +43,7 @@ public class DataUtils {
 		List<ScreenData> data = new ArrayList<>();
 		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
 			if (screenRepository.getById(screenId) != null) {
-				data.add(new ScreenData());
+				data.add(new ScreenData(screenRepository.getById(screenId)));
 			}
 		}
 		return data;
@@ -49,7 +52,8 @@ public class DataUtils {
 	public List<FluxData> getAllFluxesOfTeam(int teamId) {
 		List<FluxData> data = new ArrayList<>();
 		for (Integer fluxId : fluxRepository.getAllFluxIdsOfTeam(teamId)) {
-			data.add(new FluxData(fluxRepository.getById(fluxId)));
+			if (fluxRepository.getById(fluxId) != null)
+				data.add(new FluxData(fluxRepository.getById(fluxId)));
 		}
 		return data;
 	}
@@ -57,7 +61,8 @@ public class DataUtils {
 	public List<UserData> getAllMembersOfTeam(int teamId) {
 		List<UserData> data = new ArrayList<>();
 		for (Integer userId : userRepository.getAllMemberIdsOfTeam(teamId)) {
-			data.add(new UserData(userRepository.getById(userId)));
+			if (userRepository.getById(userId) != null)
+				data.add(new UserData(userRepository.getById(userId)));
 		}
 		return data;
 	}
@@ -74,7 +79,8 @@ public class DataUtils {
 	public List<DiffuserData> getAllDiffusersOfTeam(int teamId) {
 		List<DiffuserData> data = new ArrayList<>();
 		for (Integer diffuserId : diffuserRepository.getAllDiffuserIdsOfTeam(teamId)) {
-			data.add(new DiffuserData(diffuserRepository.getById(diffuserId)));
+			if (diffuserRepository.getById(diffuserId) != null)
+				data.add(new DiffuserData(diffuserRepository.getById(diffuserId)));
 		}
 		return data;
 	}
@@ -125,6 +131,49 @@ public class DataUtils {
 			data.add(new DiffuserData(d));
 		}
 		return data;
+	}
+
+	// TODO integrate with schedule etc
+	public HashMap<Integer, Integer> getTimeTable(Schedule schedule) {
+
+		List<ScheduledFlux> scheduledFluxes = scheduleRepository.getAllScheduledFluxesByScheduleId(schedule.getId());
+		Flux lastFlux = new Flux();
+		long lastFluxDuration = 0;
+		boolean noFluxSent;
+
+		HashMap<Integer, Integer> timetable = new HashMap<>();
+		for (int i = 0; i < blockNumber; i++) {
+
+			noFluxSent = true;
+
+			// if duration of last inserted ScheduledFlux is still not finished iterating over
+			// we put last flux in the schedule
+			if (lastFluxDuration != 0) {
+				lastFluxDuration--;
+				timetable.put(i, lastFlux.getId());
+			}
+			else {
+				// check if we must insert fluxes at a certain hour
+				for (ScheduledFlux sf : scheduledFluxes) {
+					// a flux is set to begin at this block
+					if (sf.getStartBlock().equals(i)) {
+						Flux flux = fluxRepository.getById(sf.getFluxId());
+						lastFlux = flux;
+						lastFluxDuration = flux.getDuration() - 1;
+						timetable.put(i, flux.getId());
+						noFluxSent = false;
+						scheduledFluxes.remove(sf);
+						break;
+					}
+				}
+
+				if (noFluxSent) {
+					// if no flux is set at this block
+					timetable.put(i, -1);
+				}
+			}
+		}
+		return timetable;
 	}
 
 }

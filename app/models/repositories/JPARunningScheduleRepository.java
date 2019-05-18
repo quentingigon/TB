@@ -70,6 +70,21 @@ public class JPARunningScheduleRepository implements RunningScheduleRepository {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getScreensIdsByRunningScheduleId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String runningScheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT screens FROM runningschedule_screens WHERE runningschedule_runningschedule_id = " + runningScheduleId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public void update(RunningSchedule schedule) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(schedule);

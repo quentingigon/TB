@@ -160,7 +160,7 @@ public class DiffuserController extends Controller {
 
 			// update associated RunningScheduleService
 			for (Integer id: runningScheduleIds) {
-				RunningScheduleService rss = serviceManager.getServiceById(id);
+				RunningScheduleService rss = serviceManager.getServiceByScheduleId(id);
 				if (rss != null) {
 					rss.scheduleFlux(diffusedFlux, Integer.valueOf(data.getStartTime()));
 				}
@@ -195,7 +195,7 @@ public class DiffuserController extends Controller {
 					scheduleRepository.update(schedule);
 
 				}
-				serviceManager.getServiceById(id).removeScheduledFlux(fluxRepository.getById(diffuser.getFlux()));
+				serviceManager.getServiceByScheduleId(id).removeScheduledFlux(fluxRepository.getById(diffuser.getFlux()));
 			}
 
 			runningDiffuserRepository.delete(rd);

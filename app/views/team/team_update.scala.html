@@ -9,10 +9,15 @@
 @import models.entities.DiffuserData
 @(form: Form[TeamData],
         fluxes: util.List[FluxData],
+        fluxes_curr: util.List[FluxData],
         screens: util.List[ScreenData],
+        screens_curr: util.List[ScreenData],
         members: util.List[UserData],
+        members_curr: util.List[UserData],
         schedules: util.List[ScheduleData],
+        schedules_curr: util.List[ScheduleData],
         diffusers: util.List[DiffuserData],
+        diffusers_curr: util.List[DiffuserData],
         data: TeamData,
         error: String)
 
@@ -46,7 +51,7 @@
 
                 <label for="currentFluxes"> Current Fluxes </label>
                 <ul id="currentFluxes" class="list-group">
-                @for(flux <- fluxes) {
+                @for(flux <- fluxes_curr) {
                     <li class="list-group-item">@flux.getName</li>
                 }
                 </ul>
@@ -65,7 +70,7 @@
 
                 <label for="currentScreens"> Current Screens </label>
                 <ul id="currentScreens" class="list-group">
-                @for(screen <- screens) {
+                @for(screen <- screens_curr) {
                     <li class="list-group-item">@screen.getName</li>
                 }
                 </ul>
@@ -81,7 +86,7 @@
 
                 <label for="currentMembers"> Current Members </label>
                 <ul id="currentMembers" class="list-group">
-                @for(member <- members) {
+                @for(member <- members_curr) {
                     <li class="list-group-item">@member.getEmail</li>
                 }
                 </ul>
@@ -97,7 +102,7 @@
 
                 <label for="currentAdmins"> Current Admins </label>
                 <ul id="currentAdmins" class="list-group">
-                @for(member <- members) {
+                @for(member <- members_curr) {
                     <li class="list-group-item">@member.getEmail</li>
                 }
                 </ul>
@@ -113,7 +118,7 @@
 
                 <label for="currentSchedules"> Current Schedules </label>
                 <ul id="currentSchedules" class="list-group">
-                @for(schedule <- schedules) {
+                @for(schedule <- schedules_curr) {
                     <li class="list-group-item">@schedule.getName</li>
                 }
                 </ul>
@@ -129,7 +134,7 @@
 
                 <label for="currentDiffusers"> Current Diffusers </label>
                 <ul id="currentDiffusers" class="list-group">
-                @for(diffuser <- diffusers) {
+                @for(diffuser <- diffusers_curr) {
                     <li class="list-group-item">@diffuser.getName</li>
                 }
                 </ul>
