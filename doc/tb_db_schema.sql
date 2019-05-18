@@ -11,7 +11,9 @@ CREATE TABLE site
     name VARCHAR(15)
   );
 
-INSERT INTO site (name) VALUES ('Cheseaux');
+INSERT INTO site (name) VALUES ('cheseaux');
+INSERT INTO site (name) VALUES ('y-park');
+INSERT INTO site (name) VALUES ('st-roch');
 
 
 DROP TABLE IF EXISTS users CASCADE;
@@ -33,7 +35,62 @@ CREATE TABLE team
     schedules INTEGER[],
     diffusers INTEGER[],
     fluxes INTEGER[],
-    members INTEGER[]
+    members INTEGER[],
+    admins INTEGER[]
+  );
+
+
+DROP TABLE IF EXISTS team_screens CASCADE;
+CREATE TABLE team_screens
+  (
+    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    screens INTEGER NOT NULL REFERENCES screen (screen_id),
+    PRIMARY KEY (team_team_id, screens)
+  );
+
+
+DROP TABLE IF EXISTS team_schedules CASCADE;
+CREATE TABLE team_schedules
+  (
+    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    schedules INTEGER NOT NULL REFERENCES schedule (schedule_id),
+    PRIMARY KEY (team_team_id, schedules)
+  );
+
+
+DROP TABLE IF EXISTS team_diffusers CASCADE;
+CREATE TABLE team_diffusers
+  (
+    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    diffusers INTEGER NOT NULL REFERENCES diffuser (diffuser_id),
+    PRIMARY KEY (team_team_id, diffusers)
+  );
+
+
+DROP TABLE IF EXISTS team_fluxes CASCADE;
+CREATE TABLE team_fluxes
+  (
+    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    fluxes INTEGER NOT NULL REFERENCES flux (flux_id),
+    PRIMARY KEY (team_team_id, fluxes)
+  );
+
+
+DROP TABLE IF EXISTS team_members CASCADE;
+CREATE TABLE team_members
+  (
+    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    members INTEGER NOT NULL REFERENCES teammember (member_id),
+    PRIMARY KEY (team_team_id, members)
+  );
+
+
+DROP TABLE IF EXISTS team_admins CASCADE;
+CREATE TABLE team_admins
+  (
+    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    admins INTEGER NOT NULL REFERENCES admins (admin_id),
+    PRIMARY KEY (team_team_id, admins)
   );
 
 
@@ -59,8 +116,26 @@ CREATE TABLE schedule
   (
     schedule_id SERIAL PRIMARY KEY,
     name VARCHAR(20),
-    fluxes INTEGER[] NOT NULL,
+    fluxes INTEGER[],
     fallbacks INTEGER[]
+  );
+
+
+DROP TABLE IF EXISTS schedule_fluxes CASCADE;
+CREATE TABLE schedule_fluxes
+  (
+    schedule_schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
+    fluxes INTEGER NOT NULL REFERENCES flux (flux_id),
+    PRIMARY KEY (schedule_schedule_id, fluxes)
+  );
+
+
+DROP TABLE IF EXISTS schedule_fallbacks CASCADE;
+CREATE TABLE schedule_fallbacks
+  (
+    schedule_schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
+    fallbacks INTEGER NOT NULL REFERENCES flux (flux_id),
+    PRIMARY KEY (schedule_schedule_id, fallbacks)
   );
 
 
@@ -69,7 +144,16 @@ CREATE TABLE runningschedule
   (
     runningschedule_id SERIAL PRIMARY KEY,
     schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
-    screens INTEGER[] NOT NULL
+    screens INTEGER[]
+  );
+
+
+DROP TABLE IF EXISTS runningschedule_screens CASCADE;
+CREATE TABLE runningschedule_screens
+  (
+    runningschedule_runningschedule_id INTEGER NOT NULL REFERENCES runningschedule (runningschedule_id),
+    screens INTEGER NOT NULL REFERENCES screen (screen_id),
+    PRIMARY KEY (runningschedule_runningschedule_id, screens)
   );
 
 
@@ -85,10 +169,19 @@ CREATE TABLE diffuser
 DROP TABLE IF EXISTS runningdiffuser CASCADE;
 CREATE TABLE runningdiffuser
   (
+    runningdiffuser_id SERIAL PRIMARY KEY,
     diffuser_id INTEGER NOT NULL REFERENCES diffuser (diffuser_id),
     screens INTEGER[],
-    flux_id INTEGER NOT NULL REFERENCES flux(flux_id),
-    PRIMARY KEY(diffuser_id, screens)
+    flux_id INTEGER NOT NULL REFERENCES flux(flux_id)
+  );
+
+
+DROP TABLE IF EXISTS runningdiffuser_screens CASCADE;
+CREATE TABLE runningdiffuser_screens
+  (
+    runningdiffuser_runningdiffuser_id INTEGER NOT NULL REFERENCES runningdiffuser (runningdiffuser_id),
+    screens INTEGER NOT NULL REFERENCES screen (screen_id),
+    PRIMARY KEY (runningdiffuser_runningdiffuser_id, screens)
   );
 
 
@@ -128,7 +221,7 @@ CREATE TABLE flux
   (
     flux_id SERIAL PRIMARY KEY,
     name VARCHAR(20),
-    url VARCHAR(30) NOT NULL,
+    url VARCHAR(50) NOT NULL,
     type VARCHAR(10),
     phase_n INTEGER,
     phase_duration INTEGER
@@ -157,4 +250,73 @@ CREATE TABLE fallbackflux
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id)
   );
 
+-- Functions
 
+DROP FUNCTION IF EXISTS delete_screens_of_runningschedule();
+CREATE FUNCTION delete_screens_of_runningschedule()
+RETURNS TRIGGER
+AS $$
+BEGIN
+DELETE FROM runningschedule_screens
+    WHERE runningschedule_runningschedule_id = OLD.runningschedule_id;
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+DROP FUNCTION IF EXISTS delete_screens_of_runningdiffuser();
+CREATE FUNCTION delete_screens_of_runningdiffuser()
+RETURNS TRIGGER
+AS $$
+BEGIN
+DELETE FROM runningdiffuser_screens
+    WHERE runningdiffuser_runningdiffuser_id = OLD.runningdiffuser_id;
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+DROP FUNCTION IF EXISTS delete_data_of_team();
+CREATE FUNCTION delete_data_of_team()
+RETURNS TRIGGER
+AS $$
+BEGIN
+
+    DELETE FROM team_admins
+    WHERE team_team_id = OLD.team_id;
+
+    DELETE FROM team_fluxes
+    WHERE team_team_id = OLD.team_id;
+
+    DELETE FROM team_members
+    WHERE team_team_id = OLD.team_id;
+
+    DELETE FROM team_diffusers
+    WHERE team_team_id = OLD.team_id;
+
+    DELETE FROM team_schedules
+    WHERE team_team_id = OLD.team_id;
+
+    DELETE FROM team_screens
+    WHERE team_team_id = OLD.team_id;
+
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+-- Triggers
+
+CREATE TRIGGER on_runningschedule_delete BEFORE DELETE
+   ON runningschedule
+   FOR EACH ROW EXECUTE PROCEDURE delete_screens_of_runningschedule();
+
+CREATE TRIGGER on_runningdiffuser_delete BEFORE DELETE
+   ON runningdiffuser
+   FOR EACH ROW EXECUTE PROCEDURE delete_screens_of_runningdiffuser();
+
+CREATE TRIGGER on_team_delete BEFORE DELETE
+   ON team
+   FOR EACH ROW EXECUTE PROCEDURE delete_data_of_team();
