@@ -197,7 +197,9 @@ CREATE TABLE screen
     name VARCHAR(20),
     mac_address VARCHAR(20),
     resolution VARCHAR(10),
-    logged BOOLEAN
+    logged BOOLEAN,
+    active BOOLEAN,
+    current_flux_name VARCHAR(30)
   );
 
 
@@ -261,9 +263,6 @@ AS $$
 BEGIN
     DELETE FROM runningschedule_screens
     WHERE runningschedule_runningschedule_id = OLD.runningschedule_id;
-
-    DELETE FROM runningdiffuser
-    WHERE schedule_id = OLD.schedule_id;
 RETURN OLD;
 END;
 $$
