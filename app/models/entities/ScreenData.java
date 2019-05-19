@@ -9,7 +9,9 @@ public class ScreenData {
 	private String code;
 	private String site;
 	private String resolution;
+	private String currentFluxName;
 
+	private boolean logged;
 	private boolean active;
 
 	public ScreenData() {
@@ -20,6 +22,9 @@ public class ScreenData {
 		this.mac = s.getMacAddress();
 		this.site = String.valueOf(s.getSiteId());
 		this.resolution = s.getResolution();
+		this.active = s.isActive();
+		this.logged = s.isLogged();
+		this.currentFluxName = s.getCurrentFluxName();
 	}
 
 	public String getMac() {
@@ -68,5 +73,21 @@ public class ScreenData {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public String getCurrentFluxName() {
+		return currentFluxName;
+	}
+
+	public void setCurrentFluxName(String currentFluxName) {
+		this.currentFluxName = currentFluxName;
+	}
+
+	public boolean isLogged() {
+		return logged;
+	}
+
+	public void setLogged(boolean logged) {
+		this.logged = logged;
 	}
 }

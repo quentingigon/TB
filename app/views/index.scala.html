@@ -1,14 +1,64 @@
-@*
- * This template takes a single argument, a String containing a
- * message to display.
- *@
-@(message: String)
 
-@*
- * Call the `main` template with two arguments. The first
- * argument is a `String` with the title of the page, the second
- * argument is an `Html` object containing the body of the page.
- *@
+@import models.entities.ScreenData
+@import java.util
+@(screens: util.List[ScreenData], error: String)
+
+
 @main("Homepage") {
+
+   <div class="tab-pane active" id="vertical" role="tabpanel">
+
+    @if(error != null) {
+     <div class="alert">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      <strong>@error</strong>
+     </div>
+    }
+
+    <label for="activeScreensTable">Active screens</label>
+    <table class="table table-striped" id="activeScreensTable">
+     <thead>
+      <tr>
+       <th scope="col">Name</th>
+       <th scope="col">Site</th>
+       <th scope="col">Current flux</th>
+      </tr>
+     </thead>
+     <tbody>
+     @if(screens != null) {
+      @for(screen <- screens) {
+       <tr>
+        <td>@screen.getMac()</td>
+        <td>@screen.getSite()</td>
+        <td>@screen.getCurrentFluxName()</td>
+       </tr>
+      }
+     }
+     </tbody>
+    </table>
+
+    <label for="activeSchedulesTable">Active Schedules</label>
+    <table class="table table-striped" id="activeSchedulesTable">
+     <thead>
+      <tr>
+       <th scope="col">Name</th>
+       <th scope="col">Current flux</th>
+       <th scope="col">Next Flux</th>
+      </tr>
+     </thead>
+     <tbody>
+     @if(screens != null) {
+      @for(screen <- screens) {
+       <tr>
+        <td>@screen.getMac()</td>
+        <td>@screen.getSite()</td>
+        <td>@screen.getCurrentFluxName()</td>
+       </tr>
+      }
+     }
+     </tbody>
+    </table>
+
+   </div>
 
 }

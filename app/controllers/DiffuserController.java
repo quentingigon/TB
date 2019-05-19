@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static services.BlockUtils.blockNumber;
+import static services.BlockUtils.getBlockNumberOfTime;
 
 public class DiffuserController extends Controller {
 
@@ -227,7 +228,7 @@ public class DiffuserController extends Controller {
 			Diffuser diffuser = new Diffuser(data.getName());
 			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.valueOf(data.getValidity()));
-			diffuser.setStartBlock(dataUtils.getBlockNumberOfTime(data.getStartTime()));
+			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
 
 			diffuser = diffuserRepository.add(diffuser);
 
@@ -259,7 +260,7 @@ public class DiffuserController extends Controller {
 			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.valueOf(data.getValidity()));
 			diffuser.setName(data.getName());
-			diffuser.setStartBlock(dataUtils.getBlockNumberOfTime(data.getStartTime()));
+			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
 
 			// do changes to diffuser here
 			diffuserRepository.update(diffuser);

@@ -122,7 +122,6 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 
@@ -150,6 +149,7 @@ public class ScheduleController extends Controller {
 				}
 				rs.addToScreens(screenRepository.getByMacAddress(screenMac).getId());
 				screen.setRunningscheduleId(rs.getId());
+				screen.setActive(true);
 
 				screens.add(screen);
 				screenRepository.update(screen);
@@ -245,7 +245,7 @@ public class ScheduleController extends Controller {
 					// TODO set schedule_id of sf with a trigger at the creation of the schedule
 					ScheduledFlux sf = new ScheduledFlux();
 					sf.setFluxId(fluxRepository.getByName(fluxName).getId());
-					sf.setStartBlock(dataUtils.getBlockNumberOfTime(fluxTime));
+					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
 					scheduledFluxes.add(sf);
 					// sf = fluxRepository.addScheduledFlux(sf);
 

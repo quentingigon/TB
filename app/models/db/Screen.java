@@ -28,8 +28,14 @@ public class Screen {
 	@Column(name="resolution")
 	private String resolution;
 
+	@Column(name="current_flux_name")
+	private String currentFluxName;
+
 	@Column(name="logged")
 	private boolean logged;
+
+	@Column(name="active")
+	private boolean active;
 
 	public Screen(String macAddress) {
 		this.macAddress = macAddress;
@@ -98,5 +104,25 @@ public class Screen {
 
 	public void setScreenNextTo(Integer screenNextTo) {
 		this.screenNextTo = screenNextTo;
+	}
+
+	public Integer getRunningscheduleId() {
+		return runningscheduleId;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public String getCurrentFluxName() {
+		return currentFluxName;
+	}
+
+	public void setCurrentFluxName(String currentFluxName) {
+		this.currentFluxName = currentFluxName;
 	}
 }

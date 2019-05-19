@@ -35,15 +35,31 @@ public class DataUtils {
 	}
 
 	public Integer getTeamIdOfUserByEmail(String email) {
-		return userRepository
-			.getMemberByUserEmail(email)
-			.getTeamId();
+		if (userRepository.getMemberByUserEmail(email) != null) {
+			return userRepository
+				.getMemberByUserEmail(email)
+				.getTeamId();
+		}
+		else
+			return -1;
+
 	}
 
 	public List<ScreenData> getAllScreensOfTeam(int teamId) {
 		List<ScreenData> data = new ArrayList<>();
 		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
 			if (screenRepository.getById(screenId) != null) {
+				data.add(new ScreenData(screenRepository.getById(screenId)));
+			}
+		}
+		return data;
+	}
+
+	public List<ScreenData> getAllActiveScreensOfTeam(int teamId) {
+		List<ScreenData> data = new ArrayList<>();
+		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
+			Screen screen = screenRepository.getById(screenId);
+			if (screen != null && screen.isActive()) {
 				data.add(new ScreenData(screenRepository.getById(screenId)));
 			}
 		}
@@ -177,15 +193,6 @@ public class DataUtils {
 		return timetable;
 	}
 
-	public int getBlockNumberOfTime(String time) {
 
-		int hours = Integer.valueOf(time.split(":")[0]);
-		int minutes = Integer.valueOf(time.split(":")[1]);
-
-		double hoursToBlock = (hours - beginningHour) / activeTime * blockNumber * blockDuration;
-
-		// TODO warning: only works with blockDuration == 1 so better change it
-		return (int) hoursToBlock + minutes;
-	}
 
 }

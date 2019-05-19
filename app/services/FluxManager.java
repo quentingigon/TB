@@ -1,6 +1,8 @@
 package services;
 
 import controllers.EventSourceControllerS;
+import models.db.Screen;
+import models.repositories.ScreenRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,13 +15,16 @@ import java.util.Observer;
 public class FluxManager extends Observable implements Runnable, Observer {
 
 	private final EventSourceControllerS eventController;
+	private final ScreenRepository screenRepository;
 
 	private List<FluxEvent> fluxEvents;
 
 	private boolean running;
 
 	@Inject
-	private FluxManager(EventSourceControllerS eventController) {
+	private FluxManager(EventSourceControllerS eventController,
+						ScreenRepository screenRepository) {
+		this.screenRepository = screenRepository;
 		this.eventController = eventController;
 		fluxEvents = new ArrayList<>();
 		running = false;
@@ -53,13 +58,8 @@ public class FluxManager extends Observable implements Runnable, Observer {
 
 				boolean bool = true;
 
-				// notify observer with url + macs
 				do {
-					// setChanged();
-					//source = Source.single(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
 					System.out.println("Sending event : " + currentFlux.getFlux().getType().toLowerCase() + "?" + currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
-					//notifyObservers(currentFlux.getFlux().getUrl() + "|" + String.join(",", currentFlux.getMacs()));
-
 					eventController.send(
 						currentFlux.getFlux().getType().toLowerCase() +
 							"?" +
@@ -68,7 +68,12 @@ public class FluxManager extends Observable implements Runnable, Observer {
 							String.join(",", currentFlux.getMacs())
 					);
 
-					System.out.println("Source updated " + currentFlux.getFlux());
+					// updating concerned screens
+					for (String screenMac: currentFlux.getMacs()) {
+						Screen screen = screenRepository.getByMacAddress(screenMac);
+						screen.setCurrentFluxName(currentFlux.getFlux().getName());
+						screenRepository.update(screen);
+					}
 
 					if (!fluxEvents.isEmpty()) {
 						// fluxEvents.addFlux(fluxEvents.get(0));

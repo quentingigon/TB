@@ -4,14 +4,11 @@ import models.db.Flux;
 import models.db.RunningSchedule;
 import models.db.Screen;
 import models.repositories.FluxRepository;
+import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Observable;
+import java.util.*;
 
-import static services.BlockUtils.blockDuration;
-import static services.BlockUtils.blockNumber;
+import static services.BlockUtils.*;
 
 public class RunningScheduleService extends Observable implements Runnable {
 
@@ -27,7 +24,7 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	private boolean running;
 
-	private FluxEvent lastFluxEvent;
+	private  FluxEvent lastFluxEvent;
 
 	public RunningScheduleService(RunningSchedule runningSchedule,
 								  List<Screen> screens,
@@ -48,85 +45,92 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 		while (running) {
 
-			int blockIndex = 0;
-			int siteId = 0;
+			DateTime dt = new DateTime();
+			int hours = dt.getHourOfDay();
+			int minutes = dt.getMinuteOfHour();
 
-			do {
-				Flux currentFlux = fluxRepository.getById(timetable.get(blockIndex++));
+			if (hours >= beginningHour && hours < endHour) {
+				int blockIndex = getBlockNumberOfTime(hours, minutes);
+				int siteId = 0;
 
-				// if a flux is scheduled for that block
-				if (currentFlux != null) {
+				do {
+					Flux currentFlux = fluxRepository.getById(timetable.get(blockIndex++));
 
-					// current flux is a located one
-					if (fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()) != null) {
-						siteId = fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()).getSiteId();
+					// if a flux is scheduled for that block
+					if (currentFlux != null) {
 
-						// lists of screens to send the flux
-						List<Screen> screensWithSameSiteId = screens;
-						List<Screen> screensWithDifferentSiteId = new ArrayList<>();
+						// current flux is a located one
+						if (fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()) != null) {
+							siteId = fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()).getSiteId();
 
-						for (Screen s : screens) {
-							// if flux and screen are not restricted to the same site
-							if (siteId != s.getSiteId()) {
-								screensWithDifferentSiteId.add(s);
-								screensWithSameSiteId.remove(s);
+							// lists of screens to send the flux
+							List<Screen> screensWithSameSiteId = screens;
+							List<Screen> screensWithDifferentSiteId = new ArrayList<>();
+
+							for (Screen s : screens) {
+								// if flux and screen are not restricted to the same site
+								if (siteId != s.getSiteId()) {
+									screensWithDifferentSiteId.add(s);
+									screensWithSameSiteId.remove(s);
+								}
+							}
+
+							// all screens are related to the same site as the flux
+							if (screensWithDifferentSiteId.isEmpty()) {
+								// send event to observer
+								sendFluxEvent(currentFlux, screens);
+							}
+							else {
+								sendFluxEvent(currentFlux, screensWithSameSiteId);
+								// TODO send backup or error flux
+								// sendFluxEvent(currentFlux, screensWithDifferentSiteId);
 							}
 						}
+						// current flux is a general one
+						else {
+							siteId = -1;
 
-						// all screens are related to the same site as the flux
-						if (screensWithDifferentSiteId.isEmpty()) {
-							// send event to observer
 							sendFluxEvent(currentFlux, screens);
 						}
-						else {
-							sendFluxEvent(currentFlux, screensWithSameSiteId);
-							// TODO send backup or error flux
-							// sendFluxEvent(currentFlux, screensWithDifferentSiteId);
-						}
 					}
-					// current flux is a general one
+					// choose from the unscheduled fluxes
 					else {
-						siteId = -1;
+						int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
 
-						sendFluxEvent(currentFlux, screens);
-					}
-				}
-				// choose from the unscheduled fluxes
-				else {
-					int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
+						boolean sent = false;
 
-					boolean sent = false;
+						Collections.shuffle(fallbackFluxIds);
 
-					// TODO optimize
-					for (Integer fluxId : fallbackFluxIds) {
+						for (Integer fluxId : fallbackFluxIds) {
 
-						if (!sent) {
-							Flux flux = fluxRepository.getById(fluxId);
-							// if this flux can be inserted in the remaining blocks
-							if (flux.getDuration() <= freeBlocksN) {
+							if (!sent) {
+								Flux flux = fluxRepository.getById(fluxId);
+								// if this flux can be inserted in the remaining blocks
+								if (flux.getDuration() <= freeBlocksN) {
 
-								// update timetable
-								scheduleFlux(flux, blockIndex);
+									// update timetable
+									scheduleFlux(flux, blockIndex);
 
-								// TODO fallback are general or located ?
-								// send event to observer
-								sendFluxEvent(flux, screens);
+									// TODO fallback are general or located ?
+									// send event to observer
+									sendFluxEvent(flux, screens);
 
-								sent = true;
+									sent = true;
+								}
 							}
 						}
 					}
-				}
 
-				try {
-					if (Thread.currentThread().isInterrupted()) {
-						throw new InterruptedException("Thread interrupted");
+					try {
+						if (Thread.currentThread().isInterrupted()) {
+							throw new InterruptedException("Thread interrupted");
+						}
+						Thread.sleep((long) blockDuration * 60000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-					Thread.sleep((long) blockDuration * 60000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			} while (blockIndex < blockNumber && running);
+				} while (blockIndex < blockNumber && running);
+			}
 		}
 	}
 

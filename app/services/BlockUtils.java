@@ -11,4 +11,19 @@ public class BlockUtils {
 	// minutes
 	public static final double blockDuration = 1;
 	public static final double blockNumber = 60 / blockDuration * activeTime;
+
+	public static int getBlockNumberOfTime(int hours, int minutes) {
+		double hoursToBlock = (hours - beginningHour) / activeTime * blockNumber * blockDuration;
+
+		// TODO warning: only works with blockDuration == 1 so better change it
+		return (int) hoursToBlock + minutes;
+	}
+
+	public static int getBlockNumberOfTime(String time) {
+
+		int hours = Integer.valueOf(time.split(":")[0]);
+		int minutes = Integer.valueOf(time.split(":")[1]);
+
+		return getBlockNumberOfTime(hours, minutes);
+	}
 }
