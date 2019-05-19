@@ -120,6 +120,21 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllAdminIdsOfTeam(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String teamId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT admins FROM team_admins WHERE team_team_id = " + teamId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public TeamMember createMember(TeamMember member) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(member);
@@ -132,6 +147,28 @@ public class JPAUserRepository implements UserRepository{
 		return jpaApi.withTransaction(entityManager -> {
 
 			User user = getByEmail(email);
+
+			if (user != null) {
+				Query query = entityManager.createNativeQuery(
+					"SELECT * FROM teammember WHERE user_id = " + user.getId(),
+					TeamMember.class);
+				try {
+					return (TeamMember) query.getSingleResult();
+				} catch (NoResultException e) {
+					return null;
+				}
+			}
+			else
+				return null;
+
+		});
+	}
+
+	@Override
+	public TeamMember getMemberByUserId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+
+			User user = getById(id);
 
 			if (user != null) {
 				Query query = entityManager.createNativeQuery(
@@ -165,10 +202,32 @@ public class JPAUserRepository implements UserRepository{
 
 			if (user != null) {
 				Query query = entityManager.createNativeQuery(
-					"SELECT * FROM admin WHERE user_id = " + user.getId(),
+					"SELECT * FROM admins WHERE user_id = " + user.getId(),
 					Admin.class);
 				try {
-					return (Admin) query.getResultList();
+					return (Admin) query.getSingleResult();
+				} catch (NoResultException e) {
+					return null;
+				}
+			}
+			else
+				return null;
+
+		});
+	}
+
+	@Override
+	public Admin getAdminByUserId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+
+			User user = getById(id);
+
+			if (user != null) {
+				Query query = entityManager.createNativeQuery(
+					"SELECT * FROM admins WHERE user_id = " + user.getId(),
+					Admin.class);
+				try {
+					return (Admin) query.getSingleResult();
 				} catch (NoResultException e) {
 					return null;
 				}

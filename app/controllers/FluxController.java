@@ -52,7 +52,7 @@ public class FluxController extends Controller {
 		return ok(flux_page.render(dataUtils.getAllFluxes(), null));
 	}
 
-	private Result indexWithErrorMessage() {
+	public Result indexWithErrorMessage() {
 		return badRequest(flux_page.render(dataUtils.getAllFluxes(), null));
 	}
 
@@ -61,7 +61,7 @@ public class FluxController extends Controller {
 		return ok(flux_creation.render(form, null));
 	}
 
-	private Result createViewWithErrorMessage(String error) {
+	public Result createViewWithErrorMessage(String error) {
 		return badRequest(flux_creation.render(form, error));
 	}
 
@@ -70,7 +70,7 @@ public class FluxController extends Controller {
 		return ok(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), null));
 	}
 
-	private Result updateViewWithMessage(String name, String error) {
+	public Result updateViewWithMessage(String name, String error) {
 		return badRequest(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), error));
 	}
 
@@ -104,14 +104,14 @@ public class FluxController extends Controller {
 			newFlux = fluxRepository.addFlux(newFlux);
 
 			// general flux
-			if (data.getSite() == null) {
+			if (data.getSite() != null && data.getSite().equals("")) {
 				fluxRepository.addGeneralFlux(new GeneralFlux(newFlux.getId()));
 
 			}
 			// located flux
 			else {
 				fluxRepository.addLocatedFlux(new LocatedFlux(newFlux.getId(),
-					siteRepository.getByName(data.getSite()).getId()));
+					siteRepository.getByName(data.getSite().toLowerCase()).getId()));
 			}
 
 			if (teamId != null) {
@@ -164,7 +164,7 @@ public class FluxController extends Controller {
 
 	private boolean isValidURL(String urlStr) {
 		try {
-			URL url = new URL(urlStr);
+			new URL(urlStr);
 			return true;
 		}
 		catch (MalformedURLException e) {

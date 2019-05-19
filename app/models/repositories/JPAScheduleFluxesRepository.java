@@ -1,5 +1,6 @@
 package models.repositories;
 
+import models.db.ScheduledFlux;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -16,6 +17,21 @@ public class JPAScheduleFluxesRepository implements ScheduleFluxesRepository {
 		this.jpaApi = jpaApi;
 	}
 
+
+	@Override
+	public ScheduledFlux getById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduledFluxId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM scheduled_flux WHERE scheduled_flux_id = " + scheduledFluxId,
+				ScheduledFlux.class);
+			try {
+				return (ScheduledFlux) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")

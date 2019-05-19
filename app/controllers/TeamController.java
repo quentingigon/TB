@@ -17,8 +17,6 @@ import views.html.team.team_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class TeamController extends Controller {
 
@@ -90,6 +88,7 @@ public class TeamController extends Controller {
 			dataUtils.getAllScreensOfTeam(team.getId()),
 			dataUtils.getAllUsers(),
 			dataUtils.getAllMembersOfTeam(team.getId()),
+			dataUtils.getAllAdminsOfTeam(team.getId()),
 			dataUtils.getAllSchedules(),
 			dataUtils.getAllSchedulesOfTeam(team.getId()),
 			dataUtils.getAllDiffusers(),
@@ -107,12 +106,13 @@ public class TeamController extends Controller {
 			dataUtils.getAllScreensOfTeam(team.getId()),
 			dataUtils.getAllUsers(),
 			dataUtils.getAllMembersOfTeam(team.getId()),
+			dataUtils.getAllAdminsOfTeam(team.getId()),
 			dataUtils.getAllSchedules(),
 			dataUtils.getAllSchedulesOfTeam(team.getId()),
 			dataUtils.getAllDiffusers(),
 			dataUtils.getAllDiffusersOfTeam(team.getId()),
 			new TeamData(team),
-			null));
+			error));
 	}
 
 	// @With(UserAuthentificationAction.class)
@@ -186,11 +186,11 @@ public class TeamController extends Controller {
 		}
 
 		for (String email: data.getMembers()) {
-			team.addMember(userRepository.getByEmail(email).getId());
+			team.addMember(userRepository.getMemberByUserEmail(email).getId());
 		}
 
 		for (String email: data.getAdmins()) {
-			team.addAdmin(userRepository.getByEmail(email).getId());
+			team.addAdmin(userRepository.getMemberByUserEmail(email).getId());
 		}
 
 		for (String scheduleName: data.getSchedules()) {
@@ -227,7 +227,7 @@ public class TeamController extends Controller {
 
 		if (data.getMembers() != null) {
 			for (String email: data.getMembers()) {
-				if (userRepository.getByEmail(email) == null) {
+				if (userRepository.getMemberByUserEmail(email) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("User email address does not exists");
 					else if (action.equals("update"))
@@ -241,11 +241,11 @@ public class TeamController extends Controller {
 
 		if (data.getAdmins() != null) {
 			for (String email: data.getAdmins()) {
-				if (userRepository.getByEmail(email) == null) {
+				if (userRepository.getMemberByUserEmail(email) == null) {
 					if (action.equals("create"))
-						error = createViewWithErrorMessage("Flux name does not exists - admin");
+						error = createViewWithErrorMessage("Admin email does not exists");
 					else if (action.equals("update"))
-						error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists - admin");
+						error = updateViewWithErrorMessage(data.getName(), "Admin email does not exists");
 				}
 			}
 		}

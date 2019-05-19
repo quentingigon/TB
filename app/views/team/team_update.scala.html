@@ -14,6 +14,7 @@
         screens_curr: util.List[ScreenData],
         members: util.List[UserData],
         members_curr: util.List[UserData],
+        admins_curr: util.List[UserData],
         schedules: util.List[ScheduleData],
         schedules_curr: util.List[ScheduleData],
         diffusers: util.List[DiffuserData],
@@ -102,8 +103,8 @@
 
                 <label for="currentAdmins"> Current Admins </label>
                 <ul id="currentAdmins" class="list-group">
-                @for(member <- members_curr) {
-                    <li class="list-group-item">@member.getEmail</li>
+                @for(admin <- admins_curr) {
+                    <li class="list-group-item">@admin.getEmail</li>
                 }
                 </ul>
             </div>

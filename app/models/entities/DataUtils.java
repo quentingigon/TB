@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static services.BlockUtils.*;
-import static services.BlockUtils.blockDuration;
+import static services.BlockUtils.blockNumber;
 
 public class DataUtils {
 
@@ -78,7 +77,16 @@ public class DataUtils {
 	public List<UserData> getAllMembersOfTeam(int teamId) {
 		List<UserData> data = new ArrayList<>();
 		for (Integer userId : userRepository.getAllMemberIdsOfTeam(teamId)) {
-			if (userRepository.getById(userId) != null)
+			if (userRepository.getMemberByUserId(userId) != null)
+				data.add(new UserData(userRepository.getById(userId)));
+		}
+		return data;
+	}
+
+	public List<UserData> getAllAdminsOfTeam(int teamId) {
+		List<UserData> data = new ArrayList<>();
+		for (Integer userId : userRepository.getAllAdminIdsOfTeam(teamId)) {
+			if (userRepository.getMemberByUserId(userId) != null)
 				data.add(new UserData(userRepository.getById(userId)));
 		}
 		return data;

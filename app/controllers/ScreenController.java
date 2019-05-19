@@ -112,16 +112,19 @@ public class ScreenController extends Controller {
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
-					RunningSchedule rs = runningScheduleRepository.getById(
-						runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId())
-					);
-					if (rs != null) {
-						RunningScheduleService rss = serviceManager.getServiceByScheduleId(rs.getScheduleId());
-						List<Screen> screenList = new ArrayList<>();
-						screenList.add(screen);
-						System.out.println("FORCE SEND");
-						rss.resendLastFluxEventToScreens(screenList);
+					if (runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId()) != null) {
+						RunningSchedule rs = runningScheduleRepository.getById(
+							runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId())
+						);
+						if (rs != null) {
+							RunningScheduleService rss = serviceManager.getServiceByScheduleId(rs.getScheduleId());
+							List<Screen> screenList = new ArrayList<>();
+							screenList.add(screen);
+							System.out.println("FORCE SEND");
+							rss.resendLastFluxEventToScreens(screenList);
+						}
 					}
+
 				}
 			};
 			Timer timer = new Timer("Timer");
@@ -243,7 +246,6 @@ public class ScreenController extends Controller {
 			return badRequest(screen_page.render(dataUtils.getAllScreensOfTeam(teamId), "MAC address does not exists"));
 		}
 		else {
-			// TODO triggers to delete entry in team_screens
 			screenRepository.delete(screen);
 			return index(request);
 		}

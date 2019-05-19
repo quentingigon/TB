@@ -11,6 +11,7 @@ public class ScheduledFlux {
 	@Column(name="scheduled_flux_id")
 	private Integer id;
 
+	// TODO maybe associate with RunningSchedule instead of Schedule -> big refactor
 	@Column(name="schedule_id")
 	private Integer scheduleId;
 

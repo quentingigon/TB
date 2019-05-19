@@ -27,6 +27,10 @@ public class TeamMember {
 	public TeamMember(String email, String password) {
 	}
 
+	public Integer getId() {
+		return id;
+	}
+
 	public Integer getTeamId() {
 		return teamId;
 	}

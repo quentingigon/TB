@@ -27,7 +27,7 @@
             </div>
             <div class="form-group">
                 <label for="inputDuration">Duration</label>
-                <input name="duration" type="text" class="form-control" id="inputDuration" placeholder="Duration (millis)">
+                <input name="duration" type="text" class="form-control" id="inputDuration" placeholder="Duration (minutes)">
             </div>
             <div class="form-group col-md-4">
                 <label for="inputType">Type</label>
@@ -36,6 +36,16 @@
                     <option>VIDEO</option>
                     <option>TEXT</option>
                     <option>IMAGE</option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputSite">Site</label>
+                <select name="site" id="inputSite" class="form-control">
+                    <option selected></option>
+                    <option>Cheseaux</option>
+                    <option>St-Roch</option>
+                    <option>Y-Park</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Create</button>

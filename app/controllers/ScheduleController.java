@@ -21,6 +21,7 @@ import views.html.schedule.schedule_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static services.BlockUtils.*;
@@ -118,7 +119,6 @@ public class ScheduleController extends Controller {
 		return ok(schedule_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new ScheduleData(name), null, request));
 	}
 
-	// TODO implement on frontend a way to choose an hour for a flux and then use table scheduled_flux to persist the info
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
@@ -185,15 +185,6 @@ public class ScheduleController extends Controller {
 		else {
 			RunningSchedule rs = runningScheduleRepository.getByScheduleId(schedule.getId());
 
-			// TODO do it with triggers
-			// remove RunningSchedule reference from all concerned screens
-			if (rs != null && screenRepository.getAllByRunningScheduleId(rs.getId()) != null) {
-				for (Screen s : screenRepository.getAllByRunningScheduleId(rs.getId())) {
-					s.setRunningscheduleId(null);
-					screenRepository.update(s);
-				}
-			}
-
 			runningScheduleRepository.delete(rs);
 
 			serviceManager.removeRunningSchedule(schedule.getId());
@@ -219,47 +210,15 @@ public class ScheduleController extends Controller {
 		else {
 			Schedule schedule = new Schedule(data.getName());
 
-			List<ScheduledFlux> scheduledFluxes = new ArrayList<>();
-
-			for (String fluxData: data.getFluxes()) {
-
-				String[] fluxDatas = fluxData.split("#");
-				String fluxName = fluxDatas[0];
-
-				if (fluxName == null || fluxRepository.getByName(fluxName) == null) {
-					return createViewWithErrorMessage(request, "Flux name does not exists");
-				}
-
-				String fluxTime;
-
-				// we must create a ScheduledFlux for this entry
-				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
-					fluxTime = fluxDatas[1];
-					int fluxHour = Integer.valueOf(fluxTime.split((":"))[0]);
-
-					if (fluxHour < beginningHour || fluxHour > endHour) {
-						return createViewWithErrorMessage(request,
-							"Time for flux: " + fluxName + " is not within bounds: " + beginningHour + " -> " + endHour);
-					}
-
-					// TODO set schedule_id of sf with a trigger at the creation of the schedule
-					ScheduledFlux sf = new ScheduledFlux();
-					sf.setFluxId(fluxRepository.getByName(fluxName).getId());
-					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
-					scheduledFluxes.add(sf);
-					// sf = fluxRepository.addScheduledFlux(sf);
-
-					// schedule.addToFluxes(sf.getId());
-				}
-				// we must add a un-scheduled flux -> fallback flux
-				else {
-					schedule.addToFallbacks(fluxRepository.getByName(fluxName).getId());
-				}
+			Result error = checkFluxesIntegrity(data, request);
+			if (error != null) {
+				return error;
 			}
 
+			schedule.setFallbacks(new HashSet<>(getFallbackFluxIds(data)));
 			schedule = scheduleRepository.add(schedule);
 
-			for (ScheduledFlux sf: scheduledFluxes) {
+			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
 				sf.setScheduleId(schedule.getId());
 				sf = fluxRepository.addScheduledFlux(sf);
 				schedule.addToFluxes(sf.getId());
@@ -278,7 +237,6 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 
 		ScheduleData data = boundForm.get();
 		Schedule schedule = scheduleRepository.getByName(data.getName());
@@ -288,7 +246,21 @@ public class ScheduleController extends Controller {
 			return updateViewWithErrorMessage(request, data.getName(), "Schedule name does not exists");
 		}
 		else {
-			// do changes to schedule here
+
+			Result error = checkFluxesIntegrity(data, request);
+			if (error != null) {
+				return error;
+			}
+			for (Integer fluxId: getFallbackFluxIds(data)) {
+				schedule.addToFallbacks(fluxId);
+			}
+
+			// TODO Warning: there are no checks to avoid bad timetable init -> overlapping fluxes, etc
+			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
+				sf.setScheduleId(schedule.getId());
+				sf = fluxRepository.addScheduledFlux(sf);
+				schedule.addToFluxes(sf.getId());
+			}
 			scheduleRepository.update(schedule);
 
 			return index(request);
@@ -310,5 +282,67 @@ public class ScheduleController extends Controller {
 
 			return index(request);
 		}
+	}
+
+	private Result checkFluxesIntegrity(ScheduleData data, Http.Request request) {
+		Result error = null;
+		for (String fluxData: data.getFluxes()) {
+
+			String[] fluxDatas = fluxData.split("#");
+			String fluxName = fluxDatas[0];
+
+			if (fluxName == null || fluxRepository.getByName(fluxName) == null) {
+				error = createViewWithErrorMessage(request, "Flux name does not exists");
+			}
+
+			// we must create a ScheduledFlux for this entry
+			if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
+				String fluxTime = fluxDatas[1];
+				int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
+
+				if (fluxHour < beginningHour || fluxHour > endHour) {
+					error = createViewWithErrorMessage(request,
+						"Time for flux: " + fluxName + " is not within bounds: " + beginningHour + " -> " + endHour);
+				}
+			}
+		}
+		return error;
+	}
+
+	private List<ScheduledFlux> getScheduledFluxesFromData(ScheduleData data) {
+		List<ScheduledFlux> scheduledFluxes = new ArrayList<>();
+
+		for (String fluxData: data.getFluxes()) {
+
+			String[] fluxDatas = fluxData.split("#");
+			String fluxName = fluxDatas[0];
+
+			// we must create a ScheduledFlux for this entry
+			if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
+				String fluxTime = fluxDatas[1];
+
+				ScheduledFlux sf = new ScheduledFlux();
+				sf.setFluxId(fluxRepository.getByName(fluxName).getId());
+				sf.setStartBlock(getBlockNumberOfTime(fluxTime));
+				scheduledFluxes.add(sf);
+			}
+		}
+		return scheduledFluxes;
+	}
+
+	private List<Integer> getFallbackFluxIds(ScheduleData data) {
+
+		List<Integer> fallbacksIds = new ArrayList<>();
+
+		for (String fluxData : data.getFluxes()) {
+			String[] fluxDatas = fluxData.split("#");
+			String fluxName = fluxDatas[0];
+
+			// we must add a un-scheduled flux -> fallback flux
+			if (fluxDatas.length != 2) {
+				fallbacksIds.add(fluxRepository.getByName(fluxName).getId());
+			}
+		}
+		return fallbacksIds;
 	}
 }

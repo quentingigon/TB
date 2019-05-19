@@ -20,13 +20,16 @@ public interface UserRepository {
 
 	List<User> getAll();
 	List<Integer> getAllMemberIdsOfTeam(Integer id);
+	List<Integer> getAllAdminIdsOfTeam(Integer id);
 
 	void delete(User user);
 	void update(User user);
 
 	TeamMember createMember(TeamMember member);
 	TeamMember getMemberByUserEmail(String email);
+	TeamMember getMemberByUserId(Integer id);
 
 	Admin createAdmin(Admin admin);
 	Admin getAdminByUserEmail(String email);
+	Admin getAdminByUserId(Integer id);
 }

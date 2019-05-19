@@ -88,31 +88,20 @@ public class UserController extends Controller {
 		else {
 
 			newUser = userRepository.create(newUser);
-			//Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-			//Team team = teamRepository.getById(teamId);
 
+			// TODO verify its correct
 			// user created is part of a team
 			if (data.getTeam() != null) {
+				Team team = teamRepository.getByName(data.getTeam());
 				TeamMember member = new TeamMember(newUser);
+				member.setTeamId(teamRepository.getByName(team.getName()).getId());
+				member = userRepository.createMember(member);
 
-				// set team
-				member.setTeamId(teamRepository.getByName(data.getTeam()).getId());
-
-				userRepository.createMember(member);
-				//team.addMember(member.getUserId());
-			}
-			// user created is of admin type
-			else if (data.getAdmin() != null) {
-				data.setAdmin(data.getAdmin().toLowerCase());
-				if (data.getAdmin().equals("admin")) {
-					Admin admin = new Admin(newUser.getId());
-					admin = userRepository.createAdmin(admin);
-					//team.addAdmin(admin.getId());
+				if (data.getAdmin()) {
+					team.addAdmin(member.getId());
+					teamRepository.update(team);
 				}
 			}
-
-			//teamRepository.update(team);
-
 			return redirect(routes.HomeController.index()).withCookies(
 				Http.Cookie.builder("email", newUser.getEmail())
 					.withHttpOnly(false)

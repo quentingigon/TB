@@ -14,7 +14,7 @@ public class UserData {
 	private String team;
 
 	// == admin or team_admin
-	private String admin;
+	private boolean admin;
 
 	public UserData() {
 	}
@@ -52,11 +52,11 @@ public class UserData {
 		this.team = team;
 	}
 
-	public String getAdmin() {
+	public boolean getAdmin() {
 		return admin;
 	}
 
-	public void setAdmin(String admin) {
+	public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
 }
