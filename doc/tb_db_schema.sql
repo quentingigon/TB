@@ -89,7 +89,7 @@ DROP TABLE IF EXISTS team_admins CASCADE;
 CREATE TABLE team_admins
   (
     team_team_id INTEGER NOT NULL REFERENCES team (team_id),
-    admins INTEGER NOT NULL REFERENCES admins (admin_id),
+    admins INTEGER NOT NULL REFERENCES teammember (member_id),
     PRIMARY KEY (team_team_id, admins)
   );
 
@@ -118,6 +118,16 @@ CREATE TABLE schedule
     name VARCHAR(20),
     fluxes INTEGER[],
     fallbacks INTEGER[]
+  );
+
+
+DROP TABLE IF EXISTS scheduled_flux CASCADE;
+CREATE TABLE scheduled_flux
+  (
+    scheduled_flux_id SERIAL PRIMARY KEY,
+    schedule_id INTEGER REFERENCES schedule (schedule_id),
+    flux_id INTEGER NOT NULL REFERENCES flux (flux_id),
+    start_block INTEGER
   );
 
 
@@ -235,15 +245,16 @@ CREATE TABLE flux
 DROP TABLE IF EXISTS locatedflux CASCADE;
 CREATE TABLE locatedflux
   (
+    locatedflux_id SERIAL PRIMARY KEY,
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id),
-    site_id INTEGER NOT NULL REFERENCES site (site_id),
-    PRIMARY KEY(flux_id, site_id)
+    site_id INTEGER NOT NULL REFERENCES site (site_id)
   );
 
 
 DROP TABLE IF EXISTS generalflux CASCADE;
 CREATE TABLE generalflux
   (
+    generalflux_id SERIAL PRIMARY KEY,
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id)
   );
 
@@ -251,6 +262,7 @@ CREATE TABLE generalflux
 DROP TABLE IF EXISTS fallbackflux CASCADE;
 CREATE TABLE fallbackflux
   (
+    fallbackflux_id SERIAL PRIMARY KEY,
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id)
   );
 
@@ -263,6 +275,10 @@ AS $$
 BEGIN
     DELETE FROM runningschedule_screens
     WHERE runningschedule_runningschedule_id = OLD.runningschedule_id;
+
+    UPDATE screen
+    SET runningschedule_id = -1
+    WHERE runningschedule_id = OLD.runningschedule_id;
 RETURN OLD;
 END;
 $$
@@ -311,6 +327,20 @@ END;
 $$
 LANGUAGE plpgsql;
 
+
+DROP FUNCTION IF EXISTS add_teammember_to_team();
+CREATE FUNCTION add_teammember_to_team()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    INSERT INTO team_members (team_team_id, members)
+    VALUES (NEW.team_id, NEW.member_id);
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+
 -- Triggers
 
 CREATE TRIGGER on_runningschedule_delete BEFORE DELETE
@@ -324,3 +354,7 @@ CREATE TRIGGER on_runningdiffuser_delete BEFORE DELETE
 CREATE TRIGGER on_team_delete BEFORE DELETE
    ON team
    FOR EACH ROW EXECUTE PROCEDURE delete_data_of_team();
+
+CREATE TRIGGER on_teammember_insert AFTER INSERT
+   ON teammember
+   FOR EACH ROW EXECUTE PROCEDURE add_teammember_to_team();
