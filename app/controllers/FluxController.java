@@ -12,6 +12,7 @@ import models.repositories.SiteRepository;
 import models.repositories.TeamRepository;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.Files;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -23,6 +24,7 @@ import views.html.flux.flux_update;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 import static services.BlockUtils.blockNumber;
 
@@ -158,6 +160,22 @@ public class FluxController extends Controller {
 		else {
 			fluxRepository.delete(flux);
 			return index();
+		}
+	}
+
+
+	public Result uploadPicture(Http.Request request) {
+		Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+		Http.MultipartFormData.FilePart<Files.TemporaryFile> picture = body.getFile("picture");
+		if (picture != null) {
+			String fileName = picture.getFilename();
+			long fileSize = picture.getFileSize();
+			String contentType = picture.getContentType();
+			Files.TemporaryFile file = picture.getRef();
+			file.copyTo(Paths.get("/tmp/picture/" + fileName), true);
+			return createView();
+		} else {
+			return createViewWithErrorMessage("Missing file");
 		}
 	}
 

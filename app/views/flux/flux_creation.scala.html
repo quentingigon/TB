@@ -50,5 +50,15 @@
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
+
+        @helper.form(action = routes.FluxController.uploadPicture, 'enctype -> "multipart/form-data") {
+            @helper.CSRF.formField
+            <input type="file" name="picture">
+
+            <p>
+                <input type="submit">
+            </p>
+
+        }
     </div>
 }

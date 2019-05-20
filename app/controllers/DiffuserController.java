@@ -151,7 +151,9 @@ public class DiffuserController extends Controller {
 				sf.setScheduleId(schedule.getId());
 				sf.setStartBlock(diffuser.getStartBlock());
 				sf.setFluxId(diffusedFlux.getId());
+
 				sf = fluxRepository.addScheduledFlux(sf);
+
 				schedule.addToFluxes(sf.getId());
 				scheduleRepository.update(schedule);
 			}
@@ -160,7 +162,14 @@ public class DiffuserController extends Controller {
 			for (Integer id: runningScheduleIds) {
 				RunningScheduleService rss = serviceManager.getServiceByScheduleId(id);
 				if (rss != null) {
-					rss.scheduleFlux(diffusedFlux, diffuser.getStartBlock());
+					// if diffuser has priority, it overwrites the timetable. Else it tries to schedule the flux at the given time
+					// but does it not if not enough place
+					if (diffuser.isOverwrite()) {
+						rss.scheduleFluxFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
+					}
+					else {
+						rss.scheduleFluxIfPossibleFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
+					}
 				}
 			}
 
@@ -187,11 +196,11 @@ public class DiffuserController extends Controller {
 
 			RunningDiffuser rd = runningDiffuserRepository.getByDiffuserId(diffuser.getId());
 
-			Set<Integer> screenIds = new HashSet<>(rd.getScreens());
-			for (Integer id: screenIds) {
+			for (Integer id: rd.getScreens()) {
 
 				Screen screen = screenRepository.getById(id);
 
+				// if screen is active, update associated schedule
 				if (screen.getRunningScheduleId() != null) {
 					RunningSchedule rs = runningScheduleRepository.getById(screen.getRunningScheduleId());
 
@@ -200,7 +209,11 @@ public class DiffuserController extends Controller {
 					scheduleRepository.update(schedule);
 
 				}
-				serviceManager.getServiceByScheduleId(id).removeScheduledFlux(fluxRepository.getById(diffuser.getFlux()));
+				serviceManager.getServiceByScheduleId(id).removeScheduledFluxFromDiffuser(
+					fluxRepository.getById(diffuser.getFlux()),
+					diffuser.getId(),
+					diffuser.getStartBlock()
+				);
 			}
 
 			runningDiffuserRepository.delete(rd);
@@ -229,6 +242,7 @@ public class DiffuserController extends Controller {
 			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.valueOf(data.getValidity()));
 			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
+			diffuser.setOverwrite(data.isOverwrite());
 
 			diffuser = diffuserRepository.add(diffuser);
 

@@ -12,7 +12,7 @@ import static services.BlockUtils.*;
 
 public class RunningScheduleService extends Observable implements Runnable {
 
-	// TODO WARNING !!!! maybe it's a "static" instance of FluxRepository and is not updated afterwards
+	// /!\ WARNING /!\ maybe it's a "static" instance of FluxRepository and is not updated afterwards
 	private FluxRepository fluxRepository;
 
 	private RunningSchedule runningSchedule;
@@ -24,18 +24,21 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	private boolean running;
 
-	private  FluxEvent lastFluxEvent;
+	private volatile FluxEvent lastFluxEvent;
+
+	private HashMap<Integer, List<Integer>> timetableHistory;
 
 	public RunningScheduleService(RunningSchedule runningSchedule,
 								  List<Screen> screens,
 								  List<Integer> fallbackFluxIds,
-								  HashMap<Integer, Integer> timetable,
+								  Map<Integer, Integer> timetable,
 								  FluxRepository fluxRepository) {
 		this.runningSchedule = runningSchedule;
 		this.screens = screens;
-		this.timetable = timetable;
+		this.timetable = (HashMap<Integer, Integer>) timetable;
 		this.fallbackFluxIds = fallbackFluxIds;
 		this.fluxRepository = fluxRepository;
+		this.timetableHistory = new HashMap<>();
 		running = true;
 		lastFluxEvent = null;
 	}
@@ -51,47 +54,16 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 			if (hours >= beginningHour && hours < endHour) {
 				int blockIndex = getBlockNumberOfTime(hours, minutes);
-				int siteId = 0;
+				Flux lastFluxSent = null;
 
 				do {
 					Flux currentFlux = fluxRepository.getById(timetable.get(blockIndex++));
 
+					// TODO a way to avoid sending events if not needed -> useful for videos
 					// if a flux is scheduled for that block
 					if (currentFlux != null) {
-
-						// current flux is a located one
-						if (fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()) != null) {
-							siteId = fluxRepository.getLocatedFluxByFluxId(currentFlux.getId()).getSiteId();
-
-							// lists of screens to send the flux
-							List<Screen> screensWithSameSiteId = screens;
-							List<Screen> screensWithDifferentSiteId = new ArrayList<>();
-
-							for (Screen s : screens) {
-								// if flux and screen are not restricted to the same site
-								if (siteId != s.getSiteId()) {
-									screensWithDifferentSiteId.add(s);
-									screensWithSameSiteId.remove(s);
-								}
-							}
-
-							// all screens are related to the same site as the flux
-							if (screensWithDifferentSiteId.isEmpty()) {
-								// send event to observer
-								sendFluxEvent(currentFlux, screens);
-							}
-							else {
-								sendFluxEvent(currentFlux, screensWithSameSiteId);
-								// TODO send backup or error flux
-								// sendFluxEvent(currentFlux, screensWithDifferentSiteId);
-							}
-						}
-						// current flux is a general one
-						else {
-							siteId = -1;
-
-							sendFluxEvent(currentFlux, screens);
-						}
+						sendFluxEventAsGeneralOrLocated(currentFlux);
+						lastFluxSent = currentFlux;
 					}
 					// choose from the unscheduled fluxes
 					else {
@@ -106,15 +78,14 @@ public class RunningScheduleService extends Observable implements Runnable {
 							if (!sent) {
 								Flux flux = fluxRepository.getById(fluxId);
 								// if this flux can be inserted in the remaining blocks
-								if (flux.getDuration() <= freeBlocksN) {
+								if (flux != null && flux.getDuration() <= freeBlocksN) {
 
 									// update timetable
 									scheduleFlux(flux, blockIndex);
 
-									// TODO fallback are general or located ?
 									// send event to observer
-									sendFluxEvent(flux, screens);
-
+									sendFluxEventAsGeneralOrLocated(flux);
+									lastFluxSent = currentFlux;
 									sent = true;
 								}
 							}
@@ -131,6 +102,41 @@ public class RunningScheduleService extends Observable implements Runnable {
 					}
 				} while (blockIndex < blockNumber && running);
 			}
+		}
+	}
+
+	// This function send the flux to the correct screens, so as a general flux or a located one
+	private void sendFluxEventAsGeneralOrLocated(Flux flux) {
+		// current flux is a located one
+		if (fluxRepository.getLocatedFluxByFluxId(flux.getId()) != null) {
+			int siteId = fluxRepository.getLocatedFluxByFluxId(flux.getId()).getSiteId();
+
+			// lists of screens to send the flux
+			List<Screen> screensWithSameSiteId = screens;
+			List<Screen> screensWithDifferentSiteId = new ArrayList<>();
+
+			for (Screen s : screens) {
+				// if flux and screen are not restricted to the same site
+				if (siteId != s.getSiteId()) {
+					screensWithDifferentSiteId.add(s);
+					screensWithSameSiteId.remove(s);
+				}
+			}
+
+			// all screens are related to the same site as the flux
+			if (screensWithDifferentSiteId.isEmpty()) {
+				// send event to observer
+				sendFluxEvent(flux, screens);
+			}
+			else {
+				sendFluxEvent(flux, screensWithSameSiteId);
+				// TODO send backup or error flux
+				// sendFluxEvent(currentFlux, screensWithDifferentSiteId);
+			}
+		}
+		// current flux is a general one
+		else {
+			sendFluxEvent(flux, screens);
 		}
 	}
 
@@ -159,8 +165,18 @@ public class RunningScheduleService extends Observable implements Runnable {
 		sendFluxEvent(flux, screenList);
 	}
 
-	public void scheduleFlux(Flux flux, int blockIndex) {
+	private void scheduleFlux(Flux flux, int blockIndex) {
 		for (int i = 0; i < flux.getDuration(); i++) {
+			// add the flux to all the block from blockIndex to blockIndex + flux duration
+			this.timetable.put(blockIndex + i, flux.getId());
+		}
+	}
+
+	public void scheduleFluxFromDiffuser(Flux flux, int blockIndex, int diffuserId) {
+		timetableHistory.computeIfAbsent(diffuserId, k -> new ArrayList<>());
+		for (int i = 0; i < flux.getDuration(); i++) {
+			// save old timetable
+			timetableHistory.get(diffuserId).add(timetable.get(blockIndex + i));
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
 			this.timetable.put(blockIndex + i, flux.getId());
 		}
@@ -171,6 +187,21 @@ public class RunningScheduleService extends Observable implements Runnable {
 		if (!timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getDuration()) {
 			scheduleFlux(flux, blockIndex);
 		}
+	}
+
+	public void scheduleFluxIfPossibleFromDiffuser(Flux flux, int blockIndex, int diffuserId) {
+		if (!timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getDuration()) {
+			scheduleFluxFromDiffuser(flux, blockIndex, diffuserId);
+		}
+	}
+
+	public void removeScheduledFluxFromDiffuser(Flux flux, int diffuserId, int blockIndex) {
+		int index = 0;
+		for (int i = blockIndex; i < flux.getDuration(); i++) {
+			// re-put the flux value before the diffuser was activated
+			this.timetable.put(i, timetableHistory.get(diffuserId).get(index++));
+		}
+		timetableHistory.remove(diffuserId);
 	}
 
 	// TODO maybe optimize

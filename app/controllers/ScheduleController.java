@@ -84,14 +84,24 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result updateView(Http.Request request, String name) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
-			dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), null));
+		return ok(schedule_update.render(form,
+			new ScheduleData(scheduleRepository.getByName(name)),
+			dataUtils.getAllFluxesOfTeam(teamId),
+			dataUtils.getAllFluxesOfTeam(teamId),
+			dataUtils.getAllLocatedFluxesOfTeam(teamId),
+			dataUtils.getAllGeneralFluxesOfTeam(teamId),
+			null));
 	}
 
 	private Result updateViewWithErrorMessage(Http.Request request, String name, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(schedule_update.render(form, new ScheduleData(scheduleRepository.getByName(name)),
-			dataUtils.getAllFluxesOfTeam(teamId), dataUtils.getAllFluxesOfTeam(teamId), error));
+		return ok(schedule_update.render(form,
+			new ScheduleData(scheduleRepository.getByName(name)),
+			dataUtils.getAllFluxesOfTeam(teamId),
+			dataUtils.getAllFluxesOfTeam(teamId),
+			dataUtils.getAllLocatedFluxesOfTeam(teamId),
+			dataUtils.getAllGeneralFluxesOfTeam(teamId),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)

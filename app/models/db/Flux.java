@@ -22,6 +22,7 @@ public class Flux {
 	@Column(name="url")
 	private String url;
 
+	@Column(name="type")
 	private String type;
 
 	public Flux(String name, String url) {

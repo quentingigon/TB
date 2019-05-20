@@ -23,6 +23,9 @@ public class Diffuser {
 	@Column(name="start_block")
 	private Integer startBlock;
 
+	@Column(name="overwrite")
+	private boolean overwrite;
+
 	public Diffuser() {
 	}
 
@@ -66,5 +69,11 @@ public class Diffuser {
 		this.startBlock = startBlock;
 	}
 
+	public boolean isOverwrite() {
+		return overwrite;
+	}
 
+	public void setOverwrite(boolean overwrite) {
+		this.overwrite = overwrite;
+	}
 }

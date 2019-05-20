@@ -11,6 +11,7 @@ public class DiffuserData {
 	private String startTime;
 	private String validity;
 	private List<String> screens;
+	private boolean overwrite;
 
 	public DiffuserData() {
 	}
@@ -61,5 +62,13 @@ public class DiffuserData {
 
 	public void setValidity(String validity) {
 		this.validity = validity;
+	}
+
+	public boolean isOverwrite() {
+		return overwrite;
+	}
+
+	public void setOverwrite(boolean overwrite) {
+		this.overwrite = overwrite;
 	}
 }

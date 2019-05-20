@@ -2,7 +2,13 @@
 @import models.entities.ScheduleData
 @import models.entities.FluxData
 @import java.util
-@(form: Form[ScheduleData], data: ScheduleData, fluxes: util.List[FluxData], fallbacks: util.List[FluxData], error: String)
+@(form: Form[ScheduleData],
+        data: ScheduleData,
+        fluxes: util.List[FluxData],
+        fallbacks: util.List[FluxData],
+        locatedFluxes_curr: util.List[FluxData],
+        generalFluxes_curr: util.List[FluxData],
+        error: String)
 
 
 @main("Schedule Creation Page") {
@@ -192,6 +198,21 @@
                 <label for="inputName">Name</label>
                 <input name="name" type="text" class="form-control" id="inputName" value="@data.getName">
             </div>
+
+            <label for="currentLocatedFluxes"> Current Located Fluxes </label>
+            <ul id="currentLocatedFluxes" class="list-group">
+            @for(locatedFlux <- locatedFluxes_curr) {
+                <li class="list-group-item">@locatedFlux.getName</li>
+            }
+            </ul>
+
+
+            <label for="currentGeneralFluxes"> Current General Fluxes </label>
+            <ul id="currentGeneralFluxes" class="list-group">
+            @for(generalFlux <- generalFluxes_curr) {
+                <li class="list-group-item">@generalFlux.getName</li>
+            }
+            </ul>
 
             <div class="container">
                 <div class="table-wrapper">

@@ -114,7 +114,7 @@
                     var index = $("table tbody tr:last-child").index();
                     var rowId = "inputFluxes" + index;
                     var row = '<tr class="flux-row">' +
-                            '<td> <select type="text" id="' + rowId + '" class="form-control new-row-flux" multiple="multiple" onchange="changeRowFunc(' + rowId + ')">\n' +
+                            '<td> <select multiple type="text" id="' + rowId + '" class="form-control new-row-flux" onchange="changeRowFunc(' + rowId + ')">\n' +
                             '                @for(flux <- fluxes) {\n' +
                             '                    <option>@flux.getName</option>\n' +
                             '                }\n' +

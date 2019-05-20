@@ -174,7 +174,8 @@ CREATE TABLE diffuser
     flux_id INTEGER,
     name VARCHAR(20),
     start_block INT,
-    validity BIGINT
+    validity BIGINT,
+    overwrite BOOLEAN
   );
 
 
@@ -277,7 +278,7 @@ BEGIN
     WHERE runningschedule_runningschedule_id = OLD.runningschedule_id;
 
     UPDATE screen
-    SET runningschedule_id = -1
+    SET runningschedule_id = NULL
     WHERE runningschedule_id = OLD.runningschedule_id;
 RETURN OLD;
 END;
@@ -341,6 +342,22 @@ $$
 LANGUAGE plpgsql;
 
 
+DROP FUNCTION IF EXISTS delete_fluxes_of_schedule();
+CREATE FUNCTION delete_fluxes_of_schedule()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    DELETE FROM schedule_fluxes
+    WHERE schedule_schedule_id = OLD.schedule_id;
+
+    DELETE FROM schedule_fallbacks
+    WHERE schedule_schedule_id = OLD.schedule_id;
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+
 -- Triggers
 
 CREATE TRIGGER on_runningschedule_delete BEFORE DELETE
@@ -355,6 +372,11 @@ CREATE TRIGGER on_team_delete BEFORE DELETE
    ON team
    FOR EACH ROW EXECUTE PROCEDURE delete_data_of_team();
 
+CREATE TRIGGER on_schedule_delete BEFORE DELETE
+   ON schedule
+   FOR EACH ROW EXECUTE PROCEDURE delete_fluxes_of_schedule();
+
 CREATE TRIGGER on_teammember_insert AFTER INSERT
    ON teammember
    FOR EACH ROW EXECUTE PROCEDURE add_teammember_to_team();
+

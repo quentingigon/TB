@@ -19,6 +19,8 @@ POST    /fluxes/update                  controllers.FluxController.update(reques
 
 POST    /fluxes/delete/:name            controllers.FluxController.delete(name: String)
 
+POST    /fluxes/new/upload              controllers.FluxController.uploadPicture(request: Request)
+
 
 # Screens
 GET     /screens                        controllers.ScreenController.index(request: Request)

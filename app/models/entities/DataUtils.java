@@ -74,6 +74,24 @@ public class DataUtils {
 		return data;
 	}
 
+	public List<FluxData> getAllLocatedFluxesOfTeam(int teamId) {
+		List<FluxData> data = new ArrayList<>();
+		for (Integer fluxId : fluxRepository.getAllFluxIdsOfTeam(teamId)) {
+			if (fluxRepository.getLocatedFluxByFluxId(fluxId) != null)
+				data.add(new FluxData(fluxRepository.getById(fluxId)));
+		}
+		return data;
+	}
+
+	public List<FluxData> getAllGeneralFluxesOfTeam(int teamId) {
+		List<FluxData> data = new ArrayList<>();
+		for (Integer fluxId : fluxRepository.getAllFluxIdsOfTeam(teamId)) {
+			if (fluxRepository.getGeneralFluxByFluxId(fluxId) != null)
+				data.add(new FluxData(fluxRepository.getById(fluxId)));
+		}
+		return data;
+	}
+
 	public List<UserData> getAllMembersOfTeam(int teamId) {
 		List<UserData> data = new ArrayList<>();
 		for (Integer userId : userRepository.getAllMemberIdsOfTeam(teamId)) {

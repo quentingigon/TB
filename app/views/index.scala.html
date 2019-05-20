@@ -59,6 +59,29 @@
      </tbody>
     </table>
 
+
+    <label for="activeDiffusersTable">Active Diffusers</label>
+    <table class="table table-striped" id="activeDiffusersTable">
+     <thead>
+      <tr>
+       <th scope="col">Name</th>
+       <th scope="col"> Flux </th>
+       <th scope="col">Hour</th>
+      </tr>
+     </thead>
+     <tbody>
+     @if(screens != null) {
+      @for(screen <- screens) {
+       <tr>
+        <td>@screen.getMac()</td>
+        <td>@screen.getSite()</td>
+        <td>@screen.getCurrentFluxName()</td>
+       </tr>
+      }
+     }
+     </tbody>
+    </table>
+
    </div>
 
 }
