@@ -19,6 +19,7 @@ public class Flux {
 	@Column(name="phase_duration")
 	private long duration;
 
+	// TODO change url to data
 	@Column(name="url")
 	private String url;
 

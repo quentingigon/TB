@@ -190,10 +190,14 @@ public class ScheduleController extends Controller {
 
 		// incorrect name
 		if (schedule == null) {
-			return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "Schedule does not exist"));
+			return indexWithErrorMessage(request, "Schedule does not exists");
 		}
 		else {
 			RunningSchedule rs = runningScheduleRepository.getByScheduleId(schedule.getId());
+
+			if (rs == null) {
+				return indexWithErrorMessage(request, "Schedule is not activated");
+			}
 
 			runningScheduleRepository.delete(rs);
 

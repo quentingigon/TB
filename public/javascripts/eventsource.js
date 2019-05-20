@@ -1,13 +1,19 @@
 function displayFlux(url) {
-    $("#footer0").css("display", "none");
     $("#frame0").attr('src', url);
-    $("#footer0").css("display", "inline-block");
+}
 
+// TODO autoplay not working,
+//  check youtube player -> https://developers.google.com/youtube/iframe_api_reference#Loading_a_Video_Player
+function displayVideo(url) {
+    $("#frame0").attr('src', url + "?autoplay=true");
 }
 
 function displayFooterText(text) {
-    $("#footer0").css("display", "inline-block");
-    $("#footer0").html(text);
+    $('#footer0').show().html("").append(text);
+}
+
+function hideFooter() {
+    $('#footer0').hide();
 }
 
 function getCookie(name) {
@@ -34,6 +40,7 @@ $(document).ready(function () {
 
         if (macs.includes(macAdress)) {
             if (type === "url") {
+                hideFooter();
                 displayFlux(data);
             }
             else if (type === "image") {
@@ -43,7 +50,8 @@ $(document).ready(function () {
                 displayFooterText(data);
             }
             else if (type === "video") {
-
+                hideFooter();
+                displayVideo(data);
             }
         }
 

@@ -88,7 +88,7 @@ public class FluxController extends Controller {
 			return createViewWithErrorMessage("Flux already exists");
 		}
 		// bar url
-		else if (!isValidURL(data.getUrl())) {
+		else if (data.getType().equals("URL") && !isValidURL(data.getUrl())) {
 			return createViewWithErrorMessage("URL format is wrong");
 		}
 		// duration not a number
