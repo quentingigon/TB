@@ -1,6 +1,6 @@
 package services;
 
-import controllers.EventSourceControllerS;
+import controllers.EventSourceController;
 import models.db.Screen;
 import models.repositories.ScreenRepository;
 
@@ -14,7 +14,7 @@ import java.util.Observer;
 @Singleton
 public class FluxManager extends Observable implements Runnable, Observer {
 
-	private final EventSourceControllerS eventController;
+	private final EventSourceController eventController;
 	private final ScreenRepository screenRepository;
 
 	private List<FluxEvent> fluxEvents;
@@ -22,7 +22,7 @@ public class FluxManager extends Observable implements Runnable, Observer {
 	private boolean running;
 
 	@Inject
-	private FluxManager(EventSourceControllerS eventController,
+	private FluxManager(EventSourceController eventController,
 						ScreenRepository screenRepository) {
 		this.screenRepository = screenRepository;
 		this.eventController = eventController;

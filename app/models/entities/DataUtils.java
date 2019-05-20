@@ -25,6 +25,12 @@ public class DataUtils {
 	ScheduleRepository scheduleRepository;
 
 	@Inject
+	RunningScheduleRepository runningScheduleRepository;
+
+	@Inject
+	RunningDiffuserRepository runningDiffuserRepository;
+
+	@Inject
 	DiffuserRepository diffuserRepository;
 
 	@Inject
@@ -58,7 +64,8 @@ public class DataUtils {
 		List<ScreenData> data = new ArrayList<>();
 		for (Integer screenId : screenRepository.getAllScreenIdsOfTeam(teamId)) {
 			Screen screen = screenRepository.getById(screenId);
-			if (screen != null && screen.isActive()) {
+			// screen has an associated RunningSchedule so it's active
+			if (screen != null && screen.getRunningscheduleId() != null) {
 				data.add(new ScreenData(screenRepository.getById(screenId)));
 			}
 		}
@@ -113,19 +120,61 @@ public class DataUtils {
 	public List<ScheduleData> getAllSchedulesOfTeam(int teamId) {
 		List<ScheduleData> data = new ArrayList<>();
 		for (Integer scheduleId : scheduleRepository.getAllScheduleIdsOfTeam(teamId)) {
-			if (scheduleRepository.getById(scheduleId) != null)
-				data.add(new ScheduleData(scheduleRepository.getById(scheduleId)));
+			if (scheduleRepository.getById(scheduleId) != null) {
+				ScheduleData sd = new ScheduleData(scheduleRepository.getById(scheduleId));
+
+				// if schedule is activated
+				if (runningScheduleRepository.getByScheduleId(scheduleId) != null) {
+					sd.setActivated(true);
+				}
+				data.add(sd);
+			}
+
 		}
 		return data;
+	}
+
+	public List<ScheduleData> getAllActiveSchedulesOfTeam(int teamId) {
+		List<ScheduleData> schedules = new ArrayList<>();
+		for (ScheduleData sd: getAllSchedulesOfTeam(teamId)) {
+			Schedule schedule = scheduleRepository.getByName(sd.getName());
+
+			if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
+				sd.setActivated(true);
+				schedules.add(sd);
+			}
+		}
+		return schedules;
 	}
 
 	public List<DiffuserData> getAllDiffusersOfTeam(int teamId) {
 		List<DiffuserData> data = new ArrayList<>();
 		for (Integer diffuserId : diffuserRepository.getAllDiffuserIdsOfTeam(teamId)) {
-			if (diffuserRepository.getById(diffuserId) != null)
-				data.add(new DiffuserData(diffuserRepository.getById(diffuserId)));
+			if (diffuserRepository.getById(diffuserId) != null) {
+				DiffuserData dd = new DiffuserData(diffuserRepository.getById(diffuserId));
+
+				// if diffuser is activated
+				if (runningDiffuserRepository.getByDiffuserId(diffuserId) != null) {
+					dd.setActivated(true);
+				}
+				data.add(dd);
+			}
 		}
 		return data;
+	}
+
+	public List<DiffuserData> getAllActiveDiffusersOfTeam(int teamId) {
+		List<DiffuserData> diffusers = new ArrayList<>();
+		for (DiffuserData data: getAllDiffusersOfTeam(teamId)) {
+			Diffuser diffuser = diffuserRepository.getByName(data.getName());
+
+			if (runningDiffuserRepository.getByDiffuserId(diffuser.getId()) != null) {
+				data.setActivated(true);
+				diffusers.add(data);
+			}
+
+		}
+		return diffusers;
 	}
 
 	public List<FluxData> getAllFluxes() {

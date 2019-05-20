@@ -68,6 +68,21 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getScreenIdsOfRunningDiffuser(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String runningDiffuserId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT screens FROM runningdiffuser_screens WHERE runningdiffuser_runningdiffuser_id = " + runningDiffuserId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public void update(RunningDiffuser diffuser) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(diffuser);

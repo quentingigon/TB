@@ -1,7 +1,12 @@
 
 @import models.entities.ScreenData
 @import java.util
-@(screens: util.List[ScreenData], error: String)
+@import models.entities.ScheduleData
+@import models.entities.DiffuserData
+@(screens: util.List[ScreenData],
+        schedules: util.List[ScheduleData],
+        diffusers: util.List[DiffuserData],
+        error: String)
 
 
 @main("Homepage") {
@@ -28,9 +33,9 @@
      @if(screens != null) {
       @for(screen <- screens) {
        <tr>
-        <td>@screen.getMac()</td>
-        <td>@screen.getSite()</td>
-        <td>@screen.getCurrentFluxName()</td>
+        <td>@screen.getMac</td>
+        <td>@screen.getSite</td>
+        <td>@screen.getCurrentFluxName</td>
        </tr>
       }
      }
@@ -42,17 +47,13 @@
      <thead>
       <tr>
        <th scope="col">Name</th>
-       <th scope="col">Current flux</th>
-       <th scope="col">Next Flux</th>
       </tr>
      </thead>
      <tbody>
-     @if(screens != null) {
-      @for(screen <- screens) {
+     @if(schedules != null) {
+      @for(schedule <- schedules) {
        <tr>
-        <td>@screen.getMac()</td>
-        <td>@screen.getSite()</td>
-        <td>@screen.getCurrentFluxName()</td>
+        <td>@schedule.getName</td>
        </tr>
       }
      }
@@ -70,12 +71,12 @@
       </tr>
      </thead>
      <tbody>
-     @if(screens != null) {
-      @for(screen <- screens) {
+     @if(diffusers != null) {
+      @for(diffuser <- diffusers) {
        <tr>
-        <td>@screen.getMac()</td>
-        <td>@screen.getSite()</td>
-        <td>@screen.getCurrentFluxName()</td>
+        <td>@diffuser.getName</td>
+        <td>@diffuser.getFluxName</td>
+        <td>@diffuser.getStartTime</td>
        </tr>
       }
      }

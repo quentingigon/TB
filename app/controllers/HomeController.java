@@ -19,7 +19,12 @@ public class HomeController extends Controller {
 
     public Result index(Http.Request request) {
         Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-        return ok(index.render(dataUtils.getAllActiveScreensOfTeam(teamId), null));
+
+        return ok(index.render(
+            dataUtils.getAllActiveScreensOfTeam(teamId),
+            dataUtils.getAllActiveSchedulesOfTeam(teamId),
+            dataUtils.getAllActiveDiffusersOfTeam(teamId),
+            null));
     }
 
 }

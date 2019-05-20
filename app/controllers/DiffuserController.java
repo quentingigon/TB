@@ -196,7 +196,7 @@ public class DiffuserController extends Controller {
 
 			RunningDiffuser rd = runningDiffuserRepository.getByDiffuserId(diffuser.getId());
 
-			for (Integer id: rd.getScreens()) {
+			for (Integer id: runningDiffuserRepository.getScreenIdsOfRunningDiffuser(rd.getId())) {
 
 				Screen screen = screenRepository.getById(id);
 
@@ -209,13 +209,16 @@ public class DiffuserController extends Controller {
 					scheduleRepository.update(schedule);
 
 				}
-				serviceManager.getServiceByScheduleId(id).removeScheduledFluxFromDiffuser(
-					fluxRepository.getById(diffuser.getFlux()),
-					diffuser.getId(),
-					diffuser.getStartBlock()
-				);
-			}
 
+				RunningScheduleService rss = serviceManager.getServiceByScheduleId(id);
+				if (rss != null) {
+					rss.removeScheduledFluxFromDiffuser(
+						fluxRepository.getById(diffuser.getFlux()),
+						diffuser.getId(),
+						diffuser.getStartBlock()
+					);
+				}
+			}
 			runningDiffuserRepository.delete(rd);
 
 			return index(request);

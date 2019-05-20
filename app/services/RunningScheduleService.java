@@ -16,7 +16,6 @@ public class RunningScheduleService extends Observable implements Runnable {
 	private FluxRepository fluxRepository;
 
 	private RunningSchedule runningSchedule;
-	private List<Flux> fluxes;
 	private List<Screen> screens;
 
 	private volatile HashMap<Integer, Integer> timetable;
@@ -59,47 +58,60 @@ public class RunningScheduleService extends Observable implements Runnable {
 				do {
 					Flux currentFlux = fluxRepository.getById(timetable.get(blockIndex++));
 
-					// TODO a way to avoid sending events if not needed -> useful for videos
-					// if a flux is scheduled for that block
-					if (currentFlux != null) {
-						sendFluxEventAsGeneralOrLocated(currentFlux);
-						lastFluxSent = currentFlux;
+					boolean doNotSend = false;
+					// if the flux is of type video and was already sent one time
+					// -> do not resend the event
+					if (lastFluxSent != null &&
+						currentFlux != null &&
+						currentFlux.getName().equals(lastFluxSent.getName()) &&
+						currentFlux.getType().equals("VIDEO")) {
+						doNotSend = true;
 					}
-					// choose from the unscheduled fluxes
-					else {
-						int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
 
-						boolean sent = false;
+					if (!doNotSend) {
+						// if a flux is scheduled for that block
+						if (currentFlux != null) {
+							sendFluxEventAsGeneralOrLocated(currentFlux);
+							lastFluxSent = currentFlux;
+						}
+						// choose from the unscheduled fluxes
+						else {
+							int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
 
-						Collections.shuffle(fallbackFluxIds);
+							boolean sent = false;
 
-						for (Integer fluxId : fallbackFluxIds) {
+							Collections.shuffle(fallbackFluxIds);
 
-							if (!sent) {
-								Flux flux = fluxRepository.getById(fluxId);
-								// if this flux can be inserted in the remaining blocks
-								if (flux != null && flux.getDuration() <= freeBlocksN) {
+							for (Integer fluxId : fallbackFluxIds) {
 
-									// update timetable
-									scheduleFlux(flux, blockIndex);
+								if (!sent) {
+									Flux flux = fluxRepository.getById(fluxId);
+									// if this flux can be inserted in the remaining blocks
+									if (flux != null && flux.getDuration() <= freeBlocksN) {
 
-									// send event to observer
-									sendFluxEventAsGeneralOrLocated(flux);
-									lastFluxSent = currentFlux;
-									sent = true;
+										// update timetable
+										scheduleFlux(flux, blockIndex);
+
+										// send event to observer
+										sendFluxEventAsGeneralOrLocated(flux);
+										lastFluxSent = currentFlux;
+										sent = true;
+									}
 								}
 							}
 						}
+
+						try {
+							if (Thread.currentThread().isInterrupted()) {
+								throw new InterruptedException("Thread interrupted");
+							}
+							Thread.sleep((long) blockDuration * 60000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 
-					try {
-						if (Thread.currentThread().isInterrupted()) {
-							throw new InterruptedException("Thread interrupted");
-						}
-						Thread.sleep((long) blockDuration * 60000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+
 				} while (blockIndex < blockNumber && running);
 			}
 		}
@@ -228,28 +240,12 @@ public class RunningScheduleService extends Observable implements Runnable {
 		return n;
 	}
 
-	public synchronized void removeFluxFromRunningSchedule(Flux flux) {
-		fluxes.remove(flux);
-	}
-
-	public synchronized void addFluxToRunningSchedule(Flux flux) {
-		fluxes.add(flux);
-	}
-
 	public RunningSchedule getRunningSchedule() {
 		return runningSchedule;
 	}
 
 	public void setRunningSchedule(RunningSchedule runningSchedule) {
 		this.runningSchedule = runningSchedule;
-	}
-
-	public List<Flux> getFluxes() {
-		return fluxes;
-	}
-
-	public void setFluxes(List<Flux> fluxes) {
-		this.fluxes = fluxes;
 	}
 
 	public boolean isRunning() {

@@ -46,9 +46,6 @@ public class ScheduleController extends Controller {
 	@Inject
 	UserRepository userRepository;
 
-	@Inject
-	ScheduleFluxesRepository scheduleFluxesRepository;
-
 	private final FluxManager fluxManager;
 
 	private final RunningScheduleServiceManager serviceManager;
@@ -255,9 +252,14 @@ public class ScheduleController extends Controller {
 		ScheduleData data = boundForm.get();
 		Schedule schedule = scheduleRepository.getByName(data.getName());
 
+
 		// name is incorrect
 		if (schedule == null) {
 			return updateViewWithErrorMessage(request, data.getName(), "Schedule name does not exists");
+		}
+		// schedule is activated
+		else if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
+			return updateViewWithErrorMessage(request, data.getName(), "You can not update a schedule that is running");
 		}
 		else {
 

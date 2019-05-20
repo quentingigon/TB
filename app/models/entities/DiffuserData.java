@@ -13,6 +13,8 @@ public class DiffuserData {
 	private List<String> screens;
 	private boolean overwrite;
 
+	private boolean activated;
+
 	public DiffuserData() {
 	}
 
@@ -70,5 +72,13 @@ public class DiffuserData {
 
 	public void setOverwrite(boolean overwrite) {
 		this.overwrite = overwrite;
+	}
+
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
 	}
 }

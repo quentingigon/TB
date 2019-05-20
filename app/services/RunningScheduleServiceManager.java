@@ -31,6 +31,6 @@ public class RunningScheduleServiceManager {
 	}
 
 	public RunningScheduleService getServiceByScheduleId(Integer id) {
-		return tasks.get(id);
+		return tasks.getOrDefault(id, null);
 	}
 }

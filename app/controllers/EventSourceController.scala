@@ -9,12 +9,14 @@ import play.api.http.ContentTypes
 import play.api.libs.EventSource.EventNameExtractor
 import play.api.mvc._
 import play.libs.EventSource
+import play.mvc.Result
+import views.html.eventsource
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EventSourceControllerS @Inject() (system: ActorSystem,
+class EventSourceController @Inject() (system: ActorSystem,
                                         cc: ControllerComponents)
                                        (implicit executionContext: ExecutionContext)
 extends AbstractController(cc) {
@@ -31,9 +33,8 @@ extends AbstractController(cc) {
   }
 
   def index = Action {
-    Ok("It works!")
+    Ok(eventsource.render())
   }
-
   def events = Action {
 
     val source  =

@@ -13,6 +13,7 @@ public interface RunningDiffuserRepository {
 	RunningDiffuser getByDiffuserId(Integer id);
 
 	List<RunningDiffuser> getAll();
+	List<Integer> getScreenIdsOfRunningDiffuser(Integer id);
 
 	void update(RunningDiffuser diffuser);
 	void delete(RunningDiffuser diffuser);

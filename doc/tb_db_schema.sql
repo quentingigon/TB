@@ -352,6 +352,43 @@ BEGIN
 
     DELETE FROM schedule_fallbacks
     WHERE schedule_schedule_id = OLD.schedule_id;
+
+    DELETE FROM scheduled_flux
+    WHERE schedule_id = OLD.schedule_id;
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+DROP FUNCTION IF EXISTS delete_general_or_located_or_scheduled();
+CREATE FUNCTION delete_general_or_located_or_scheduled()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    DELETE FROM locatedflux
+    WHERE flux_id = OLD.flux_id;
+
+    DELETE FROM generalflux
+    WHERE flux_id = OLD.flux_id;
+
+    DELETE FROM scheduled_flux
+    WHERE flux_id = OLD.flux_id;
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS delete_teammember_or_admin();
+CREATE FUNCTION delete_teammember_or_admin()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    DELETE FROM teammember
+    WHERE user_id = OLD.user_id;
+
+    DELETE FROM admins
+    WHERE user_id = OLD.user_id;
 RETURN OLD;
 END;
 $$
@@ -379,4 +416,12 @@ CREATE TRIGGER on_schedule_delete BEFORE DELETE
 CREATE TRIGGER on_teammember_insert AFTER INSERT
    ON teammember
    FOR EACH ROW EXECUTE PROCEDURE add_teammember_to_team();
+
+CREATE TRIGGER on_flux_delete BEFORE DELETE
+   ON flux
+   FOR EACH ROW EXECUTE PROCEDURE delete_general_or_located_or_scheduled();
+
+CREATE TRIGGER on_user_delete BEFORE DELETE
+   ON users
+   FOR EACH ROW EXECUTE PROCEDURE delete_teammember_or_admin();
 

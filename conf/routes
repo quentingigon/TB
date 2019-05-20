@@ -41,7 +41,7 @@ POST    /screens/delete/:mac            controllers.ScreenController.delete(requ
 # Events
 GET     /events                         controllers.EventSourceController.index
 
-GET     /eventsource                    controllers.EventSourceControllerS.events
+GET     /eventsource                    controllers.EventSourceController.events
 
 
 # Users

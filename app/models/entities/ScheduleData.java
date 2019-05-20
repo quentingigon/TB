@@ -13,6 +13,8 @@ public class ScheduleData {
 	private List<String> fallbackFluxes;
 	private List<String> screens;
 
+	private boolean activated;
+
 	public ScheduleData() {
 	}
 
@@ -64,5 +66,13 @@ public class ScheduleData {
 
 	public void setScheduledFluxes(List<String> scheduledFluxes) {
 		this.scheduledFluxes = scheduledFluxes;
+	}
+
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
 	}
 }
