@@ -26,10 +26,11 @@ public class JPADiffuserRepository implements DiffuserRepository {
 	}
 
 	@Override
-	public void update(Diffuser diffuser) {
+	public Diffuser update(Diffuser diffuser) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(diffuser);
 		});
+		return diffuser;
 	}
 
 	@Override

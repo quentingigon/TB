@@ -15,6 +15,6 @@ public interface DiffuserRepository {
 	List<Diffuser> getAll();
 	List<Integer> getAllDiffuserIdsOfTeam(Integer id);
 
-	void update(Diffuser diffuser);
+	Diffuser update(Diffuser diffuser);
 	void delete(Diffuser diffuser);
 }

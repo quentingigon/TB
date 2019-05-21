@@ -28,10 +28,11 @@ public class JPAScheduleRepository implements ScheduleRepository {
 	}
 
 	@Override
-	public void update(Schedule schedule) {
+	public Schedule update(Schedule schedule) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(schedule);
 		});
+		return schedule;
 	}
 
 	@Override

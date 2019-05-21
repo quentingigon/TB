@@ -99,10 +99,11 @@ public class JPARunningScheduleRepository implements RunningScheduleRepository {
 	}
 
 	@Override
-	public void update(RunningSchedule schedule) {
+	public RunningSchedule update(RunningSchedule schedule) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(schedule);
 		});
+		return schedule;
 	}
 
 	@Override

@@ -53,10 +53,11 @@ public class JPAUserRepository implements UserRepository{
 	}
 
 	@Override
-	public void update(User user) {
+	public User update(User user) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(user);
 		});
+		return user;
 	}
 
 	@Override

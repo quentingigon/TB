@@ -10,8 +10,10 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.RunningScheduleService;
+import services.DiffuserService;
+import services.RunningScheduleThread;
 import services.RunningScheduleServiceManager;
+import services.UserService;
 import views.html.diffuser.diffuser_activation;
 import views.html.diffuser.diffuser_creation;
 import views.html.diffuser.diffuser_page;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import static services.BlockUtils.blockNumber;
 import static services.BlockUtils.getBlockNumberOfTime;
 
 public class DiffuserController extends Controller {
@@ -47,6 +48,9 @@ public class DiffuserController extends Controller {
 
 	@Inject
 	TeamRepository teamRepository;
+
+	@Inject
+	UserRepository userRepository;
 
 	private Form<DiffuserData> form;
 
@@ -158,17 +162,17 @@ public class DiffuserController extends Controller {
 				scheduleRepository.update(schedule);
 			}
 
-			// update associated RunningScheduleService
+			// update associated RunningScheduleThread
 			for (Integer id: runningScheduleIds) {
-				RunningScheduleService rss = serviceManager.getServiceByScheduleId(id);
-				if (rss != null) {
+				RunningScheduleThread rst = serviceManager.getServiceByScheduleId(id);
+				if (rst != null) {
 					// if diffuser has priority, it overwrites the timetable. Else it tries to schedule the flux at the given time
 					// but does it not if not enough place
 					if (diffuser.isOverwrite()) {
-						rss.scheduleFluxFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
+						rst.scheduleFluxFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
 					}
 					else {
-						rss.scheduleFluxIfPossibleFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
+						rst.scheduleFluxIfPossibleFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
 					}
 				}
 			}
@@ -210,9 +214,9 @@ public class DiffuserController extends Controller {
 
 				}
 
-				RunningScheduleService rss = serviceManager.getServiceByScheduleId(id);
-				if (rss != null) {
-					rss.removeScheduledFluxFromDiffuser(
+				RunningScheduleThread rst = serviceManager.getServiceByScheduleId(id);
+				if (rst != null) {
+					rst.removeScheduledFluxFromDiffuser(
 						fluxRepository.getById(diffuser.getFlux()),
 						diffuser.getId(),
 						diffuser.getStartBlock()

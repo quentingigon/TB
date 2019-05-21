@@ -20,7 +20,7 @@ public interface ScheduleRepository {
 	List<Integer> getAllScheduleIdsOfTeam(Integer id);
 	List<ScheduledFlux> getAllScheduledFluxesByScheduleId(Integer id);
 
-	void update(Schedule schedule);
+	Schedule update(Schedule schedule);
 	void delete(Schedule schedule);
 	void activate(RunningSchedule schedule);
 }

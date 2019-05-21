@@ -10,7 +10,7 @@ import java.util.*;
 
 import static services.BlockUtils.*;
 
-public class RunningScheduleService extends Observable implements Runnable {
+public class RunningScheduleThread extends Observable implements Runnable {
 
 	// /!\ WARNING /!\ maybe it's a "static" instance of FluxRepository and is not updated afterwards
 	private FluxRepository fluxRepository;
@@ -27,11 +27,11 @@ public class RunningScheduleService extends Observable implements Runnable {
 
 	private HashMap<Integer, List<Integer>> timetableHistory;
 
-	public RunningScheduleService(RunningSchedule runningSchedule,
-								  List<Screen> screens,
-								  List<Integer> fallbackFluxIds,
-								  Map<Integer, Integer> timetable,
-								  FluxRepository fluxRepository) {
+	public RunningScheduleThread(RunningSchedule runningSchedule,
+								 List<Screen> screens,
+								 List<Integer> fallbackFluxIds,
+								 Map<Integer, Integer> timetable,
+								 FluxRepository fluxRepository) {
 		this.runningSchedule = runningSchedule;
 		this.screens = screens;
 		this.timetable = (HashMap<Integer, Integer>) timetable;

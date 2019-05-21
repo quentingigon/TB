@@ -17,6 +17,10 @@ public class ScreenData {
 	public ScreenData() {
 	}
 
+	public ScreenData(String mac) {
+		this.mac = mac;
+	}
+
 	public ScreenData(Screen s) {
 		this.name = s.getName();
 		this.mac = s.getMacAddress();

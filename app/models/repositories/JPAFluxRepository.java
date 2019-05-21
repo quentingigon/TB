@@ -140,10 +140,11 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
-	public void update(Flux flux) {
+	public Flux update(Flux flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(flux);
 		});
+		return flux;
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import services.FluxManager;
-import services.RunningScheduleService;
+import services.RunningScheduleThread;
 import services.RunningScheduleServiceManager;
 import views.html.schedule.schedule_activation;
 import views.html.schedule.schedule_creation;
@@ -164,7 +164,7 @@ public class ScheduleController extends Controller {
 			runningScheduleRepository.update(rs);
 
 			// add service as observer of FluxManager
-			RunningScheduleService service2 = new RunningScheduleService(
+			RunningScheduleThread service2 = new RunningScheduleThread(
 				runningScheduleRepository.getByScheduleId(schedule.getId()),
 				screens,
 				new ArrayList<>(schedule.getFallbacks()),

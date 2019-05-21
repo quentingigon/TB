@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 public class RunningScheduleServiceManager {
 
 	private ExecutorService executorService;
-	private HashMap<Integer, RunningScheduleService> tasks;
+	private HashMap<Integer, RunningScheduleThread> tasks;
 
 	@Inject
 	private RunningScheduleServiceManager() {
@@ -18,7 +18,7 @@ public class RunningScheduleServiceManager {
 		this.tasks = new HashMap<>();
 	}
 
-	public void addRunningSchedule(Integer scheduleId, RunningScheduleService r) {
+	public void addRunningSchedule(Integer scheduleId, RunningScheduleThread r) {
 		tasks.put(scheduleId, r);
 		executorService.submit(r);
 	}
@@ -30,7 +30,7 @@ public class RunningScheduleServiceManager {
 		}
 	}
 
-	public RunningScheduleService getServiceByScheduleId(Integer id) {
+	public RunningScheduleThread getServiceByScheduleId(Integer id) {
 		return tasks.getOrDefault(id, null);
 	}
 }

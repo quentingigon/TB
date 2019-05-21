@@ -69,10 +69,11 @@ public class JPATeamRepository implements TeamRepository {
 	}
 
 	@Override
-	public void update(Team team) {
+	public Team update(Team team) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(team);
 		});
+		return team;
 	}
 
 	@Override

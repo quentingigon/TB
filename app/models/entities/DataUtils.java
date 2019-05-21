@@ -129,7 +129,6 @@ public class DataUtils {
 				}
 				data.add(sd);
 			}
-
 		}
 		return data;
 	}
@@ -267,7 +266,4 @@ public class DataUtils {
 		}
 		return timetable;
 	}
-
-
-
 }

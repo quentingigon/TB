@@ -14,7 +14,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.RunningScheduleService;
+import services.RunningScheduleThread;
 import services.RunningScheduleServiceManager;
 import views.html.eventsource;
 import views.html.screen.screen_code;
@@ -35,9 +35,6 @@ public class ScreenController extends Controller {
 
 	@Inject
 	TeamRepository teamRepository;
-
-	@Inject
-	WaitingScreenRepository waitingScreenRepository;
 
 	@Inject
 	RunningScheduleRepository runningScheduleRepository;
@@ -95,13 +92,13 @@ public class ScreenController extends Controller {
 		if (screen == null) {
 
 			// if screen already asked for a code
-			if (waitingScreenRepository.getByMac(macAdr) != null) {
-				return ok(screen_code.render(waitingScreenRepository.getByMac(macAdr).getCode()));
+			if (screenRepository.getByMac(macAdr) != null) {
+				return ok(screen_code.render(screenRepository.getByMac(macAdr).getCode()));
 			}
 
 			String code = screenRegisterCodeGenerator();
 
-			waitingScreenRepository.add(new WaitingScreen(code, macAdr));
+			screenRepository.add(new WaitingScreen(code, macAdr));
 
 			// send code
 			return ok(screen_code.render(code));
@@ -117,11 +114,11 @@ public class ScreenController extends Controller {
 							runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId())
 						);
 						if (rs != null) {
-							RunningScheduleService rss = serviceManager.getServiceByScheduleId(rs.getScheduleId());
+							RunningScheduleThread rst = serviceManager.getServiceByScheduleId(rs.getScheduleId());
 							List<Screen> screenList = new ArrayList<>();
 							screenList.add(screen);
 							System.out.println("FORCE SEND");
-							rss.resendLastFluxEventToScreens(screenList);
+							rst.resendLastFluxEventToScreens(screenList);
 						}
 					}
 
@@ -170,7 +167,7 @@ public class ScreenController extends Controller {
 		}
 		else {
 			String code = data.getCode();
-			WaitingScreen ws = waitingScreenRepository.getByMac(macAdr);
+			WaitingScreen ws = screenRepository.getByMac(macAdr);
 
 			if (ws == null) {
 				return createViewWithErrorMessage(
@@ -191,7 +188,7 @@ public class ScreenController extends Controller {
 				newScreen.setName(data.getName());
 
 				screenRepository.add(newScreen);
-				waitingScreenRepository.delete(ws);
+				screenRepository.delete(ws);
 
 				// add new schedule to current user's team
 				Team team = teamRepository.getById(teamId);

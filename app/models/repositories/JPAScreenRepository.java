@@ -1,6 +1,7 @@
 package models.repositories;
 
 import models.db.Screen;
+import models.db.WaitingScreen;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -94,23 +95,54 @@ public class JPAScreenRepository implements ScreenRepository {
 	}
 
 	@Override
-	public void add(Screen screen) {
+	public Screen add(Screen screen) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(screen);
 		});
+		return screen;
 	}
 
 	@Override
-	public void update(Screen screen) {
+	public Screen update(Screen screen) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(screen);
 		});
+		return screen;
 	}
 
 	@Override
 	public void delete(Screen screen) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.remove(entityManager.contains(screen) ? screen : entityManager.merge(screen));
+		});
+	}
+
+	@Override
+	public WaitingScreen add(WaitingScreen waitingScreen) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(waitingScreen);
+		});
+		return waitingScreen;
+	}
+
+	@Override
+	public void delete(WaitingScreen waitingScreen) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.remove(entityManager.contains(waitingScreen) ? waitingScreen : entityManager.merge(waitingScreen));
+		});
+	}
+
+	@Override
+	public WaitingScreen getByMac(String mac) {
+		return jpaApi.withTransaction(entityManager -> {
+			String macAdr = "'" + mac + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM waitingscreen WHERE mac_address = " + macAdr, WaitingScreen.class);
+			try {
+				return (WaitingScreen) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
 		});
 	}
 }

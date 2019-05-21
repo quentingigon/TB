@@ -18,6 +18,6 @@ public interface RunningScheduleRepository {
 	List<RunningSchedule> getAll();
 	List<Integer> getScreensIdsByRunningScheduleId(Integer id);
 
-	void update(RunningSchedule schedule);
+	RunningSchedule update(RunningSchedule schedule);
 	void delete(RunningSchedule schedule);
 }

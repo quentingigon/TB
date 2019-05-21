@@ -23,7 +23,7 @@ public interface UserRepository {
 	List<Integer> getAllAdminIdsOfTeam(Integer id);
 
 	void delete(User user);
-	void update(User user);
+	User update(User user);
 
 	TeamMember createMember(TeamMember member);
 	TeamMember getMemberByUserEmail(String email);

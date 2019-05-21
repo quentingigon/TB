@@ -14,6 +14,6 @@ public interface TeamRepository {
 
 	List<Team> getAll();
 
-	void update(Team team);
+	Team update(Team team);
 	void delete(Team team);
 }

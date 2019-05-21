@@ -87,7 +87,7 @@ public class ApplicationTimer {
                         screens.add(screen);
                 }
 
-                RunningScheduleService service = new RunningScheduleService(
+                RunningScheduleThread service = new RunningScheduleThread(
                     rs,
                     screens,
                     new ArrayList<>(schedule.getFallbacks()),
