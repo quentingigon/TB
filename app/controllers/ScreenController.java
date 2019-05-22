@@ -112,20 +112,24 @@ public class ScreenController extends Controller {
 		// screen registered
 		else {
 
+			// no active schedules for this screen
+			if (runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId()) == null) {
+				return redirect(routes.ErrorPageController.noScheduleView());
+			}
+
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
-					if (runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId()) != null) {
-						RunningSchedule rs = runningScheduleRepository.getById(
-							runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId())
-						);
-						if (rs != null) {
-							RunningScheduleThread rst = serviceManager.getServiceByScheduleId(rs.getScheduleId());
-							List<Screen> screenList = new ArrayList<>();
-							screenList.add(screen);
-							System.out.println("FORCE SEND");
-							rst.resendLastFluxEventToScreens(screenList);
-						}
+
+					RunningSchedule rs = runningScheduleRepository.getById(
+						runningScheduleRepository.getRunningScheduleIdByScreenId(screen.getId())
+					);
+					if (rs != null) {
+						RunningScheduleThread rst = serviceManager.getServiceByScheduleId(rs.getScheduleId());
+						List<Screen> screenList = new ArrayList<>();
+						screenList.add(screen);
+						System.out.println("FORCE SEND");
+						rst.resendLastFluxEventToScreens(screenList);
 					}
 
 				}
@@ -134,6 +138,7 @@ public class ScreenController extends Controller {
 
 			long delay = 2000L;
 			timer.schedule(task, delay);
+
 
 			// screen already logged in
 			if (!screen.isLogged()) {
@@ -175,8 +180,8 @@ public class ScreenController extends Controller {
 					"You must first get a registration code by going to this address: /auth?mac=<YourMacAddress>");
 			}
 
-			// if code is correct -> add screen to DB
-			if (ws.getCode().equals(code)) {
+			// if macs are the same and code is correct  -> add screen to DB
+			if (ws.getMacAddress().equals(data.getMac()) && ws.getCode().equals(code)) {
 
 				Screen newScreen = new Screen(macAdr);
 

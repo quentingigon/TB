@@ -29,5 +29,4 @@ public class HomeController extends Controller {
             dataUtils.getAllActiveDiffusersOfTeam(teamId),
             null));
     }
-
 }

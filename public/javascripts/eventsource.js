@@ -42,8 +42,6 @@ $(document).ready(function () {
         var data = e.data.substr(e.data.indexOf("?") + 1, e.data.indexOf("|") - type.length - 1);
         var macs = e.data.substr(e.data.indexOf("|") + 1).split(",");
 
-
-
         if (macs.includes(macAdress)) {
             if (type === "url") {
                 $('#footer0').hide();

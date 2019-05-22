@@ -9,6 +9,8 @@ import org.joda.time.DateTime;
 import java.util.*;
 
 import static services.BlockUtils.*;
+import static services.RunningScheduleUtils.SITE_ERROR;
+import static services.RunningScheduleUtils.WAIT_FLUX;
 
 public class RunningScheduleThread extends Observable implements Runnable {
 
@@ -142,8 +144,7 @@ public class RunningScheduleThread extends Observable implements Runnable {
 			}
 			else {
 				sendFluxEvent(flux, screensWithSameSiteId);
-				// TODO send backup or error flux
-				// sendFluxEvent(currentFlux, screensWithDifferentSiteId);
+				sendFluxEvent(fluxRepository.getByName(SITE_ERROR), screensWithDifferentSiteId);
 			}
 		}
 		// current flux is a general one
@@ -170,6 +171,10 @@ public class RunningScheduleThread extends Observable implements Runnable {
 		if (lastFluxEvent != null) {
 			setChanged();
 			notifyObservers(new FluxEvent(lastFluxEvent.getFlux(), screenList));
+		}
+		else {
+			setChanged();
+			notifyObservers(new FluxEvent(fluxRepository.getByName(WAIT_FLUX), screenList));
 		}
 	}
 
