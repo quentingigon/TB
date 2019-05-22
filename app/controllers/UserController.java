@@ -1,14 +1,13 @@
 package controllers;
 
 import controllers.actions.UserAuthentificationAction;
-import models.db.Admin;
 import models.db.Team;
 import models.db.TeamMember;
 import models.db.User;
 import models.entities.DataUtils;
 import models.entities.UserData;
-import models.repositories.TeamRepository;
-import models.repositories.UserRepository;
+import models.repositories.interfaces.TeamRepository;
+import models.repositories.interfaces.UserRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -53,6 +52,7 @@ public class UserController extends Controller {
 		return ok(user_update.render(form, new UserData(userRepository.getByEmail(email)), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateViewWithErrorMessage(String email, String error) {
 		return badRequest(user_update.render(form, new UserData(email), error));
 	}

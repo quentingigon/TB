@@ -1,7 +1,8 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.RunningDiffuser;
+import models.repositories.JPARunningDiffuserRepository;
 
 import java.util.List;
 

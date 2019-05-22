@@ -5,7 +5,7 @@ import models.db.GeneralFlux;
 import models.db.LocatedFlux;
 import models.db.ScheduledFlux;
 import models.entities.FluxData;
-import models.repositories.FluxRepository;
+import models.repositories.interfaces.FluxRepository;
 
 import java.util.ArrayList;
 import java.util.List;

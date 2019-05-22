@@ -2,8 +2,8 @@ package services;
 
 import models.db.Diffuser;
 import models.entities.DiffuserData;
-import models.repositories.DiffuserRepository;
-import models.repositories.RunningDiffuserRepository;
+import models.repositories.interfaces.DiffuserRepository;
+import models.repositories.interfaces.RunningDiffuserRepository;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,8 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.Team;
+import models.repositories.JPATeamRepository;
 
 import java.util.List;
 

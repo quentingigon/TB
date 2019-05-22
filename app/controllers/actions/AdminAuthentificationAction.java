@@ -1,7 +1,7 @@
 package controllers.actions;
 
 import models.entities.UserData;
-import models.repositories.UserRepository;
+import models.repositories.interfaces.UserRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;

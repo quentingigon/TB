@@ -3,6 +3,7 @@ package models.repositories;
 import models.db.Admin;
 import models.db.TeamMember;
 import models.db.User;
+import models.repositories.interfaces.UserRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;
@@ -12,7 +13,7 @@ import javax.persistence.Query;
 import java.util.List;
 
 @Singleton
-public class JPAUserRepository implements UserRepository{
+public class JPAUserRepository implements UserRepository {
 
 	private final JPAApi jpaApi;
 

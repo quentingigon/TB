@@ -1,6 +1,7 @@
 package models.repositories;
 
 import models.db.ScheduledFlux;
+import models.repositories.interfaces.ScheduleFluxesRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

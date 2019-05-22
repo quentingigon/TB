@@ -15,7 +15,7 @@
             </div>
         }
 
-        <form action="@routes.FluxController.create()" method="POST">
+        @helper.form(action = routes.FluxController.create(), 'enctype -> "multipart/form-data") {
             @helper.CSRF.formField
             <div class="form-group">
                 <label for="inputName">Name</label>
@@ -48,17 +48,10 @@
                     <option>Y-Park</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
 
-        @helper.form(action = routes.FluxController.uploadPicture, 'enctype -> "multipart/form-data") {
-            @helper.CSRF.formField
             <input type="file" name="picture">
 
-            <p>
-                <input type="submit">
-            </p>
-
+            <button type="submit" class="btn btn-primary">Create</button>
         }
     </div>
 }

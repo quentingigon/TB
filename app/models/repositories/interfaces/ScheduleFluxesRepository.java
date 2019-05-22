@@ -1,7 +1,8 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.ScheduledFlux;
+import models.repositories.JPAScheduleFluxesRepository;
 
 import java.util.List;
 

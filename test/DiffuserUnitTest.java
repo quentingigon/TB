@@ -1,8 +1,8 @@
 import models.db.Diffuser;
 import models.db.RunningDiffuser;
 import models.entities.DiffuserData;
-import models.repositories.DiffuserRepository;
-import models.repositories.RunningDiffuserRepository;
+import models.repositories.interfaces.DiffuserRepository;
+import models.repositories.interfaces.RunningDiffuserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

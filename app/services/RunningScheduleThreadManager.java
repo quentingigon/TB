@@ -7,13 +7,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Singleton
-public class RunningScheduleServiceManager {
+public class RunningScheduleThreadManager {
 
 	private ExecutorService executorService;
 	private HashMap<Integer, RunningScheduleThread> tasks;
 
 	@Inject
-	private RunningScheduleServiceManager() {
+	private RunningScheduleThreadManager() {
 		this.executorService = Executors.newFixedThreadPool(10);
 		this.tasks = new HashMap<>();
 	}

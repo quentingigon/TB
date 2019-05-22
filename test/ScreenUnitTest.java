@@ -1,7 +1,7 @@
 import models.db.Screen;
 import models.db.WaitingScreen;
 import models.entities.ScreenData;
-import models.repositories.ScreenRepository;
+import models.repositories.interfaces.ScreenRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

@@ -1,6 +1,7 @@
 package models.repositories;
 
 import models.db.Diffuser;
+import models.repositories.interfaces.DiffuserRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

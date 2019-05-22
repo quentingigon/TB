@@ -2,7 +2,7 @@ package services;
 
 import models.db.Team;
 import models.entities.TeamData;
-import models.repositories.TeamRepository;
+import models.repositories.interfaces.TeamRepository;
 
 import java.util.ArrayList;
 import java.util.List;

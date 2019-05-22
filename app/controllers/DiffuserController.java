@@ -3,17 +3,15 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.*;
-import models.repositories.*;
+import models.repositories.interfaces.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.DiffuserService;
 import services.RunningScheduleThread;
-import services.RunningScheduleServiceManager;
-import services.UserService;
+import services.RunningScheduleThreadManager;
 import views.html.diffuser.diffuser_activation;
 import views.html.diffuser.diffuser_creation;
 import views.html.diffuser.diffuser_page;
@@ -54,12 +52,12 @@ public class DiffuserController extends Controller {
 
 	private Form<DiffuserData> form;
 
-	private final RunningScheduleServiceManager serviceManager;
+	private final RunningScheduleThreadManager serviceManager;
 
 	private DataUtils dataUtils;
 
 	@Inject
-	public DiffuserController(FormFactory formFactory, RunningScheduleServiceManager serviceManager, DataUtils dataUtils) {
+	public DiffuserController(FormFactory formFactory, RunningScheduleThreadManager serviceManager, DataUtils dataUtils) {
 		this.dataUtils = dataUtils;
 		this.form = formFactory.form(DiffuserData.class);
 		this.serviceManager = serviceManager;
@@ -71,6 +69,7 @@ public class DiffuserController extends Controller {
 		return ok(diffuser_page.render(dataUtils.getAllDiffusersOfTeam(teamId), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result indexWithErrorMessage(Http.Request request, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return badRequest(diffuser_page.render(dataUtils.getAllDiffusersOfTeam(teamId), error));
@@ -81,6 +80,7 @@ public class DiffuserController extends Controller {
 		return ok(diffuser_update.render(form, new DiffuserData(name), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateViewWithErrorMessage(String name, String error) {
 		return badRequest(diffuser_update.render(form, new DiffuserData(name), error));
 	}
@@ -91,6 +91,7 @@ public class DiffuserController extends Controller {
 		return ok(diffuser_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result createViewWithErrorMessage(Http.Request request, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return badRequest(diffuser_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), error));
@@ -102,6 +103,7 @@ public class DiffuserController extends Controller {
 		return ok(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), null, request));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result activateViewWithErrorMessage(String name, Http.Request request, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return badRequest(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), error, request));
@@ -323,7 +325,6 @@ public class DiffuserController extends Controller {
 					error = createViewWithErrorMessage(request, "Flux does not exists");
 				else if (action.equals("update"))
 					error = updateViewWithErrorMessage(data.getName(), "Flux does not exists");
-
 			}
 		}
 		else {

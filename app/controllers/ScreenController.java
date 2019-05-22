@@ -7,7 +7,10 @@ import models.db.Team;
 import models.db.WaitingScreen;
 import models.entities.DataUtils;
 import models.entities.ScreenData;
-import models.repositories.*;
+import models.repositories.interfaces.RunningScheduleRepository;
+import models.repositories.interfaces.ScreenRepository;
+import models.repositories.interfaces.SiteRepository;
+import models.repositories.interfaces.TeamRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -15,7 +18,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import services.RunningScheduleThread;
-import services.RunningScheduleServiceManager;
+import services.RunningScheduleThreadManager;
 import views.html.eventsource;
 import views.html.screen.screen_code;
 import views.html.screen.screen_creation;
@@ -42,12 +45,12 @@ public class ScreenController extends Controller {
 	private Form<ScreenData> form;
 
 	private DataUtils dataUtils;
-	private final RunningScheduleServiceManager serviceManager;
+	private final RunningScheduleThreadManager serviceManager;
 
 	@Inject
 	public ScreenController(FormFactory formFactory,
 							DataUtils dataUtils,
-							RunningScheduleServiceManager serviceManager) {
+							RunningScheduleThreadManager serviceManager) {
 		this.serviceManager = serviceManager;
 		this.form = formFactory.form(ScreenData.class);
 		this.dataUtils = dataUtils;
@@ -59,6 +62,7 @@ public class ScreenController extends Controller {
 		return ok(screen_page.render(dataUtils.getAllScreensOfTeam(teamId), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result indexWithErrorMessage(Http.Request request, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return badRequest(screen_page.render(dataUtils.getAllScreensOfTeam(teamId), error));
@@ -69,6 +73,7 @@ public class ScreenController extends Controller {
 		return ok(screen_creation.render(form, null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result createViewWithErrorMessage(String error) {
 		return badRequest(screen_creation.render(form, error));
 	}
@@ -78,6 +83,7 @@ public class ScreenController extends Controller {
 		return ok(screen_update.render(form, new ScreenData(screenRepository.getByMacAddress(mac)), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateViewWithErrorMessage(String mac, String error) {
 		return badRequest(screen_update.render(form, new ScreenData(screenRepository.getByMacAddress(mac)), error));
 	}

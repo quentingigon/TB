@@ -1,6 +1,7 @@
 package models.repositories;
 
 import models.db.RunningSchedule;
+import models.repositories.interfaces.RunningScheduleRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

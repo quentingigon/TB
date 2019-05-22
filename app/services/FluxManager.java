@@ -2,7 +2,7 @@ package services;
 
 import controllers.EventSourceController;
 import models.db.Screen;
-import models.repositories.ScreenRepository;
+import models.repositories.interfaces.ScreenRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

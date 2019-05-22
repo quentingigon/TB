@@ -1,6 +1,6 @@
 import models.db.*;
 import models.entities.FluxData;
-import models.repositories.FluxRepository;
+import models.repositories.interfaces.FluxRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

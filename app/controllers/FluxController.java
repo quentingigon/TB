@@ -7,9 +7,10 @@ import models.db.LocatedFlux;
 import models.db.Team;
 import models.entities.DataUtils;
 import models.entities.FluxData;
-import models.repositories.FluxRepository;
-import models.repositories.SiteRepository;
-import models.repositories.TeamRepository;
+import models.repositories.interfaces.FluxRepository;
+import models.repositories.interfaces.SiteRepository;
+import models.repositories.interfaces.TeamRepository;
+import play.api.Play;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Files;
@@ -22,13 +23,18 @@ import views.html.flux.flux_page;
 import views.html.flux.flux_update;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 
+import static java.nio.file.Files.readAllBytes;
 import static services.BlockUtils.blockNumber;
 
 public class FluxController extends Controller {
+
+	private final String PICTURES_DIR = System.getProperty("user.dir") + "/public/images/";
 
 	@Inject
 	FluxRepository fluxRepository;
@@ -54,8 +60,9 @@ public class FluxController extends Controller {
 		return ok(flux_page.render(dataUtils.getAllFluxes(), null));
 	}
 
-	public Result indexWithErrorMessage() {
-		return badRequest(flux_page.render(dataUtils.getAllFluxes(), null));
+	@With(UserAuthentificationAction.class)
+	public Result indexWithErrorMessage(String error) {
+		return badRequest(flux_page.render(dataUtils.getAllFluxes(), error));
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -63,6 +70,7 @@ public class FluxController extends Controller {
 		return ok(flux_creation.render(form, null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result createViewWithErrorMessage(String error) {
 		return badRequest(flux_creation.render(form, error));
 	}
@@ -72,6 +80,7 @@ public class FluxController extends Controller {
 		return ok(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result updateViewWithMessage(String name, String error) {
 		return badRequest(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), error));
 	}
@@ -100,6 +109,20 @@ public class FluxController extends Controller {
 			return createViewWithErrorMessage("Flux duration is too long");
 		}
 		else {
+
+			Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+			Http.MultipartFormData.FilePart<Files.TemporaryFile> picture = body.getFile("picture");
+
+			// copy file to server files
+			if (picture != null) {
+				String fileName = picture.getFilename();
+				Files.TemporaryFile file = picture.getRef();
+				String pictureUrl = PICTURES_DIR + fileName;
+				file.copyTo(Paths.get(pictureUrl), true);
+
+				//data.setUrl(file.path().toString());
+				data.setUrl("/assets/images/" + fileName);
+			}
 
 			Flux newFlux = new Flux(data);
 
@@ -155,30 +178,13 @@ public class FluxController extends Controller {
 
 		if (flux == null) {
 			// team does not exists
-			return badRequest(flux_page.render(null, "Flux name does not exists"));
+			return indexWithErrorMessage("Flux does not exists");
 		}
 		else {
 			fluxRepository.delete(flux);
 			return index();
 		}
 	}
-
-
-	public Result uploadPicture(Http.Request request) {
-		Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
-		Http.MultipartFormData.FilePart<Files.TemporaryFile> picture = body.getFile("picture");
-		if (picture != null) {
-			String fileName = picture.getFilename();
-			long fileSize = picture.getFileSize();
-			String contentType = picture.getContentType();
-			Files.TemporaryFile file = picture.getRef();
-			file.copyTo(Paths.get("/tmp/picture/" + fileName), true);
-			return createView();
-		} else {
-			return createViewWithErrorMessage("Missing file");
-		}
-	}
-
 
 	private boolean isValidURL(String urlStr) {
 		try {

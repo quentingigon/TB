@@ -1,9 +1,10 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.Admin;
 import models.db.TeamMember;
 import models.db.User;
+import models.repositories.JPAUserRepository;
 
 import java.util.List;
 

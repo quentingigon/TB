@@ -3,8 +3,8 @@ package services;
 import models.db.RunningSchedule;
 import models.db.Schedule;
 import models.entities.ScheduleData;
-import models.repositories.RunningScheduleRepository;
-import models.repositories.ScheduleRepository;
+import models.repositories.interfaces.RunningScheduleRepository;
+import models.repositories.interfaces.ScheduleRepository;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 import models.db.Team;
-import models.repositories.ScreenRepository;
-import models.repositories.TeamRepository;
+import models.repositories.interfaces.ScreenRepository;
+import models.repositories.interfaces.TeamRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

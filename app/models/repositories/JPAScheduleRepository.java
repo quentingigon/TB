@@ -3,6 +3,7 @@ package models.repositories;
 import models.db.RunningSchedule;
 import models.db.Schedule;
 import models.db.ScheduledFlux;
+import models.repositories.interfaces.ScheduleRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

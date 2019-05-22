@@ -1,6 +1,7 @@
 package models.repositories;
 
 import models.db.Site;
+import models.repositories.interfaces.SiteRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

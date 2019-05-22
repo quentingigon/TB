@@ -4,10 +4,10 @@ import models.db.RunningSchedule;
 import models.db.Schedule;
 import models.db.Screen;
 import models.entities.DataUtils;
-import models.repositories.FluxRepository;
-import models.repositories.RunningScheduleRepository;
-import models.repositories.ScheduleRepository;
-import models.repositories.ScreenRepository;
+import models.repositories.interfaces.FluxRepository;
+import models.repositories.interfaces.RunningScheduleRepository;
+import models.repositories.interfaces.ScheduleRepository;
+import models.repositories.interfaces.ScreenRepository;
 import play.inject.ApplicationLifecycle;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ public class ApplicationTimer {
     private final Clock clock;
     private final ApplicationLifecycle appLifecycle;
     private final Instant start;
-    private final RunningScheduleServiceManager serviceManager;
+    private final RunningScheduleThreadManager serviceManager;
     private final FluxManager fluxManager;
     private final DataUtils dataUtils;
 
@@ -58,7 +58,7 @@ public class ApplicationTimer {
                             FluxRepository fluxRepository,
                             RunningScheduleRepository repo,
                             ScheduleRepository scheduleRepository,
-                            RunningScheduleServiceManager serviceManager) {
+                            RunningScheduleThreadManager serviceManager) {
         this.screenRepository = screenRepository;
         this.fluxRepository = fluxRepository;
         this.scheduleRepository = scheduleRepository;

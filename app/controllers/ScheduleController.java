@@ -4,7 +4,7 @@ import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.DataUtils;
 import models.entities.ScheduleData;
-import models.repositories.*;
+import models.repositories.interfaces.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -13,7 +13,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import services.FluxManager;
 import services.RunningScheduleThread;
-import services.RunningScheduleServiceManager;
+import services.RunningScheduleThreadManager;
 import views.html.schedule.schedule_activation;
 import views.html.schedule.schedule_creation;
 import views.html.schedule.schedule_page;
@@ -48,7 +48,7 @@ public class ScheduleController extends Controller {
 
 	private final FluxManager fluxManager;
 
-	private final RunningScheduleServiceManager serviceManager;
+	private final RunningScheduleThreadManager serviceManager;
 
 	private Form<ScheduleData> form;
 
@@ -57,7 +57,7 @@ public class ScheduleController extends Controller {
 	@Inject
 	public ScheduleController(FormFactory formFactory,
 							  FluxManager fluxManager,
-							  RunningScheduleServiceManager serviceManager,
+							  RunningScheduleThreadManager serviceManager,
 							  DataUtils dataUtils) {
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
@@ -73,6 +73,7 @@ public class ScheduleController extends Controller {
 		return ok(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	private Result indexWithErrorMessage(Http.Request request, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), error));
@@ -90,6 +91,7 @@ public class ScheduleController extends Controller {
 			null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	private Result updateViewWithErrorMessage(Http.Request request, String name, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_update.render(form,
@@ -111,6 +113,7 @@ public class ScheduleController extends Controller {
 			request));
 	}
 
+	@With(UserAuthentificationAction.class)
 	private Result createViewWithErrorMessage(Http.Request request, String error) {
 		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_creation.render(form,

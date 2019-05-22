@@ -4,6 +4,7 @@ import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
 import models.db.ScheduledFlux;
+import models.repositories.interfaces.FluxRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

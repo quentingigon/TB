@@ -3,7 +3,7 @@ package services;
 import models.db.Flux;
 import models.db.RunningSchedule;
 import models.db.Screen;
-import models.repositories.FluxRepository;
+import models.repositories.interfaces.FluxRepository;
 import org.joda.time.DateTime;
 
 import java.util.*;

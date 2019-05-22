@@ -1,8 +1,9 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.Screen;
 import models.db.WaitingScreen;
+import models.repositories.JPAScreenRepository;
 
 import java.util.List;
 

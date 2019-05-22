@@ -4,7 +4,7 @@ import controllers.actions.UserAuthentificationAction;
 import models.db.Team;
 import models.entities.DataUtils;
 import models.entities.TeamData;
-import models.repositories.*;
+import models.repositories.interfaces.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -53,6 +53,7 @@ public class TeamController extends Controller {
 		return ok(team_page.render(dataUtils.getAllTeams(), null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	public Result indexWithErrorMessage(String error) {
 		return ok(team_page.render(dataUtils.getAllTeams(), error));
 	}
@@ -68,6 +69,7 @@ public class TeamController extends Controller {
 			null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	private Result createViewWithErrorMessage(String error) {
 		return badRequest(team_creation.render(form,
 			dataUtils.getAllFluxes(),
@@ -97,6 +99,7 @@ public class TeamController extends Controller {
 			null));
 	}
 
+	@With(UserAuthentificationAction.class)
 	private Result updateViewWithErrorMessage(String teamName, String error) {
 		Team team = teamRepository.getByName(teamName);
 		return badRequest(team_update.render(form,

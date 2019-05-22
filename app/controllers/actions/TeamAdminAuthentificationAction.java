@@ -3,8 +3,8 @@ package controllers.actions;
 import models.db.TeamMember;
 import models.entities.DataUtils;
 import models.entities.UserData;
-import models.repositories.TeamRepository;
-import models.repositories.UserRepository;
+import models.repositories.interfaces.TeamRepository;
+import models.repositories.interfaces.UserRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -13,7 +13,6 @@ import play.mvc.Result;
 import views.html.user.user_login;
 
 import javax.inject.Inject;
-import javax.xml.crypto.Data;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 

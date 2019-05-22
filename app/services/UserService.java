@@ -4,7 +4,7 @@ import models.db.Admin;
 import models.db.TeamMember;
 import models.db.User;
 import models.entities.UserData;
-import models.repositories.UserRepository;
+import models.repositories.interfaces.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,6 @@ public class UserService {
 		}
 		else
 			return -1;
-
 	}
 
 	public List<UserData> getAllMembersOfTeam(int teamId) {

@@ -1,6 +1,7 @@
 package models.repositories;
 
 import models.db.Team;
+import models.repositories.interfaces.TeamRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

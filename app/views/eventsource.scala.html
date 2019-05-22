@@ -4,7 +4,7 @@
         <title>Ecrans</title>
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <script type="text/javascript" src=" https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="@routes.Assets.versioned("javascripts/eventsource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/eventsource.js")" type="text/javascript"></script>
 
         <style>
 
@@ -37,6 +37,10 @@
     <body>
         <div class="frame">
             <iframe id="frame0" class="frame" frameborder="0"></iframe>
+        </div>
+
+        <div>
+            <img id="image0">
         </div>
 
         <div id="footer0" class="footer"> hello </div>

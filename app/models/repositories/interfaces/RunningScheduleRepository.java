@@ -1,7 +1,8 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.RunningSchedule;
+import models.repositories.JPARunningScheduleRepository;
 
 import java.util.List;
 

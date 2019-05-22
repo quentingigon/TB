@@ -12,9 +12,10 @@ function displayFooterText(text) {
     $('#footer0').show().html("").append(text);
 }
 
-function hideFooter() {
-    $('#footer0').hide();
+function displayImage(url) {
+    $("#image0").attr('src', url);
 }
+
 
 function getCookie(name) {
     var nameEQ = name + "=";
@@ -40,17 +41,24 @@ $(document).ready(function () {
 
         if (macs.includes(macAdress)) {
             if (type === "url") {
-                hideFooter();
+                $('#footer0').hide();
+                $("#frame0").show();
+                $("#image0").hide();
                 displayFlux(data);
             }
             else if (type === "image") {
-
+                $('#footer0').hide();
+                $("#frame0").hide();
+                $("#image0").show();
+                displayImage(data);
             }
             else if (type === "text") {
                 displayFooterText(data);
             }
             else if (type === "video") {
-                hideFooter();
+                $('#footer0').hide();
+                $("#frame0").show();
+                $("#image0").hide();
                 displayVideo(data);
             }
         }

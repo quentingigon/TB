@@ -1,10 +1,11 @@
-package models.repositories;
+package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
 import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
 import models.db.ScheduledFlux;
+import models.repositories.JPAFluxRepository;
 
 import java.util.List;
 

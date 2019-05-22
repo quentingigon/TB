@@ -2,6 +2,7 @@ package models.repositories;
 
 import models.db.Screen;
 import models.db.WaitingScreen;
+import models.repositories.interfaces.ScreenRepository;
 import play.db.jpa.JPAApi;
 
 import javax.inject.Inject;

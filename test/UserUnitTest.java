@@ -2,7 +2,7 @@ import models.db.Admin;
 import models.db.TeamMember;
 import models.db.User;
 import models.entities.UserData;
-import models.repositories.UserRepository;
+import models.repositories.interfaces.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

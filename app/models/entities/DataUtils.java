@@ -1,7 +1,7 @@
 package models.entities;
 
 import models.db.*;
-import models.repositories.*;
+import models.repositories.interfaces.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

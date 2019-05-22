@@ -20,8 +20,8 @@ DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users
   (
     user_id SERIAL PRIMARY KEY,
-    email VARCHAR(30),
-    password VARCHAR(20)
+    email VARCHAR(100),
+    password VARCHAR(50)
   );
 
 
@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS team CASCADE;
 CREATE TABLE team
   (
     team_id SERIAL PRIMARY KEY,
-    name VARCHAR(20),
+    name VARCHAR(100),
     screens INTEGER[],
     screen_groups INTEGER[],
     schedules INTEGER[],
@@ -115,7 +115,7 @@ DROP TABLE IF EXISTS schedule CASCADE;
 CREATE TABLE schedule
   (
     schedule_id SERIAL PRIMARY KEY,
-    name VARCHAR(20),
+    name VARCHAR(100),
     fluxes INTEGER[],
     fallbacks INTEGER[]
   );
@@ -172,7 +172,7 @@ CREATE TABLE diffuser
   (
     diffuser_id SERIAL PRIMARY KEY,
     flux_id INTEGER,
-    name VARCHAR(20),
+    name VARCHAR(100),
     start_block INT,
     validity BIGINT,
     overwrite BOOLEAN
@@ -205,12 +205,12 @@ CREATE TABLE screen
     site_id INTEGER REFERENCES site (site_id),
     runningschedule_id INTEGER REFERENCES runningschedule (runningschedule_id),
     next_to INTEGER REFERENCES screen (screen_id),
-    name VARCHAR(20),
-    mac_address VARCHAR(20),
-    resolution VARCHAR(10),
+    name VARCHAR(100),
+    mac_address VARCHAR(50),
+    resolution VARCHAR(300),
     logged BOOLEAN,
     active BOOLEAN,
-    current_flux_name VARCHAR(30)
+    current_flux_name VARCHAR(100)
   );
 
 
@@ -235,9 +235,9 @@ DROP TABLE IF EXISTS flux CASCADE;
 CREATE TABLE flux
   (
     flux_id SERIAL PRIMARY KEY,
-    name VARCHAR(20),
-    url VARCHAR(50) NOT NULL,
-    type VARCHAR(10),
+    name VARCHAR(100),
+    url VARCHAR(500) NOT NULL,
+    type VARCHAR(30),
     phase_n INTEGER,
     phase_duration INTEGER
   );
