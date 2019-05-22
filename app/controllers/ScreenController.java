@@ -136,23 +136,18 @@ public class ScreenController extends Controller {
 			timer.schedule(task, delay);
 
 			// screen already logged in
-			if (screen.isLogged()) {
-				// used to update a screen who just connected and so avoid waiting for the next tick to display a value
-				return ok(eventsource.render()).withCookies(
-					Http.Cookie.builder("mac", macAdr)
-						.withHttpOnly(false)
-						.build());
-			}
-			else {
+			if (!screen.isLogged()) {
 				screen.setLogged(true);
 
 				screenRepository.update(screen);
-
-				return ok(eventsource.render()).withCookies(
-					Http.Cookie.builder("mac", macAdr)
-						.withHttpOnly(false)
-						.build());
 			}
+			return ok(eventsource.render()).withCookies(
+				Http.Cookie.builder("mac", macAdr)
+					.withHttpOnly(false)
+					.build(),
+				Http.Cookie.builder("resolution", screen.getResolution())
+					.withHttpOnly(false)
+					.build());
 		}
 	}
 

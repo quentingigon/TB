@@ -12,7 +12,9 @@ function displayFooterText(text) {
     $('#footer0').show().html("").append(text);
 }
 
-function displayImage(url) {
+function displayImage(url, width, height) {
+    $("#image0").attr('width', width);
+    $("#image0").attr('height', height);
     $("#image0").attr('src', url);
 }
 
@@ -33,11 +35,14 @@ $(document).ready(function () {
     var evtSource = new EventSource("http://localhost:9000/eventsource", {withCredentials: true});
 
     var macAdress = getCookie("mac");
+    var resolution = getCookie("resolution");
 
     evtSource.addEventListener('message', function(e) {
         var type = e.data.substr(0, e.data.indexOf("?"));
         var data = e.data.substr(e.data.indexOf("?") + 1, e.data.indexOf("|") - type.length - 1);
         var macs = e.data.substr(e.data.indexOf("|") + 1).split(",");
+
+
 
         if (macs.includes(macAdress)) {
             if (type === "url") {
@@ -47,10 +52,14 @@ $(document).ready(function () {
                 displayFlux(data);
             }
             else if (type === "image") {
-                $('#footer0').hide();
-                $("#frame0").hide();
-                $("#image0").show();
-                displayImage(data);
+
+                if (resolution === "1080") {
+                    displayImage(data, 1900, 1080);
+                }
+                else if (resolution === "720") {
+                    displayImage(data, 1280, 720);
+                }
+
             }
             else if (type === "text") {
                 displayFooterText(data);
@@ -62,7 +71,5 @@ $(document).ready(function () {
                 displayVideo(data);
             }
         }
-
     });
-
 });
