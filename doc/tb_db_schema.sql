@@ -243,6 +243,12 @@ CREATE TABLE flux
   );
 
 
+INSERT INTO flux(name, url, type) VALUES ('Waiting Page', '/waiting', 'URL');
+INSERT INTO flux(name, url, type) VALUES ('Maintenance', '/maintenance', 'URL');
+INSERT INTO flux(name, url, type) VALUES ('No Schedule', '/no_schedule', 'URL');
+INSERT INTO flux(name, url, type) VALUES ('Site error', '/site_error', 'URL');
+
+
 DROP TABLE IF EXISTS locatedflux CASCADE;
 CREATE TABLE locatedflux
   (
