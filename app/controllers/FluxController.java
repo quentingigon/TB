@@ -10,7 +10,6 @@ import models.entities.FluxData;
 import models.repositories.interfaces.FluxRepository;
 import models.repositories.interfaces.SiteRepository;
 import models.repositories.interfaces.TeamRepository;
-import play.api.Play;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Files;
@@ -23,13 +22,10 @@ import views.html.flux.flux_page;
 import views.html.flux.flux_update;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 
-import static java.nio.file.Files.readAllBytes;
 import static services.BlockUtils.blockNumber;
 
 public class FluxController extends Controller {
@@ -165,6 +161,7 @@ public class FluxController extends Controller {
 			flux.setDuration(Long.valueOf(data.getDuration()));
 			flux.setUrl(data.getUrl());
 			flux.setType(data.getType());
+			flux.setNumberOfPhases(Long.valueOf(data.getNumberOfPhases()));
 			fluxRepository.update(flux);
 
 			return index();

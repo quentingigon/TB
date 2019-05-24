@@ -8,6 +8,7 @@ public class FluxData {
 	private String url;
 	private String dataCheckUrl;
 	private String duration;
+	private String numberOfPhases;
 	private String type;
 	private String site;
 	private String team;
@@ -88,5 +89,13 @@ public class FluxData {
 
 	public void setDataCheckUrl(String dataCheckUrl) {
 		this.dataCheckUrl = dataCheckUrl;
+	}
+
+	public String getNumberOfPhases() {
+		return numberOfPhases;
+	}
+
+	public void setNumberOfPhases(String numberOfPhases) {
+		this.numberOfPhases = numberOfPhases;
 	}
 }

@@ -1,4 +1,4 @@
-package services;
+package models;
 
 import models.db.Flux;
 import models.db.Screen;

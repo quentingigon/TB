@@ -1,7 +1,5 @@
 import com.google.inject.AbstractModule;
 import services.AutomatedScheduleStarter;
-import services.AtomicCounter;
-import services.Counter;
 
 import java.time.Clock;
 
@@ -24,8 +22,6 @@ public class Module extends AbstractModule {
         // Ask Guice to add an instance of AutomatedScheduleStarter when the
         // application starts.
         bind(AutomatedScheduleStarter.class).asEagerSingleton();
-        // Set AtomicCounter as the implementation for Counter.
-        bind(Counter.class).to(AtomicCounter.class);
     }
 
 }

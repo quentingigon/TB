@@ -1,6 +1,7 @@
 package services;
 
 import controllers.EventSourceController;
+import models.FluxEvent;
 import models.db.Screen;
 import models.repositories.interfaces.ScreenRepository;
 

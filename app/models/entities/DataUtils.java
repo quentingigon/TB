@@ -250,7 +250,7 @@ public class DataUtils {
 					if (sf.getStartBlock().equals(i)) {
 						Flux flux = fluxRepository.getById(sf.getFluxId());
 						lastFlux = flux;
-						lastFluxDuration = flux.getDuration() - 1;
+						lastFluxDuration = flux.getTotalDuration() - 1;
 						timetable.put(i, flux.getId());
 						noFluxSent = false;
 						scheduledFluxes.remove(sf);

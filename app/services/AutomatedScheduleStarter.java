@@ -12,11 +12,8 @@ import play.inject.ApplicationLifecycle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * This class demonstrates how to run code when the
@@ -35,9 +32,6 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class AutomatedScheduleStarter {
 
-    private final Clock clock;
-    private final ApplicationLifecycle appLifecycle;
-    private final Instant start;
     private final RunningScheduleThreadManager serviceManager;
     private final FluxManager fluxManager;
     private final DataUtils dataUtils;
@@ -51,9 +45,7 @@ public class AutomatedScheduleStarter {
     private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("application");
 
     @Inject
-    public AutomatedScheduleStarter(Clock clock,
-                                    FluxManager fluxManager,
-                                    ApplicationLifecycle appLifecycle,
+    public AutomatedScheduleStarter(FluxManager fluxManager,
                                     DataUtils dataUtils,
                                     ScreenRepository screenRepository,
                                     FluxRepository fluxRepository,
@@ -69,12 +61,8 @@ public class AutomatedScheduleStarter {
         this.serviceManager = serviceManager;
         this.runningScheduleRepository = repo;
         this.dataUtils = dataUtils;
-        this.clock = clock;
-        this.appLifecycle = appLifecycle;
 
         // This code is called when the application starts.
-        List<RunningSchedule> activeRunningchedules = new ArrayList<>();
-
         // get all existing runningSchedules
         for (RunningSchedule rs: runningScheduleRepository.getAll()) {
 
@@ -102,21 +90,6 @@ public class AutomatedScheduleStarter {
                 // the schedule is activated
                 serviceManager.addRunningSchedule(schedule.getId(), service);
             }
-
-
         }
-        start = clock.instant();
-        logger.info("AutomatedScheduleStarter demo: Starting application at " + start);
-
-        // When the application starts, create a stop hook with the
-        // ApplicationLifecycle object. The code inside the stop hook will
-        // be run when the application stops.
-        appLifecycle.addStopHook(() -> {
-            Instant stop = clock.instant();
-            Long runningTime = stop.getEpochSecond() - start.getEpochSecond();
-            logger.info("AutomatedScheduleStarter demo: Stopping application at " + clock.instant() + " after " + runningTime + "s.");
-            return CompletableFuture.completedFuture(null);
-        });
     }
-
 }

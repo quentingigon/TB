@@ -19,6 +19,9 @@ public class Flux {
 	@Column(name="phase_duration")
 	private long duration;
 
+	@Column(name="phase_n")
+	private long numberOfPhases;
+
 	// TODO change url to data
 	@Column(name="url")
 	private String url;
@@ -46,6 +49,7 @@ public class Flux {
 	public Flux(FluxData fluxData) {
 		name = fluxData.getName();
 		duration = Long.valueOf(fluxData.getDuration());
+		numberOfPhases = Long.valueOf(fluxData.getNumberOfPhases());
 		url = fluxData.getUrl();
 		type = fluxData.getType();
 		dataCheckUrl = fluxData.getDataCheckUrl();
@@ -93,5 +97,17 @@ public class Flux {
 
 	public void setDataCheckUrl(String dataCheckUrl) {
 		this.dataCheckUrl = dataCheckUrl;
+	}
+
+	public long getNumberOfPhases() {
+		return numberOfPhases;
+	}
+
+	public void setNumberOfPhases(long numberOfPhases) {
+		this.numberOfPhases = numberOfPhases;
+	}
+
+	public long getTotalDuration() {
+		return numberOfPhases * duration;
 	}
 }
