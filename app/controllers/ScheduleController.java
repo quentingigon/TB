@@ -11,6 +11,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import services.FluxChecker;
 import services.FluxManager;
 import services.RunningScheduleThread;
 import services.RunningScheduleThreadManager;
@@ -47,8 +48,8 @@ public class ScheduleController extends Controller {
 	UserRepository userRepository;
 
 	private final FluxManager fluxManager;
-
 	private final RunningScheduleThreadManager serviceManager;
+	private final FluxChecker fluxChecker;
 
 	private Form<ScheduleData> form;
 
@@ -58,7 +59,9 @@ public class ScheduleController extends Controller {
 	public ScheduleController(FormFactory formFactory,
 							  FluxManager fluxManager,
 							  RunningScheduleThreadManager serviceManager,
-							  DataUtils dataUtils) {
+							  DataUtils dataUtils,
+							  FluxChecker fluxChecker) {
+		this.fluxChecker = fluxChecker;
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
 		this.serviceManager = serviceManager;
@@ -172,7 +175,8 @@ public class ScheduleController extends Controller {
 				screens,
 				new ArrayList<>(schedule.getFallbacks()),
 				dataUtils.getTimeTable(schedule),
-				fluxRepository);
+				fluxRepository,
+				fluxChecker);
 
 			service2.addObserver(fluxManager);
 

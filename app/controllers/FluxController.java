@@ -120,7 +120,6 @@ public class FluxController extends Controller {
 				String pictureUrl = PICTURES_DIR + fileName;
 				file.copyTo(Paths.get(pictureUrl), true);
 
-				//data.setUrl(file.path().toString());
 				data.setUrl("/assets/images/" + fileName);
 			}
 

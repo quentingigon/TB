@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
  * application's {@link ApplicationLifecycle} to create a stop hook.
  */
 @Singleton
-public class ApplicationTimer {
+public class AutomatedScheduleStarter {
 
     private final Clock clock;
     private final ApplicationLifecycle appLifecycle;
@@ -46,19 +46,22 @@ public class ApplicationTimer {
     private final FluxRepository fluxRepository;
     private final ScheduleRepository scheduleRepository;
     private final RunningScheduleRepository runningScheduleRepository;
+    private final FluxChecker fluxChecker;
 
     private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("application");
 
     @Inject
-    public ApplicationTimer(Clock clock,
-                            FluxManager fluxManager,
-                            ApplicationLifecycle appLifecycle,
-                            DataUtils dataUtils,
-                            ScreenRepository screenRepository,
-                            FluxRepository fluxRepository,
-                            RunningScheduleRepository repo,
-                            ScheduleRepository scheduleRepository,
-                            RunningScheduleThreadManager serviceManager) {
+    public AutomatedScheduleStarter(Clock clock,
+                                    FluxManager fluxManager,
+                                    ApplicationLifecycle appLifecycle,
+                                    DataUtils dataUtils,
+                                    ScreenRepository screenRepository,
+                                    FluxRepository fluxRepository,
+                                    RunningScheduleRepository repo,
+                                    ScheduleRepository scheduleRepository,
+                                    RunningScheduleThreadManager serviceManager,
+                                    FluxChecker fluxChecker) {
+        this.fluxChecker = fluxChecker;
         this.screenRepository = screenRepository;
         this.fluxRepository = fluxRepository;
         this.scheduleRepository = scheduleRepository;
@@ -68,9 +71,8 @@ public class ApplicationTimer {
         this.dataUtils = dataUtils;
         this.clock = clock;
         this.appLifecycle = appLifecycle;
-        // This code is called when the application starts.
-        // TODO start active RunningSchedules here
 
+        // This code is called when the application starts.
         List<RunningSchedule> activeRunningchedules = new ArrayList<>();
 
         // get all existing runningSchedules
@@ -92,7 +94,8 @@ public class ApplicationTimer {
                     screens,
                     new ArrayList<>(schedule.getFallbacks()),
                     dataUtils.getTimeTable(schedule),
-                    fluxRepository);
+                    fluxRepository,
+                    fluxChecker);
 
                 service.addObserver(fluxManager);
 
@@ -103,7 +106,7 @@ public class ApplicationTimer {
 
         }
         start = clock.instant();
-        logger.info("ApplicationTimer demo: Starting application at " + start);
+        logger.info("AutomatedScheduleStarter demo: Starting application at " + start);
 
         // When the application starts, create a stop hook with the
         // ApplicationLifecycle object. The code inside the stop hook will
@@ -111,7 +114,7 @@ public class ApplicationTimer {
         appLifecycle.addStopHook(() -> {
             Instant stop = clock.instant();
             Long runningTime = stop.getEpochSecond() - start.getEpochSecond();
-            logger.info("ApplicationTimer demo: Stopping application at " + clock.instant() + " after " + runningTime + "s.");
+            logger.info("AutomatedScheduleStarter demo: Stopping application at " + clock.instant() + " after " + runningTime + "s.");
             return CompletableFuture.completedFuture(null);
         });
     }

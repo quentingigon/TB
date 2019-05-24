@@ -23,6 +23,9 @@ public class Flux {
 	@Column(name="url")
 	private String url;
 
+	@Column(name="data_check_url")
+	private String dataCheckUrl;
+
 	@Column(name="type")
 	private String type;
 
@@ -45,6 +48,7 @@ public class Flux {
 		duration = Long.valueOf(fluxData.getDuration());
 		url = fluxData.getUrl();
 		type = fluxData.getType();
+		dataCheckUrl = fluxData.getDataCheckUrl();
 	}
 
 	public Integer getId() {
@@ -81,5 +85,13 @@ public class Flux {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getDataCheckUrl() {
+		return dataCheckUrl;
+	}
+
+	public void setDataCheckUrl(String dataCheckUrl) {
+		this.dataCheckUrl = dataCheckUrl;
 	}
 }

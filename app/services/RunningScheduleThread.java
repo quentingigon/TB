@@ -16,24 +16,26 @@ public class RunningScheduleThread extends Observable implements Runnable {
 
 	// /!\ WARNING /!\ maybe it's a "static" instance of FluxRepository and is not updated afterwards
 	private FluxRepository fluxRepository;
+	private FluxChecker fluxChecker;
 
 	private RunningSchedule runningSchedule;
 	private List<Screen> screens;
 
 	private volatile HashMap<Integer, Integer> timetable;
+	private HashMap<Integer, List<Integer>> timetableHistory;
 	private List<Integer> fallbackFluxIds;
 
 	private boolean running;
 
 	private volatile FluxEvent lastFluxEvent;
 
-	private HashMap<Integer, List<Integer>> timetableHistory;
-
 	public RunningScheduleThread(RunningSchedule runningSchedule,
 								 List<Screen> screens,
 								 List<Integer> fallbackFluxIds,
 								 Map<Integer, Integer> timetable,
-								 FluxRepository fluxRepository) {
+								 FluxRepository fluxRepository,
+								 FluxChecker fluxChecker) {
+		this.fluxChecker = fluxChecker;
 		this.runningSchedule = runningSchedule;
 		this.screens = screens;
 		this.timetable = (HashMap<Integer, Integer>) timetable;
@@ -70,7 +72,19 @@ public class RunningScheduleThread extends Observable implements Runnable {
 						doNotSend = true;
 					}
 
+					Flux nextFlux = fluxRepository.getById(timetable.get(blockIndex));
+
+					// if next flux has data that must be checked before displaying
+					if (nextFlux.getDataCheckUrl() != null) {
+						// if next flux has no data to display
+						if (!fluxChecker.checkIfFluxHasSomethingToDisplayByDateTime(nextFlux)) {
+							// remove it from the timetable to make room for other fluxes
+							removeScheduledFlux(nextFlux);
+						}
+					}
+
 					if (!doNotSend) {
+
 						// if a flux is scheduled for that block
 						if (currentFlux != null) {
 							sendFluxEventAsGeneralOrLocated(currentFlux);
@@ -221,11 +235,11 @@ public class RunningScheduleThread extends Observable implements Runnable {
 		timetableHistory.remove(diffuserId);
 	}
 
-	// TODO maybe optimize
 	public void removeScheduledFlux(Flux flux) {
-		for (int i = 0; i < flux.getDuration(); i++) {
+		int index = new ArrayList<>(timetable.keySet()).indexOf(flux.getId());
+		for (int i = index; i < flux.getDuration(); i++) {
 			if (this.timetable.get(i).equals(flux.getId())) {
-				this.timetable.remove(i);
+				this.timetable.put(i, -1);
 			}
 		}
 	}

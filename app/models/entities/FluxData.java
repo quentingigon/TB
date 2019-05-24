@@ -6,6 +6,7 @@ public class FluxData {
 
 	private String name;
 	private String url;
+	private String dataCheckUrl;
 	private String duration;
 	private String type;
 	private String site;
@@ -79,5 +80,13 @@ public class FluxData {
 
 	public void setTeam(String team) {
 		this.team = team;
+	}
+
+	public String getDataCheckUrl() {
+		return dataCheckUrl;
+	}
+
+	public void setDataCheckUrl(String dataCheckUrl) {
+		this.dataCheckUrl = dataCheckUrl;
 	}
 }

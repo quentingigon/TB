@@ -237,6 +237,7 @@ CREATE TABLE flux
     flux_id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     url VARCHAR(500) NOT NULL,
+    data_check_url VARCHAR(500),
     type VARCHAR(30),
     phase_n INTEGER,
     phase_duration INTEGER

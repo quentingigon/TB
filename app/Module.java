@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule;
-import services.ApplicationTimer;
+import services.AutomatedScheduleStarter;
 import services.AtomicCounter;
 import services.Counter;
 
@@ -21,9 +21,9 @@ public class Module extends AbstractModule {
     public void configure() {
         // Use the system clock as the default implementation of Clock
         bind(Clock.class).toInstance(Clock.systemDefaultZone());
-        // Ask Guice to add an instance of ApplicationTimer when the
+        // Ask Guice to add an instance of AutomatedScheduleStarter when the
         // application starts.
-        bind(ApplicationTimer.class).asEagerSingleton();
+        bind(AutomatedScheduleStarter.class).asEagerSingleton();
         // Set AtomicCounter as the implementation for Counter.
         bind(Counter.class).to(AtomicCounter.class);
     }
