@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -24,43 +25,92 @@ public class DiffuserUnitTest {
 	@Mock
 	private RunningDiffuserRepository mockRunningDiffuserRepository;
 
-	private String name;
+	private String diffuserName;
 	private int teamId;
+	private int diffuserId = 42;
+	private Diffuser diffuserToReturn;
+	private RunningDiffuser rdToReturn;
 
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		name = "test";
+		diffuserName = "test";
 		teamId = 1;
+		diffuserToReturn = new Diffuser(diffuserName);
+		rdToReturn = new RunningDiffuser(diffuserToReturn);
 	}
 
+	// Creation
 	@Test
 	public void testCreate() {
-		Diffuser diffuserToReturn = new Diffuser(name);
 		when(mockDiffuserRepository.add(any(Diffuser.class))).thenReturn(diffuserToReturn);
 		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
 
-		Diffuser newDiffuser = new Diffuser(name);
+		Diffuser newDiffuser = new Diffuser(diffuserName);
 
 		assertEquals(diffuserToReturn, service.create(newDiffuser));
 	}
 
+
+	// Update
 	@Test
 	public void testUpdate() {
-		Diffuser diffuserToReturn = new Diffuser(name);
 		when(mockDiffuserRepository.update(any(Diffuser.class))).thenReturn(diffuserToReturn);
 		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
 
-		Diffuser newDiffuser = new Diffuser(name);
+		Diffuser newDiffuser = new Diffuser(diffuserName);
 
 		assertEquals(diffuserToReturn, service.update(newDiffuser));
+	}
+
+	// Getters
+	@Test
+	public void testGetDiffuserByName() {
+		when(mockDiffuserRepository.getByName(diffuserName)).thenReturn(diffuserToReturn);
+		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
+
+		assertEquals(diffuserName, service.getDiffuserByName(diffuserName).getName());
+	}
+
+	@Test
+	public void testGetDiffuserByNameFail() {
+		when(mockDiffuserRepository.getByName(diffuserName)).thenReturn(diffuserToReturn);
+		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
+
+		assertNull(service.getDiffuserByName("WrongName"));
+	}
+
+	@Test
+	public void testGetRunningDiffuserByDiffuserId() {
+		when(mockRunningDiffuserRepository.getByDiffuserId(diffuserId)).thenReturn(rdToReturn);
+		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
+
+		assertEquals(rdToReturn, service.getRunningDiffuserByDiffuserId(diffuserId));
+	}
+
+	@Test
+	public void testGetRunningDiffuserByDiffuserIdFail() {
+		when(mockRunningDiffuserRepository.getByDiffuserId(diffuserId)).thenReturn(rdToReturn);
+		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
+
+		assertNull(service.getRunningDiffuserByDiffuserId(43));
+	}
+
+	@Test
+	public void testGetScreenIdsOfRunningDiffuser() {
+		List<Integer> screenIds = new ArrayList<>();
+		screenIds.add(42);
+		when(mockRunningDiffuserRepository.getScreenIdsOfRunningDiffuser(diffuserId)).thenReturn(screenIds);
+		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
+
+		assertEquals(42, (int) service.getScreenIdsOfRunningDiffuserById(diffuserId).get(0));
 	}
 
 	@Test
 	public void testGetAllDiffusers() {
 
 		List<Diffuser> diffusers = new ArrayList<>();
-		diffusers.add(new Diffuser(name));
+		diffusers.add(new Diffuser(diffuserName));
 
 		List<DiffuserData> diffuserData = new ArrayList<>();
 		diffuserData.add(new DiffuserData(diffusers.get(0)));
@@ -78,10 +128,10 @@ public class DiffuserUnitTest {
 		diffuserIds.add(diffuserId);
 
 		List<DiffuserData> diffuserData = new ArrayList<>();
-		diffuserData.add(new DiffuserData(name));
+		diffuserData.add(new DiffuserData(diffuserName));
 
 		when(mockDiffuserRepository.getAllDiffuserIdsOfTeam(teamId)).thenReturn(diffuserIds);
-		when(mockDiffuserRepository.getById(any(Integer.class))).thenReturn(new Diffuser(name));
+		when(mockDiffuserRepository.getById(any(Integer.class))).thenReturn(new Diffuser(diffuserName));
 		DiffuserService service = new DiffuserService(mockDiffuserRepository, mockRunningDiffuserRepository);
 
 		assertEquals(diffuserData.get(0).getName(), service.getAllDiffusersOfTeam(teamId).get(0).getName());
@@ -100,8 +150,8 @@ public class DiffuserUnitTest {
 		activeDiffuser.setId(activeDiffuserId);
 
 		when(mockDiffuserRepository.getAllDiffuserIdsOfTeam(any(Integer.class))).thenReturn(diffuserIds);
-		when(mockDiffuserRepository.getByName(name)).thenReturn(new Diffuser(name));
-		when(mockDiffuserRepository.getById(diffuserId)).thenReturn(new Diffuser(name));
+		when(mockDiffuserRepository.getByName(diffuserName)).thenReturn(new Diffuser(diffuserName));
+		when(mockDiffuserRepository.getById(diffuserId)).thenReturn(new Diffuser(diffuserName));
 		when(mockDiffuserRepository.getByName(activeName)).thenReturn(activeDiffuser);
 		when(mockDiffuserRepository.getById(activeDiffuserId)).thenReturn(activeDiffuser);
 		when(mockRunningDiffuserRepository.getByDiffuserId(any(Integer.class))).thenReturn(new RunningDiffuser(activeDiffuser));

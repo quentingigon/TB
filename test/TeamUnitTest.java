@@ -12,6 +12,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,27 +25,68 @@ public class TeamUnitTest {
 	@Mock
 	private TeamRepository mockTeamRepository;
 
+	private String teamName;
+	private int teamId;
+	private Team teamToReturn;
+
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
+		teamName = "test";
+		teamId = 42;
+		teamToReturn = new Team(teamName);
 	}
 
+	// Creation
 	@Test
 	public void teamCreation() {
-		Team team = new Team("test");
-		when(mockTeamRepository.add(any(Team.class))).thenReturn(team);
+		when(mockTeamRepository.add(any(Team.class))).thenReturn(teamToReturn);
 		TeamService ts = new TeamService(mockTeamRepository);
 
-		assertEquals(ts.create(team), team);
+		assertEquals(ts.create(teamToReturn), teamToReturn);
+	}
+
+	// Update
+	@Test
+	public void teamUpdate() {
+		when(mockTeamRepository.update(any(Team.class))).thenReturn(teamToReturn);
+		TeamService ts = new TeamService(mockTeamRepository);
+
+		assertEquals(ts.update(teamToReturn), teamToReturn);
+	}
+
+	// Getters
+
+	@Test
+	public void testGetTeamByName() {
+		when(mockTeamRepository.getByName(teamName)).thenReturn(teamToReturn);
+		TeamService ts = new TeamService(mockTeamRepository);
+
+		assertEquals(teamName, ts.getTeamByName(teamName).getName());
 	}
 
 	@Test
-	public void teamUpdate() {
-		Team team = new Team("test");
-		when(mockTeamRepository.update(any(Team.class))).thenReturn(team);
+	public void testGetTeamByNameFail() {
+		when(mockTeamRepository.getByName(teamName)).thenReturn(teamToReturn);
 		TeamService ts = new TeamService(mockTeamRepository);
 
-		assertEquals(ts.update(team), team);
+		assertNull(ts.getTeamByName("WrongName"));
+	}
+
+	@Test
+	public void testGetTeamById() {
+		when(mockTeamRepository.getById(teamId)).thenReturn(teamToReturn);
+		TeamService ts = new TeamService(mockTeamRepository);
+
+		assertEquals(teamName, ts.getTeamById(teamId).getName());
+	}
+
+	@Test
+	public void testGetTeamByIdFail() {
+		when(mockTeamRepository.getByName(teamName)).thenReturn(teamToReturn);
+		TeamService ts = new TeamService(mockTeamRepository);
+
+		assertNull(ts.getTeamById(43));
 	}
 
 	@Test

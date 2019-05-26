@@ -1,4 +1,7 @@
-import models.db.*;
+import models.db.Flux;
+import models.db.GeneralFlux;
+import models.db.LocatedFlux;
+import models.db.ScheduledFlux;
 import models.entities.FluxData;
 import models.repositories.interfaces.FluxRepository;
 import org.junit.Before;
@@ -11,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +25,9 @@ public class FluxUnitTest {
 
 	private String fluxName;
 	private String fluxUrl;
+	private int fluxId;
 	private int teamId;
+	private Flux fluxToReturn;
 
 	@Before
 	public void setUp() {
@@ -29,11 +35,13 @@ public class FluxUnitTest {
 		fluxName = "test";
 		fluxUrl = "testUrl";
 		teamId = 1;
+		fluxId = 42;
+		fluxToReturn = new Flux(fluxName, fluxUrl);
 	}
 
+	// Creation
 	@Test
 	public void testCreateFlux() {
-		Flux fluxToReturn = new Flux(fluxName, fluxUrl);
 		when(mockFluxRepository.addFlux(any(Flux.class))).thenReturn(fluxToReturn);
 		FluxService service = new FluxService(mockFluxRepository);
 
@@ -43,25 +51,12 @@ public class FluxUnitTest {
 	}
 
 	@Test
-	public void testUpdateFlux() {
-		Flux fluxToReturn = new Flux(fluxName, fluxUrl);
-		when(mockFluxRepository.update(any(Flux.class))).thenReturn(fluxToReturn);
-		FluxService service = new FluxService(mockFluxRepository);
-
+	public void testCreateFluxWithExistingName() {
 		Flux newFlux = new Flux(fluxName, fluxUrl);
-
-		assertEquals(fluxToReturn.getName(), service.update(newFlux).getName());
-	}
-
-	@Test
-	public void testCreateLocatedFlux() {
-		LocatedFlux fluxToReturn = new LocatedFlux(1, 1);
-		when(mockFluxRepository.addLocatedFlux(any(LocatedFlux.class))).thenReturn(fluxToReturn);
+		when(mockFluxRepository.addFlux(newFlux)).thenReturn(null);
 		FluxService service = new FluxService(mockFluxRepository);
 
-		LocatedFlux newFlux = new LocatedFlux(1, 1);
-
-		assertEquals(fluxToReturn.getFluxId(), service.createLocated(newFlux).getFluxId());
+		assertNull(service.create(newFlux));
 	}
 
 	@Test
@@ -84,6 +79,64 @@ public class FluxUnitTest {
 		ScheduledFlux newFlux = new ScheduledFlux(1, 1, 1);
 
 		assertEquals(fluxToReturn.getFluxId(), service.createScheduled(newFlux).getFluxId());
+	}
+
+	@Test
+	public void testCreateLocatedFlux() {
+		LocatedFlux fluxToReturn = new LocatedFlux(1, 1);
+		when(mockFluxRepository.addLocatedFlux(any(LocatedFlux.class))).thenReturn(fluxToReturn);
+		FluxService service = new FluxService(mockFluxRepository);
+
+		LocatedFlux newFlux = new LocatedFlux(1, 1);
+
+		assertEquals(fluxToReturn.getFluxId(), service.createLocated(newFlux).getFluxId());
+	}
+
+
+	// Update
+	@Test
+	public void testUpdateFlux() {
+		when(mockFluxRepository.update(any(Flux.class))).thenReturn(fluxToReturn);
+		FluxService service = new FluxService(mockFluxRepository);
+
+		Flux newFlux = new Flux(fluxName, fluxUrl);
+
+		assertEquals(fluxToReturn.getName(), service.update(newFlux).getName());
+	}
+
+
+	// Getters
+	@Test
+	public void testGetFluxByName() {
+		when(mockFluxRepository.getByName(fluxName)).thenReturn(fluxToReturn);
+		FluxService service = new FluxService(mockFluxRepository);
+
+		assertEquals(fluxName, service.getFluxByName(fluxName).getName());
+	}
+
+	@Test
+	public void testGetFluxByNameFail() {
+		when(mockFluxRepository.getByName(fluxName)).thenReturn(fluxToReturn);
+		FluxService service = new FluxService(mockFluxRepository);
+
+		assertNull(service.getFluxByName("WrongName"));
+	}
+
+
+	@Test
+	public void testGetFluxById() {
+		when(mockFluxRepository.getById(fluxId)).thenReturn(fluxToReturn);
+		FluxService service = new FluxService(mockFluxRepository);
+
+		assertEquals(fluxName, service.getFluxById(fluxId).getName());
+	}
+
+	@Test
+	public void testGetFluxByIdFail() {
+		when(mockFluxRepository.getById(fluxId)).thenReturn(fluxToReturn);
+		FluxService service = new FluxService(mockFluxRepository);
+
+		assertNull(service.getFluxById(43));
 	}
 
 	@Test

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -20,7 +21,11 @@ public class ScreenUnitTest {
 	@Mock
 	private ScreenRepository mockScreenRepository;
 
+	private Screen screenToReturn;
+	private WaitingScreen wScreenToReturn;
 	private String macAddress;
+	private String code;
+	private int screenId;
 	private int teamId;
 
 	@Before
@@ -28,11 +33,15 @@ public class ScreenUnitTest {
 		MockitoAnnotations.initMocks(this);
 		macAddress = "test";
 		teamId = 1;
+		screenId = 42;
+		code = "123";
+		screenToReturn = new Screen(macAddress);
+		wScreenToReturn = new WaitingScreen(code, macAddress);
 	}
 
+	// Creation
 	@Test
 	public void testCreateScreen() {
-		Screen screenToReturn = new Screen(macAddress);
 		when(mockScreenRepository.add(any(Screen.class))).thenReturn(screenToReturn);
 		ScreenService service = new ScreenService(mockScreenRepository);
 
@@ -42,8 +51,18 @@ public class ScreenUnitTest {
 	}
 
 	@Test
+	public void testCreateWaitingScreen() {
+		when(mockScreenRepository.add(any(WaitingScreen.class))).thenReturn(wScreenToReturn);
+		ScreenService service = new ScreenService(mockScreenRepository);
+
+		WaitingScreen newScreen = new WaitingScreen("123", macAddress);
+
+		assertEquals(screenToReturn.getMacAddress(), service.createWS(newScreen).getMacAddress());
+	}
+
+	// Update
+	@Test
 	public void testUpdateScreen() {
-		Screen screenToReturn = new Screen(macAddress);
 		when(mockScreenRepository.update(any(Screen.class))).thenReturn(screenToReturn);
 		ScreenService service = new ScreenService(mockScreenRepository);
 
@@ -52,15 +71,55 @@ public class ScreenUnitTest {
 		assertEquals(screenToReturn.getMacAddress(), service.update(newScreen).getMacAddress());
 	}
 
+
+	// Getters
+
 	@Test
-	public void testCreateWaitingScreen() {
-		WaitingScreen screenToReturn = new WaitingScreen("123", macAddress);
-		when(mockScreenRepository.add(any(WaitingScreen.class))).thenReturn(screenToReturn);
+	public void testGetScreenByMac() {
+		when(mockScreenRepository.getByMacAddress(macAddress)).thenReturn(screenToReturn);
 		ScreenService service = new ScreenService(mockScreenRepository);
 
-		WaitingScreen newScreen = new WaitingScreen("123", macAddress);
+		assertEquals(macAddress, service.getScreenByMacAddress(macAddress).getMacAddress());
+	}
 
-		assertEquals(screenToReturn.getMacAddress(), service.createWS(newScreen).getMacAddress());
+	@Test
+	public void testGetScreenByMacFail() {
+		when(mockScreenRepository.getByMacAddress(macAddress)).thenReturn(screenToReturn);
+		ScreenService service = new ScreenService(mockScreenRepository);
+
+		assertNull(service.getScreenByMacAddress("WrongAddress"));
+	}
+
+	@Test
+	public void testGetScreenById() {
+		when(mockScreenRepository.getById(screenId)).thenReturn(screenToReturn);
+		ScreenService service = new ScreenService(mockScreenRepository);
+
+		assertEquals(macAddress, service.getScreenById(screenId).getMacAddress());
+	}
+
+	@Test
+	public void testGetScreenByIdFail() {
+		when(mockScreenRepository.getById(screenId)).thenReturn(screenToReturn);
+		ScreenService service = new ScreenService(mockScreenRepository);
+
+		assertNull(service.getScreenById(43));
+	}
+
+	@Test
+	public void testGetWaitingScreenByMac() {
+		when(mockScreenRepository.getByMac(macAddress)).thenReturn(wScreenToReturn);
+		ScreenService service = new ScreenService(mockScreenRepository);
+
+		assertEquals(macAddress, service.getWSByMacAddress(macAddress).getMacAddress());
+	}
+
+	@Test
+	public void testGetWaitingScreenByMacFail() {
+		when(mockScreenRepository.getByMac(macAddress)).thenReturn(wScreenToReturn);
+		ScreenService service = new ScreenService(mockScreenRepository);
+
+		assertNull(service.getWSByMacAddress("WrongAddress"));
 	}
 
 	@Test

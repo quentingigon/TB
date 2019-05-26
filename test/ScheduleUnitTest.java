@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -24,37 +25,35 @@ public class ScheduleUnitTest {
 	@Mock
 	private RunningScheduleRepository mockRunningScheduleRepository;
 
+	private RunningSchedule runningScheduleToReturn;
+	private Schedule scheduleToReturn;
 	private String scheduleName;
 	private int teamId;
+	private int scheduleId;
+	private int runningScheduleId;
+	private int screenId;
 
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		scheduleName = "test";
 		teamId = 1;
+		scheduleId = 42;
+		screenId = 100;
+		runningScheduleId = scheduleId;
+		scheduleToReturn = new Schedule(scheduleName);
+		runningScheduleToReturn = new RunningSchedule(scheduleToReturn);
 	}
 
-
+	// Creation
 	@Test
 	public void testCreateSchedule() {
-		Schedule scheduleToReturn = new Schedule(scheduleName);
 		when(mockScheduleRepository.add(any(Schedule.class))).thenReturn(scheduleToReturn);
 		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
 
 		Schedule newSchedule = new Schedule(scheduleName);
 
 		assertEquals(scheduleToReturn.getName(), service.create(newSchedule).getName());
-	}
-
-	@Test
-	public void testUpdateSchedule() {
-		Schedule scheduleToReturn = new Schedule(scheduleName);
-		when(mockScheduleRepository.update(any(Schedule.class))).thenReturn(scheduleToReturn);
-		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
-
-		Schedule newSchedule = new Schedule(scheduleName);
-
-		assertEquals(scheduleToReturn.getName(), service.update(newSchedule).getName());
 	}
 
 	@Test
@@ -71,6 +70,17 @@ public class ScheduleUnitTest {
 		assertEquals(runningScheduleToReturn.getScheduleId(), service.create(newRunningSchedule).getScheduleId());
 	}
 
+	// Update
+	@Test
+	public void testUpdateSchedule() {
+		when(mockScheduleRepository.update(any(Schedule.class))).thenReturn(scheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		Schedule newSchedule = new Schedule(scheduleName);
+
+		assertEquals(scheduleToReturn.getName(), service.update(newSchedule).getName());
+	}
+
 	@Test
 	public void testUpdateRunningSchedule() {
 		Schedule schedule = new Schedule(scheduleName);
@@ -83,6 +93,81 @@ public class ScheduleUnitTest {
 		RunningSchedule newRunningSchedule = new RunningSchedule(schedule);
 
 		assertEquals(runningScheduleToReturn.getScheduleId(), service.update(newRunningSchedule).getScheduleId());
+	}
+
+	// Getters
+
+	@Test
+	public void testGetScheduleById() {
+		when(mockScheduleRepository.getById(scheduleId)).thenReturn(scheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertEquals(scheduleName, service.getScheduleById(scheduleId).getName());
+	}
+
+	@Test
+	public void testGetScheduleByIdFail() {
+		when(mockScheduleRepository.getById(scheduleId)).thenReturn(scheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertNull(service.getScheduleById(43));
+	}
+
+	@Test
+	public void testGetScheduleByName() {
+		when(mockScheduleRepository.getByName(scheduleName)).thenReturn(scheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertEquals(scheduleName, service.getScheduleByName(scheduleName).getName());
+	}
+
+	@Test
+	public void testGetScheduleByNameFail() {
+		when(mockScheduleRepository.getByName(scheduleName)).thenReturn(scheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertNull(service.getScheduleByName("WrongName"));
+	}
+
+	@Test
+	public void testGetRunningScheduleById() {
+		when(mockRunningScheduleRepository.getById(runningScheduleId)).thenReturn(runningScheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertEquals(runningScheduleToReturn, service.getRunningScheduleById(runningScheduleId));
+	}
+
+	@Test
+	public void testGetRunningScheduleByIdFail() {
+		when(mockRunningScheduleRepository.getById(runningScheduleId)).thenReturn(runningScheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertNull(service.getRunningScheduleById(43));
+	}
+
+	@Test
+	public void testGetRunningScheduleByScheduleId() {
+		when(mockRunningScheduleRepository.getByScheduleId(scheduleId)).thenReturn(runningScheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertEquals(runningScheduleToReturn, service.getRunningScheduleByScheduleId(scheduleId));
+	}
+
+	@Test
+	public void testGetRunningScheduleByScheduleIdFail() {
+		when(mockRunningScheduleRepository.getByScheduleId(scheduleId)).thenReturn(runningScheduleToReturn);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertNull(service.getRunningScheduleByScheduleId(43));
+	}
+
+	@Test
+	public void testGetRunningScheduleOfScreen() {
+
+		when(mockRunningScheduleRepository.getRunningScheduleIdByScreenId(screenId)).thenReturn(runningScheduleId);
+		ScheduleService service = new ScheduleService(mockScheduleRepository, mockRunningScheduleRepository);
+
+		assertEquals(runningScheduleId, (int) service.getRunningScheduleOfScreenById(screenId));
 	}
 
 	@Test

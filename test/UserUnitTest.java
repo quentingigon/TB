@@ -14,6 +14,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -23,37 +24,35 @@ public class UserUnitTest {
 	private UserRepository mockUserRepository;
 
 	private int teamId;
+	private int userId;
 	private String email;
 	private String password;
+	private User userToReturn;
+	private TeamMember memberToReturn;
+	private Admin adminToReturn;
 
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		teamId = 1;
+		userId = 42;
 		email = "test";
 		password = "123";
+		userToReturn = new User(email, password);
+		memberToReturn = new TeamMember(userToReturn);
+		memberToReturn.setUserId(userId);
+		adminToReturn = new Admin(userId);
 	}
 
+	// Creation
 	@Test
 	public void testCreateUser() {
-		User userToReturn = new User(email, password);
 		when(mockUserRepository.create(any(User.class))).thenReturn(userToReturn);
 		UserService service = new UserService(mockUserRepository);
 
 		User newUser = new User(email, password);
 
 		assertEquals(userToReturn.getEmail(), service.createUser(newUser).getEmail());
-	}
-
-	@Test
-	public void testUpdateUser() {
-		User userToReturn = new User(email, password);
-		when(mockUserRepository.update(any(User.class))).thenReturn(userToReturn);
-		UserService service = new UserService(mockUserRepository);
-
-		User newUser = new User(email, password);
-
-		assertEquals(userToReturn.getEmail(), service.updateUser(newUser).getEmail());
 	}
 
 	@Test
@@ -78,6 +77,84 @@ public class UserUnitTest {
 		Admin newAdmin = new Admin(userId);
 
 		assertEquals(adminToReturn.getUserId(), service.createAdmin(newAdmin).getUserId());
+	}
+
+	// Update
+	@Test
+	public void testUpdateUser() {
+		when(mockUserRepository.update(any(User.class))).thenReturn(userToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		User newUser = new User(email, password);
+
+		assertEquals(userToReturn.getEmail(), service.updateUser(newUser).getEmail());
+	}
+
+	// Getters
+
+	@Test
+	public void testGetUserByEmailAndPassword() {
+		when(mockUserRepository.get(email, password)).thenReturn(userToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertEquals(email, service.getUserByEmailAndPassword(email, password).getEmail());
+	}
+
+	@Test
+	public void testGetUserByEmailAndPasswordFail() {
+		when(mockUserRepository.get(email, password)).thenReturn(userToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		// same with wrong email
+		assertNull(service.getUserByEmailAndPassword(email, "wrong password"));
+	}
+
+	@Test
+	public void testGetUserByEmail() {
+		when(mockUserRepository.getByEmail(email)).thenReturn(userToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertEquals(email, service.getUserByEmail(email).getEmail());
+	}
+
+	@Test
+	public void testGetUserByEmailFail() {
+		when(mockUserRepository.getByEmail(email)).thenReturn(userToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertNull(service.getUserByEmail("wrong email"));
+	}
+
+	@Test
+	public void testGetMemberByEmail() {
+		when(mockUserRepository.getMemberByUserEmail(email)).thenReturn(memberToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertEquals(userId, (int) service.getMemberByUserEmail(email).getUserId());
+	}
+
+	@Test
+	public void testGetMemberByEmailFail() {
+		when(mockUserRepository.getMemberByUserEmail(email)).thenReturn(memberToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertNull(service.getMemberByUserEmail("wrong email"));
+	}
+
+	@Test
+	public void testGetAdminByEmail() {
+		when(mockUserRepository.getAdminByUserEmail(email)).thenReturn(adminToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertEquals(userId, (int) service.getAdminByUserEmail(email).getUserId());
+	}
+
+	@Test
+	public void testGetAdminByEmailFail() {
+		when(mockUserRepository.getAdminByUserEmail(email)).thenReturn(adminToReturn);
+		UserService service = new UserService(mockUserRepository);
+
+		assertNull(service.getAdminByUserEmail("wrong email"));
 	}
 
 	@Test
