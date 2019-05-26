@@ -2,7 +2,7 @@ package controllers;
 
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
-import models.entities.*;
+import models.entities.DiffuserData;
 import models.repositories.interfaces.*;
 import play.data.Form;
 import play.data.FormFactory;
@@ -10,8 +10,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.RunningScheduleThread;
-import services.RunningScheduleThreadManager;
+import services.*;
 import views.html.diffuser.diffuser_activation;
 import views.html.diffuser.diffuser_creation;
 import views.html.diffuser.diffuser_page;
@@ -26,118 +25,121 @@ import static services.BlockUtils.getBlockNumberOfTime;
 
 public class DiffuserController extends Controller {
 
-	@Inject
-	ScheduleRepository scheduleRepository;
-
-	@Inject
-	ScreenRepository screenRepository;
-
-	@Inject
-	FluxRepository fluxRepository;
-
-	@Inject
-	DiffuserRepository diffuserRepository;
-
-	@Inject
-	RunningScheduleRepository runningScheduleRepository;
-
-	@Inject
-	RunningDiffuserRepository runningDiffuserRepository;
-
-	@Inject
-	TeamRepository teamRepository;
-
-	@Inject
-	UserRepository userRepository;
-
 	private Form<DiffuserData> form;
 
 	private final RunningScheduleThreadManager serviceManager;
 
-	private DataUtils dataUtils;
+	private final ServicePicker servicePicker;
 
 	@Inject
-	public DiffuserController(FormFactory formFactory, RunningScheduleThreadManager serviceManager, DataUtils dataUtils) {
-		this.dataUtils = dataUtils;
+	public DiffuserController(FormFactory formFactory,
+							  RunningScheduleThreadManager serviceManager,
+							  ServicePicker servicePicker) {
+		this.servicePicker = servicePicker;
 		this.form = formFactory.form(DiffuserData.class);
 		this.serviceManager = serviceManager;
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result index(Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(diffuser_page.render(dataUtils.getAllDiffusersOfTeam(teamId), null));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(diffuser_page.render(servicePicker.getDiffuserService().getAllDiffusersOfTeam(teamId),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result indexWithErrorMessage(Http.Request request, String error) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return badRequest(diffuser_page.render(dataUtils.getAllDiffusersOfTeam(teamId), error));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(diffuser_page.render(servicePicker.getDiffuserService().getAllDiffusersOfTeam(teamId),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
-		return ok(diffuser_update.render(form, new DiffuserData(name), null));
+		return ok(diffuser_update.render(form,
+			new DiffuserData(name),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateViewWithErrorMessage(String name, String error) {
-		return badRequest(diffuser_update.render(form, new DiffuserData(name), error));
+		return badRequest(diffuser_update.render(form,
+			new DiffuserData(name),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(diffuser_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), null));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(diffuser_creation.render(form,
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createViewWithErrorMessage(Http.Request request, String error) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return badRequest(diffuser_creation.render(form, dataUtils.getAllFluxesOfTeam(teamId), error));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(diffuser_creation.render(form,
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), null, request));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(diffuser_activation.render(form,
+			servicePicker.getScreenService().getAllScreensOfTeam(teamId),
+			new DiffuserData(name),
+			null,
+			request));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activateViewWithErrorMessage(String name, Http.Request request, String error) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return badRequest(diffuser_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new DiffuserData(name), error, request));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(diffuser_activation.render(form,
+			servicePicker.getScreenService().getAllScreensOfTeam(teamId),
+			new DiffuserData(name),
+			error,
+			request));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
-
 		DiffuserData data = boundForm.get();
 
-		Diffuser diffuser = diffuserRepository.getByName(data.getName());
+		DiffuserService diffuserService = servicePicker.getDiffuserService();
+		ScreenService screenService = servicePicker.getScreenService();
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+		FluxService fluxService = servicePicker.getFluxService();
+
+		Diffuser diffuser = diffuserService.getDiffuserByName(data.getName());
 
 		// incorrect name
 		if (diffuser == null) {
 			return activateViewWithErrorMessage(data.getName(), request, "Diffuser name does not exists");
 		}
-
 		else {
-
 			// get names of RunningSchedules concerned by the new Diffuser
 			Set<Integer> scheduleIds = new HashSet<>();
 			Set<Integer> runningScheduleIds = new HashSet<>();
+			Set<Integer> screenIds = new HashSet<>();
 			for (String mac: data.getScreens()) {
-				if (screenRepository.getByMacAddress(mac) == null) {
+
+				Screen screen = screenService.getScreenByMacAddress(mac);
+				if (screen == null) {
 					return activateViewWithErrorMessage(data.getName(), request, "Screen MAC address does not exists");
 				}
+				screenIds.add(screen.getId());
+
 				// get running schedule + all ids
-				RunningSchedule rs = runningScheduleRepository.getById(screenRepository.getByMacAddress(mac).getRunningScheduleId());
+				RunningSchedule rs = scheduleService.getRunningScheduleById(screen.getRunningScheduleId());
 				runningScheduleIds.add(rs.getId());
 
 				// get associated schedule
-				scheduleIds.add(scheduleRepository.getById(rs.getScheduleId()).getId());
+				scheduleIds.add(scheduleService.getScheduleById(rs.getScheduleId()).getId());
 			}
 
 			// no runningschedule are associated with the screens used by the diffuser
@@ -146,11 +148,11 @@ public class DiffuserController extends Controller {
 			}
 
 			// Flux to add to schedules and services
-			Flux diffusedFlux = fluxRepository.getById(diffuser.getFlux());
+			Flux diffusedFlux = fluxService.getFluxById(diffuser.getFlux());
 
 			// update associated Schedule timetable
 			for (Integer id: scheduleIds) {
-				Schedule schedule = scheduleRepository.getById(id);
+				Schedule schedule = scheduleService.getScheduleById(id);
 				// update schedule's timetable by adding a new entry for ScheduledFlux
 				// and updating schedule
 				ScheduledFlux sf = new ScheduledFlux();
@@ -158,10 +160,11 @@ public class DiffuserController extends Controller {
 				sf.setStartBlock(diffuser.getStartBlock());
 				sf.setFluxId(diffusedFlux.getId());
 
-				sf = fluxRepository.addScheduledFlux(sf);
+				sf = fluxService.createScheduled(sf);
 
 				schedule.addToFluxes(sf.getId());
-				scheduleRepository.update(schedule);
+
+				scheduleService.update(schedule);
 			}
 
 			// update associated RunningScheduleThread
@@ -182,9 +185,10 @@ public class DiffuserController extends Controller {
 			// create new runningDiffuser
 			RunningDiffuser rd = new RunningDiffuser(diffuser);
 			rd.setDiffuserId(diffuser.getId());
-			rd.addToScreens(screenRepository.getByMacAddress("1234").getId());
+			rd.setScreens(new ArrayList<>(screenIds));
 			rd.setFluxId(diffusedFlux.getId());
-			runningDiffuserRepository.add(rd);
+
+			diffuserService.create(rd);
 
 			return index(request);
 		}
@@ -192,7 +196,12 @@ public class DiffuserController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(Http.Request request, String name) {
-		Diffuser diffuser = diffuserRepository.getByName(name);
+		DiffuserService diffuserService = servicePicker.getDiffuserService();
+		ScreenService screenService = servicePicker.getScreenService();
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+		FluxService fluxService = servicePicker.getFluxService();
+
+		Diffuser diffuser = diffuserService.getDiffuserByName(name);
 
 		// incorrect name
 		if (diffuser == null) {
@@ -200,32 +209,32 @@ public class DiffuserController extends Controller {
 		}
 		else {
 
-			RunningDiffuser rd = runningDiffuserRepository.getByDiffuserId(diffuser.getId());
+			RunningDiffuser rd = diffuserService.getRunningDiffuserByDiffuserId(diffuser.getId());
 
-			for (Integer id: runningDiffuserRepository.getScreenIdsOfRunningDiffuser(rd.getId())) {
+			for (Integer id: diffuserService.getScreenIdsOfRunningDiffuserById(rd.getId())) {
 
-				Screen screen = screenRepository.getById(id);
+				Screen screen = screenService.getScreenById(id);
 
 				// if screen is active, update associated schedule
 				if (screen.getRunningScheduleId() != null) {
-					RunningSchedule rs = runningScheduleRepository.getById(screen.getRunningScheduleId());
+					RunningSchedule rs = scheduleService.getRunningScheduleById(screen.getRunningScheduleId());
 
-					Schedule schedule = scheduleRepository.getById(rs.getScheduleId());
+					Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
 					schedule.removeFromFluxes(diffuser.getFlux());
-					scheduleRepository.update(schedule);
 
+					scheduleService.update(schedule);
 				}
 
 				RunningScheduleThread rst = serviceManager.getServiceByScheduleId(id);
 				if (rst != null) {
 					rst.removeScheduledFluxFromDiffuser(
-						fluxRepository.getById(diffuser.getFlux()),
+						fluxService.getFluxById(diffuser.getFlux()),
 						diffuser.getId(),
 						diffuser.getStartBlock()
 					);
 				}
 			}
-			runningDiffuserRepository.delete(rd);
+			diffuserService.delete(rd);
 
 			return index(request);
 		}
@@ -234,12 +243,16 @@ public class DiffuserController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+
+		DiffuserService diffuserService = servicePicker.getDiffuserService();
+		FluxService fluxService = servicePicker.getFluxService();
+		TeamService teamService = servicePicker.getTeamService();
 
 		DiffuserData data = boundForm.get();
 
 		// diffuser already exists
-		if (diffuserRepository.getByName(data.getName()) != null) {
+		if (diffuserService.getDiffuserByName(data.getName()) != null) {
 			return createViewWithErrorMessage(request, "Name is already taken");
 		}
 		else {
@@ -248,16 +261,16 @@ public class DiffuserController extends Controller {
 				return error;
 			}
 			Diffuser diffuser = new Diffuser(data.getName());
-			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
+			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.valueOf(data.getValidity()));
 			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
 			diffuser.setOverwrite(data.isOverwrite());
 
-			diffuser = diffuserRepository.add(diffuser);
+			diffuser = diffuserService.create(diffuser);
 
-			Team team = teamRepository.getById(teamId);
+			Team team = teamService.getTeamById(teamId);
 			team.addToDiffusers(diffuser.getId());
-			teamRepository.update(team);
+			teamService.update(team);
 
 			return index(request);
 		}
@@ -267,8 +280,11 @@ public class DiffuserController extends Controller {
 	public Result update(Http.Request request) {
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
 
+		DiffuserService diffuserService = servicePicker.getDiffuserService();
+		FluxService fluxService = servicePicker.getFluxService();
+
 		DiffuserData data = boundForm.get();
-		Diffuser diffuser = diffuserRepository.getByName(data.getName());
+		Diffuser diffuser = diffuserService.getDiffuserByName(data.getName());
 
 		// name is incorrect
 		if (diffuser == null) {
@@ -280,13 +296,12 @@ public class DiffuserController extends Controller {
 			if (error != null) {
 				return error;
 			}
-			diffuser.setFlux(fluxRepository.getByName(data.getFluxName()).getId());
+			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.valueOf(data.getValidity()));
 			diffuser.setName(data.getName());
 			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
 
-			// do changes to diffuser here
-			diffuserRepository.update(diffuser);
+			diffuserService.update(diffuser);
 
 			return index(request);
 		}
@@ -295,13 +310,15 @@ public class DiffuserController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result delete(Http.Request request, String name) {
 
-		Diffuser diffuser = diffuserRepository.getByName(name);
+		DiffuserService diffuserService = servicePicker.getDiffuserService();
+
+		Diffuser diffuser = diffuserService.getDiffuserByName(name);
 
 		if (diffuser == null) {
 			return indexWithErrorMessage(request, "Diffuser name does not exists");
 		}
 		else {
-			diffuserRepository.delete(diffuser);
+			diffuserService.delete(diffuser);
 
 			return index(request);
 		}
@@ -309,6 +326,9 @@ public class DiffuserController extends Controller {
 
 	// TODO additional checks
 	private Result checkDataIntegrity(DiffuserData data, String action, Http.Request request) {
+
+		FluxService fluxService = servicePicker.getFluxService();
+		ScreenService screenService = servicePicker.getScreenService();
 
 		Result error = null;
 
@@ -320,7 +340,7 @@ public class DiffuserController extends Controller {
 		}
 
 		if (data.getFluxName() != null) {
-			if (fluxRepository.getByName(data.getFluxName()) ==  null) {
+			if (fluxService.getFluxByName(data.getFluxName()) ==  null) {
 				if (action.equals("create"))
 					error = createViewWithErrorMessage(request, "Flux does not exists");
 				else if (action.equals("update"))
@@ -340,7 +360,7 @@ public class DiffuserController extends Controller {
 
 		if (data.getScreens() != null) {
 			for (String screenMAC: data.getScreens()) {
-				if (screenRepository.getByMacAddress(screenMAC) == null) {
+				if (screenService.getScreenByMacAddress(screenMAC) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage(request, "Screen MAC address does not exists");
 					else if (action.equals("update"))

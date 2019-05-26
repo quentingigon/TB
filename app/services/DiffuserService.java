@@ -1,6 +1,7 @@
 package services;
 
 import models.db.Diffuser;
+import models.db.RunningDiffuser;
 import models.entities.DiffuserData;
 import models.repositories.interfaces.DiffuserRepository;
 import models.repositories.interfaces.RunningDiffuserRepository;
@@ -19,12 +20,40 @@ public class DiffuserService {
 		this.runningDiffuserRepository = runningDiffuserRepository;
 	}
 
+	public Diffuser getDiffuserByName(String name) {
+		return diffuserRepository.getByName(name);
+	}
+
 	public Diffuser create(Diffuser diffuser) {
 		return diffuserRepository.add(diffuser);
 	}
 
 	public Diffuser update(Diffuser diffuser) {
 		return diffuserRepository.update(diffuser);
+	}
+
+	public void delete(Diffuser diffuser) {
+		diffuserRepository.delete(diffuser);
+	}
+
+	public RunningDiffuser getRunningDiffuserByDiffuserId(Integer id) {
+		return runningDiffuserRepository.getByDiffuserId(id);
+	}
+
+	public RunningDiffuser create(RunningDiffuser diffuser) {
+		return runningDiffuserRepository.add(diffuser);
+	}
+
+	public RunningDiffuser update(RunningDiffuser diffuser) {
+		return runningDiffuserRepository.update(diffuser);
+	}
+
+	public void delete(RunningDiffuser diffuser) {
+		runningDiffuserRepository.delete(diffuser);
+	}
+
+	public List<Integer> getScreenIdsOfRunningDiffuserById(Integer id) {
+		return runningDiffuserRepository.getScreenIdsOfRunningDiffuser(id);
 	}
 
 	public List<DiffuserData> getAllDiffusersOfTeam(int teamId) {

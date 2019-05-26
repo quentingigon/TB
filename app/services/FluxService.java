@@ -18,8 +18,20 @@ public class FluxService {
 		this.fluxRepository = fluxRepository;
 	}
 
+	public Flux getFluxById(Integer id) {
+		return fluxRepository.getById(id);
+	}
+
+	public Flux getFluxByName(String name) {
+		return fluxRepository.getByName(name);
+	}
+
 	public Flux create(Flux flux) {
 		return fluxRepository.addFlux(flux);
+	}
+
+	public void delete(Flux flux) {
+		fluxRepository.delete(flux);
 	}
 
 	public LocatedFlux createLocated(LocatedFlux flux) {

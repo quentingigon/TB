@@ -5,7 +5,6 @@ import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
 import models.db.Team;
-import models.entities.DataUtils;
 import models.entities.FluxData;
 import models.repositories.interfaces.FluxRepository;
 import models.repositories.interfaces.SiteRepository;
@@ -17,6 +16,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import services.FluxService;
+import services.ServicePicker;
+import services.TeamService;
 import views.html.flux.flux_creation;
 import views.html.flux.flux_page;
 import views.html.flux.flux_update;
@@ -33,63 +35,67 @@ public class FluxController extends Controller {
 	private final String PICTURES_DIR = System.getProperty("user.dir") + "/public/images/";
 
 	@Inject
-	FluxRepository fluxRepository;
-
-	@Inject
 	SiteRepository siteRepository;
-
-	@Inject
-	TeamRepository teamRepository;
 
 	private Form<FluxData> form;
 
-	private DataUtils dataUtils;
+	private final ServicePicker servicePicker;
 
 	@Inject
-	public FluxController(FormFactory formFactory, DataUtils dataUtils) {
-		this.dataUtils = dataUtils;
+	public FluxController(FormFactory formFactory,
+						  ServicePicker servicePicker) {
+		this.servicePicker = servicePicker;
 		this.form = formFactory.form(FluxData.class);
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result index() {
-		return ok(flux_page.render(dataUtils.getAllFluxes(), null));
+		return ok(flux_page.render(servicePicker.getFluxService().getAllFluxes(),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result indexWithErrorMessage(String error) {
-		return badRequest(flux_page.render(dataUtils.getAllFluxes(), error));
+		return badRequest(flux_page.render(servicePicker.getFluxService().getAllFluxes(),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createView() {
-		return ok(flux_creation.render(form, null));
+		return ok(flux_creation.render(form,
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createViewWithErrorMessage(String error) {
-		return badRequest(flux_creation.render(form, error));
+		return badRequest(flux_creation.render(form,
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String name) {
-		return ok(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), null));
+		return ok(flux_update.render(form,
+			new FluxData(servicePicker.getFluxService().getFluxByName(name)),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result updateViewWithMessage(String name, String error) {
-		return badRequest(flux_update.render(form, new FluxData(fluxRepository.getByName(name)), error));
+	public Result updateViewWithErrorMessage(String name, String error) {
+		return badRequest(flux_update.render(form,
+			new FluxData(servicePicker.getFluxService().getFluxByName(name)),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		FluxService fluxService = servicePicker.getFluxService();
+		TeamService teamService = servicePicker.getTeamService();
 		FluxData data = boundForm.get();
 
 		// flux already exists
-		if (fluxRepository.getByName(data.getName()) != null) {
+		if (fluxService.getFluxByName(data.getName()) != null) {
 			return createViewWithErrorMessage("Flux already exists");
 		}
 		// bar url
@@ -121,23 +127,24 @@ public class FluxController extends Controller {
 
 			Flux newFlux = new Flux(data);
 
-			newFlux = fluxRepository.addFlux(newFlux);
+			newFlux = fluxService.create(newFlux);
 
 			// general flux
 			if (data.getSite() != null && data.getSite().equals("")) {
-				fluxRepository.addGeneralFlux(new GeneralFlux(newFlux.getId()));
+				fluxService.createGeneral(new GeneralFlux(newFlux.getId()));
 
 			}
 			// located flux
 			else {
-				fluxRepository.addLocatedFlux(new LocatedFlux(newFlux.getId(),
+				fluxService.createLocated(new LocatedFlux(newFlux.getId(),
 					siteRepository.getByName(data.getSite().toLowerCase()).getId()));
 			}
 
 			if (teamId != null) {
-				Team team = teamRepository.getById(teamId);
+				Team team = teamService.getTeamById(teamId);
 				team.addToFluxes(newFlux.getId());
-				teamRepository.update(team);
+
+				teamService.update(team);
 			}
 
 			return index();
@@ -147,14 +154,15 @@ public class FluxController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result update(Http.Request request) {
 		final Form<FluxData> boundForm = form.bindFromRequest(request);
+		FluxService fluxService = servicePicker.getFluxService();
 
 		FluxData data = boundForm.get();
 
-		Flux flux = fluxRepository.getByName(data.getName());
+		Flux flux = fluxService.getFluxByName(data.getName());
 
 		// flux does not exist
 		if (flux == null) {
-			return updateViewWithMessage(data.getName(), "Flux name does not exists");
+			return updateViewWithErrorMessage(data.getName(), "Flux name does not exists");
 		}
 		// update flux
 		else {
@@ -162,7 +170,8 @@ public class FluxController extends Controller {
 			flux.setUrl(data.getUrl());
 			flux.setType(data.getType());
 			flux.setNumberOfPhases(Long.valueOf(data.getNumberOfPhases()));
-			fluxRepository.update(flux);
+
+			fluxService.update(flux);
 
 			return index();
 		}
@@ -170,14 +179,15 @@ public class FluxController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result delete(String name) {
-		Flux flux = fluxRepository.getByName(name);
+		FluxService fluxService = servicePicker.getFluxService();
+		Flux flux = fluxService.getFluxByName(name);
 
 		if (flux == null) {
 			// team does not exists
 			return indexWithErrorMessage("Flux does not exists");
 		}
 		else {
-			fluxRepository.delete(flux);
+			fluxService.delete(flux);
 			return index();
 		}
 	}

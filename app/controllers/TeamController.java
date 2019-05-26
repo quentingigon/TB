@@ -2,7 +2,6 @@ package controllers;
 
 import controllers.actions.UserAuthentificationAction;
 import models.db.Team;
-import models.entities.DataUtils;
 import models.entities.TeamData;
 import models.repositories.interfaces.*;
 import play.data.Form;
@@ -11,6 +10,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import services.FluxService;
+import services.ServicePicker;
+import services.TeamService;
 import views.html.team.team_creation;
 import views.html.team.team_page;
 import views.html.team.team_update;
@@ -20,100 +22,85 @@ import java.util.ArrayList;
 
 public class TeamController extends Controller {
 
-	@Inject
-	TeamRepository teamRepository;
-
-	@Inject
-	ScreenRepository screenRepository;
-
-	@Inject
-	FluxRepository fluxRepository;
-
-	@Inject
-	ScheduleRepository scheduleRepository;
-
-	@Inject
-	DiffuserRepository diffuserRepository;
-
-	@Inject
-	UserRepository userRepository;
-
 	private Form<TeamData> form;
 
-	private DataUtils dataUtils;
+	private final ServicePicker servicePicker;
 
 	@Inject
-	public TeamController(FormFactory formFactory, DataUtils dataUtils) {
-		this.dataUtils = dataUtils;
+	public TeamController(FormFactory formFactory,
+						  ServicePicker servicePicker) {
+		this.servicePicker = servicePicker;
 		this.form = formFactory.form(TeamData.class);
 	}
 
 	//@With(UserAuthentificationAction.class)
 	public Result index() {
-		return ok(team_page.render(dataUtils.getAllTeams(), null));
+		return ok(team_page.render(servicePicker.getTeamService().getAllTeams(),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result indexWithErrorMessage(String error) {
-		return ok(team_page.render(dataUtils.getAllTeams(), error));
+		return ok(team_page.render(servicePicker.getTeamService().getAllTeams(),
+			error));
 	}
 
 	//@With(UserAuthentificationAction.class)
 	public Result createView() {
 		return ok(team_creation.render(form,
-			dataUtils.getAllFluxes(),
-			dataUtils.getAllScreens(),
-			dataUtils.getAllUsers(),
-			dataUtils.getAllSchedules(),
-			dataUtils.getAllDiffusers(),
+			servicePicker.getFluxService().getAllFluxes(),
+			servicePicker.getScreenService().getAllScreens(),
+			servicePicker.getUserService().getAllUsers(),
+			servicePicker.getScheduleService().getAllSchedules(),
+			servicePicker.getDiffuserService().getAllDiffusers(),
 			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	private Result createViewWithErrorMessage(String error) {
 		return badRequest(team_creation.render(form,
-			dataUtils.getAllFluxes(),
-			dataUtils.getAllScreens(),
-			dataUtils.getAllUsers(),
-			dataUtils.getAllSchedules(),
-			dataUtils.getAllDiffusers(),
+			servicePicker.getFluxService().getAllFluxes(),
+			servicePicker.getScreenService().getAllScreens(),
+			servicePicker.getUserService().getAllUsers(),
+			servicePicker.getScheduleService().getAllSchedules(),
+			servicePicker.getDiffuserService().getAllDiffusers(),
 			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String teamName) {
-		Team team = teamRepository.getByName(teamName);
+		Team team = servicePicker.getTeamService().getTeamByName(teamName);
 		return ok(team_update.render(form,
-			dataUtils.getAllFluxes(),
-			dataUtils.getAllFluxesOfTeam(team.getId()),
-			dataUtils.getAllScreens(),
-			dataUtils.getAllScreensOfTeam(team.getId()),
-			dataUtils.getAllUsers(),
-			dataUtils.getAllMembersOfTeam(team.getId()),
-			dataUtils.getAllAdminsOfTeam(team.getId()),
-			dataUtils.getAllSchedules(),
-			dataUtils.getAllSchedulesOfTeam(team.getId()),
-			dataUtils.getAllDiffusers(),
-			dataUtils.getAllDiffusersOfTeam(team.getId()),
+			servicePicker.getFluxService().getAllFluxes(),
+			servicePicker.getFluxService().getAllFluxesOfTeam(team.getId()),
+			servicePicker.getScreenService().getAllScreens(),
+			servicePicker.getScreenService().getAllScreensOfTeam(team.getId()),
+			servicePicker.getUserService().getAllUsers(),
+			servicePicker.getUserService().getAllMembersOfTeam(team.getId()),
+			servicePicker.getUserService().getAllAdminsOfTeam(team.getId()),
+			servicePicker.getScheduleService().getAllSchedules(),
+			servicePicker.getScheduleService().getAllSchedulesOfTeam(team.getId()),
+			servicePicker.getDiffuserService().getAllDiffusers(),
+			servicePicker.getDiffuserService().getAllDiffusersOfTeam(team.getId()),
 			new TeamData(team),
 			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	private Result updateViewWithErrorMessage(String teamName, String error) {
-		Team team = teamRepository.getByName(teamName);
+		Team team = servicePicker.getTeamService().getTeamByName(teamName);
 		return badRequest(team_update.render(form,
-			dataUtils.getAllFluxes(),
-			dataUtils.getAllFluxesOfTeam(team.getId()),
-			dataUtils.getAllScreens(),
-			dataUtils.getAllScreensOfTeam(team.getId()),
-			dataUtils.getAllUsers(),
-			dataUtils.getAllMembersOfTeam(team.getId()),
-			dataUtils.getAllAdminsOfTeam(team.getId()),
-			dataUtils.getAllSchedules(),
-			dataUtils.getAllSchedulesOfTeam(team.getId()),
-			dataUtils.getAllDiffusers(),
-			dataUtils.getAllDiffusersOfTeam(team.getId()),
+			servicePicker.getFluxService().getAllFluxes(),
+			servicePicker.getFluxService().getAllFluxesOfTeam(team.getId()),
+			servicePicker.getScreenService().getAllScreens(),
+			servicePicker.getScreenService().getAllScreensOfTeam(team.getId()),
+			servicePicker.getUserService().getAllUsers(),
+			servicePicker.getUserService().getAllMembersOfTeam(team.getId()),
+			servicePicker.getUserService().getAllAdminsOfTeam(team.getId()),
+			servicePicker.getScheduleService().getAllSchedules(),
+			servicePicker.getScheduleService().getAllSchedulesOfTeam(team.getId()),
+			servicePicker.getDiffuserService().getAllDiffusers(),
+			servicePicker.getDiffuserService().getAllDiffusersOfTeam(team.getId()),
 			new TeamData(team),
 			error));
 	}
@@ -121,10 +108,10 @@ public class TeamController extends Controller {
 	// @With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<TeamData> boundForm = form.bindFromRequest(request);
-
+		TeamService teamService = servicePicker.getTeamService();
 		TeamData data = boundForm.get();
 
-		if (teamRepository.getByName(data.getName()) != null) {
+		if (teamService.getTeamByName(data.getName()) != null) {
 			return createViewWithErrorMessage("Team name already exists");
 		}
 		else {
@@ -137,7 +124,7 @@ public class TeamController extends Controller {
 
 			fillTeamFromTeamData(team, data);
 
-			teamRepository.add(team);
+			teamService.create(team);
 
 			return index();
 		}
@@ -148,8 +135,8 @@ public class TeamController extends Controller {
 		final Form<TeamData> boundForm = form.bindFromRequest(request);
 
 		TeamData data = boundForm.get();
-
-		Team team = teamRepository.getByName(data.getName());
+		TeamService teamService = servicePicker.getTeamService();
+		Team team = teamService.getTeamByName(data.getName());
 
 		if (team == null) {
 			return updateViewWithErrorMessage(data.getName(), "Team name does not exists");
@@ -163,7 +150,7 @@ public class TeamController extends Controller {
 
 			fillTeamFromTeamData(team, data);
 
-			teamRepository.update(team);
+			teamService.update(team);
 
 			return index();
 		}
@@ -171,41 +158,43 @@ public class TeamController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result delete(String name) {
-		Team team = teamRepository.getByName(name);
+		TeamService teamService = servicePicker.getTeamService();
+		Team team = teamService.getTeamByName(name);
 
 		if (team == null) {
 			// team does not exists
 			return indexWithErrorMessage("Team name does not exists");
 		}
 		else {
-			teamRepository.delete(team);
+			teamService.delete(team);
 			return index();
 		}
 	}
 
 	private void fillTeamFromTeamData(Team team, TeamData data) {
+
 		for (String fluxName: data.getFluxes()) {
-			team.addToFluxes(fluxRepository.getByName(fluxName).getId());
+			team.addToFluxes(servicePicker.getFluxService().getFluxByName(fluxName).getId());
 		}
 
 		for (String email: data.getMembers()) {
-			team.addMember(userRepository.getMemberByUserEmail(email).getId());
+			team.addMember(servicePicker.getUserService().getMemberByUserEmail(email).getId());
 		}
 
 		for (String email: data.getAdmins()) {
-			team.addAdmin(userRepository.getMemberByUserEmail(email).getId());
+			team.addAdmin(servicePicker.getUserService().getMemberByUserEmail(email).getId());
 		}
 
 		for (String scheduleName: data.getSchedules()) {
-			team.addToSchedules(scheduleRepository.getByName(scheduleName).getId());
+			team.addToSchedules(servicePicker.getScheduleService().getScheduleByName(scheduleName).getId());
 		}
 
 		for (String diffuserName: data.getDiffusers()) {
-			team.addToDiffusers(diffuserRepository.getByName(diffuserName).getId());
+			team.addToDiffusers(servicePicker.getDiffuserService().getDiffuserByName(diffuserName).getId());
 		}
 
 		for (String screenMAC: data.getScreens()) {
-			team.addScreen(screenRepository.getByMacAddress(screenMAC).getId());
+			team.addScreen(servicePicker.getScreenService().getScreenByMacAddress(screenMAC).getId());
 		}
 	}
 
@@ -216,7 +205,7 @@ public class TeamController extends Controller {
 
 		if (data.getFluxes() != null) {
 			for (String fluxName: data.getFluxes()) {
-				if (fluxRepository.getByName(fluxName) == null) {
+				if (servicePicker.getFluxService().getFluxByName(fluxName) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("Flux name does not exists");
 					else if (action.equals("update"))
@@ -230,7 +219,7 @@ public class TeamController extends Controller {
 
 		if (data.getMembers() != null) {
 			for (String email: data.getMembers()) {
-				if (userRepository.getMemberByUserEmail(email) == null) {
+				if (servicePicker.getUserService().getMemberByUserEmail(email) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("User email address does not exists");
 					else if (action.equals("update"))
@@ -244,7 +233,7 @@ public class TeamController extends Controller {
 
 		if (data.getAdmins() != null) {
 			for (String email: data.getAdmins()) {
-				if (userRepository.getMemberByUserEmail(email) == null) {
+				if (servicePicker.getUserService().getMemberByUserEmail(email) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("Admin email does not exists");
 					else if (action.equals("update"))
@@ -258,7 +247,7 @@ public class TeamController extends Controller {
 
 		if (data.getSchedules() != null) {
 			for (String scheduleName: data.getSchedules()) {
-				if (scheduleRepository.getByName(scheduleName) == null) {
+				if (servicePicker.getScheduleService().getScheduleByName(scheduleName) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("Schedule name does not exists");
 					else if (action.equals("update"))
@@ -272,7 +261,7 @@ public class TeamController extends Controller {
 
 		if (data.getDiffusers() != null) {
 			for (String diffuserName: data.getDiffusers()) {
-				if (diffuserRepository.getByName(diffuserName) == null) {
+				if (servicePicker.getDiffuserService().getDiffuserByName(diffuserName) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("Diffuser name does not exists");
 					else if (action.equals("update"))
@@ -286,7 +275,7 @@ public class TeamController extends Controller {
 
 		if (data.getScreens() != null) {
 			for (String screenMAC: data.getScreens()) {
-				if (screenRepository.getByMacAddress(screenMAC) == null) {
+				if (servicePicker.getScreenService().getScreenByMacAddress(screenMAC) == null) {
 					if (action.equals("create"))
 						error = createViewWithErrorMessage("Screen MAC address does not exists");
 					else if (action.equals("update"))

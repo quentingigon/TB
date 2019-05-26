@@ -15,7 +15,6 @@ import static services.RunningScheduleUtils.WAIT_FLUX;
 
 public class RunningScheduleThread extends Observable implements Runnable {
 
-	// /!\ WARNING /!\ maybe it's a "static" instance of FluxRepository and is not updated afterwards
 	private FluxRepository fluxRepository;
 	private FluxChecker fluxChecker;
 

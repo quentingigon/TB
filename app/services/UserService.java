@@ -17,6 +17,14 @@ public class UserService {
 		this.userRepository = userRepository;
 	}
 
+	public User getUserByEmailAndPassword(String email, String password) {
+		return userRepository.get(email, password);
+	}
+
+	public User getUserByEmail(String email) {
+		return userRepository.getByEmail(email);
+	}
+
 	public User createUser(User user) {
 		return userRepository.create(user);
 	}
@@ -25,12 +33,24 @@ public class UserService {
 		return userRepository.createMember(teamMember);
 	}
 
+	public TeamMember getMemberByUserEmail(String email) {
+		return userRepository.getMemberByUserEmail(email);
+	}
+
 	public Admin createAdmin(Admin admin) {
 		return userRepository.createAdmin(admin);
 	}
 
+	public Admin getAdminByUserEmail(String email) {
+		return userRepository.getAdminByUserEmail(email);
+	}
+
 	public User updateUser(User user) {
 		return userRepository.update(user);
+	}
+
+	public void deleteUser(User user) {
+		userRepository.delete(user);
 	}
 
 	public Integer getTeamIdOfUserByEmail(String email) {

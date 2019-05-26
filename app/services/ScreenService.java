@@ -16,6 +16,14 @@ public class ScreenService {
 		this.screenRepository = screenRepository;
 	}
 
+	public Screen getScreenByMacAddress(String mac) {
+		return screenRepository.getByMacAddress(mac);
+	}
+
+	public Screen getScreenById(Integer id) {
+		return screenRepository.getById(id);
+	}
+
 	public Screen create(Screen screen) {
 		return screenRepository.add(screen);
 	}
@@ -24,8 +32,20 @@ public class ScreenService {
 		return screenRepository.update(screen);
 	}
 
+	public void delete(Screen screen) {
+		screenRepository.delete(screen);
+	}
+
+	public WaitingScreen getWSByMacAddress(String mac) {
+		return screenRepository.getByMac(mac);
+	}
+
 	public WaitingScreen createWS(WaitingScreen screen) {
 		return screenRepository.add(screen);
+	}
+
+	public void delete(WaitingScreen ws) {
+		screenRepository.delete(ws);
 	}
 
 	public List<ScreenData> getAllScreens() {

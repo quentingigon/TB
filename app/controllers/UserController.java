@@ -4,7 +4,6 @@ import controllers.actions.UserAuthentificationAction;
 import models.db.Team;
 import models.db.TeamMember;
 import models.db.User;
-import models.entities.DataUtils;
 import models.entities.UserData;
 import models.repositories.interfaces.TeamRepository;
 import models.repositories.interfaces.UserRepository;
@@ -14,6 +13,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import services.ServicePicker;
+import services.TeamService;
+import services.UserService;
 import views.html.user.user_login;
 import views.html.user.user_page;
 import views.html.user.user_register;
@@ -23,83 +25,90 @@ import javax.inject.Inject;
 
 public class UserController extends Controller {
 
-	@Inject
-	UserRepository userRepository;
-
-	@Inject
-	TeamRepository teamRepository;
-
 	private final Form<UserData> form;
 
-	private DataUtils dataUtils;
+	private final ServicePicker servicePicker;
 
 	@Inject
-	public UserController(FormFactory formFactory, DataUtils dataUtils) {
-		this.dataUtils = dataUtils;
+	public UserController(FormFactory formFactory, ServicePicker servicePicker) {
+		this.servicePicker = servicePicker;
 		this.form = formFactory.form(UserData.class);
 	}
 
 	public Result index() {
-		return ok(user_page.render(dataUtils.getAllUsers(), null));
+		return ok(user_page.render(servicePicker.getUserService().getAllUsers(),
+			null));
 	}
 
 	public Result indexWithErrorMessage(String error) {
-		return badRequest(user_page.render(dataUtils.getAllUsers(), error));
+		return badRequest(user_page.render(servicePicker.getUserService().getAllUsers(),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(String email) {
-		return ok(user_update.render(form, new UserData(userRepository.getByEmail(email)), null));
+		return ok(user_update.render(form,
+			new UserData(servicePicker.getUserService().getUserByEmail(email)),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateViewWithErrorMessage(String email, String error) {
-		return badRequest(user_update.render(form, new UserData(email), error));
+		return badRequest(user_update.render(form,
+			new UserData(email),
+			error));
 	}
 
 	public Result registerView() {
-		return ok(user_register.render(form, dataUtils.getAllTeams(), null));
+		return ok(user_register.render(form,
+			servicePicker.getTeamService().getAllTeams(),
+			null));
 	}
 
 	public Result registerViewWithErrorMessage(String error) {
-		return badRequest(user_register.render(form, dataUtils.getAllTeams(), error));
+		return badRequest(user_register.render(form,
+			servicePicker.getTeamService().getAllTeams(),
+			error));
 	}
 
 	public Result loginView() {
-		return ok(user_login.render(form, null));
+		return ok(user_login.render(form,
+			null));
 	}
 
 	public Result loginViewWithErrorMessage(String error) {
-		return badRequest(user_login.render(form, error));
+		return badRequest(user_login.render(form,
+			error));
 	}
 
 	public Result register(Http.Request request) {
 		final Form<UserData> boundForm = form.bindFromRequest(request);
-
-
 		UserData data = boundForm.get();
 
 		User newUser = new User(data.getEmail(), data.getPassword());
 
+		UserService userService = servicePicker.getUserService();
+		TeamService teamService = servicePicker.getTeamService();
+
 		// email is not unique
-		if (userRepository.getByEmail(newUser.getEmail()) != null) {
+		if (userService.getUserByEmail(newUser.getEmail()) != null) {
 			return registerViewWithErrorMessage("Email is already used");
 		}
 		else {
 
-			newUser = userRepository.create(newUser);
+			newUser = userService.createUser(newUser);
 
 			// TODO verify its correct
 			// user created is part of a team
 			if (data.getTeam() != null) {
-				Team team = teamRepository.getByName(data.getTeam());
+				Team team = teamService.getTeamByName(data.getTeam());
 				TeamMember member = new TeamMember(newUser);
-				member.setTeamId(teamRepository.getByName(team.getName()).getId());
-				member = userRepository.createMember(member);
+				member.setTeamId(teamService.getTeamByName(team.getName()).getId());
+				member = userService.createTeamMember(member);
 
 				if (data.getAdmin()) {
 					team.addAdmin(member.getId());
-					teamRepository.update(team);
+					teamService.update(team);
 				}
 			}
 			return redirect(routes.HomeController.index()).withCookies(
@@ -114,7 +123,9 @@ public class UserController extends Controller {
 
 		UserData data = boundForm.get();
 
-		User user = userRepository.get(data.getEmail(), data.getPassword());
+		UserService userService = servicePicker.getUserService();
+
+		User user = userService.getUserByEmailAndPassword(data.getEmail(), data.getPassword());
 
 		if (user == null) {
 			return loginViewWithErrorMessage("Wrong credentials");
@@ -132,7 +143,8 @@ public class UserController extends Controller {
 		final Form<UserData> boundForm = form.bindFromRequest(request);
 
 		UserData data = boundForm.get();
-		User user = userRepository.getByEmail(data.getEmail());
+		UserService userService = servicePicker.getUserService();
+		User user = userService.getUserByEmail(data.getEmail());
 
 		// email is incorrect
 		if (user == null) {
@@ -144,7 +156,7 @@ public class UserController extends Controller {
 			user.setEmail(data.getEmail());
 			user.setPassword(data.getPassword());
 
-			userRepository.update(user);
+			userService.updateUser(user);
 
 			return index();
 		}
@@ -153,14 +165,15 @@ public class UserController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result delete(String email) {
 
-		User user = userRepository.getByEmail(email);
+		UserService userService = servicePicker.getUserService();
+		User user = userService.getUserByEmail(email);
 
 		// email is incorrect
 		if (user == null) {
 			return indexWithErrorMessage("Wrong email address");
 		}
 		else {
-			userRepository.delete(user);
+			userService.deleteUser(user);
 
 			return index();
 		}

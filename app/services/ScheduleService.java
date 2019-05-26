@@ -20,6 +20,14 @@ public class ScheduleService {
 		this.runningScheduleRepository = runningScheduleRepository;
 	}
 
+	public Schedule getScheduleById(Integer id) {
+		return scheduleRepository.getById(id);
+	}
+
+	public Schedule getScheduleByName(String name) {
+		return scheduleRepository.getByName(name);
+	}
+
 	public Schedule create(Schedule schedule) {
 		return scheduleRepository.add(schedule);
 	}
@@ -28,12 +36,32 @@ public class ScheduleService {
 		return scheduleRepository.update(schedule);
 	}
 
+	public void delete(Schedule schedule) {
+		scheduleRepository.delete(schedule);
+	}
+
+	public RunningSchedule getRunningScheduleById(Integer id) {
+		return runningScheduleRepository.getById(id);
+	}
+
+	public RunningSchedule getRunningScheduleByScheduleId(Integer id) {
+		return runningScheduleRepository.getByScheduleId(id);
+	}
+
+	public RunningSchedule getRunningScheduleOfScreenById(Integer id) {
+		return runningScheduleRepository.getRunningScheduleIdByScreenId(id);
+	}
+
 	public RunningSchedule create(RunningSchedule rs) {
 		return runningScheduleRepository.add(rs);
 	}
 
 	public RunningSchedule update(RunningSchedule rs) {
 		return runningScheduleRepository.update(rs);
+	}
+
+	public void delete(RunningSchedule rs) {
+		runningScheduleRepository.delete(rs);
 	}
 
 	public List<ScheduleData> getAllSchedules() {

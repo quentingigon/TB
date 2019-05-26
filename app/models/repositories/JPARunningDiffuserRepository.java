@@ -84,10 +84,11 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 	}
 
 	@Override
-	public void update(RunningDiffuser diffuser) {
+	public RunningDiffuser update(RunningDiffuser diffuser) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.merge(diffuser);
 		});
+		return diffuser;
 	}
 
 	@Override

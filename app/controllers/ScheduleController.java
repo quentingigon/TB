@@ -11,10 +11,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.FluxChecker;
-import services.FluxManager;
-import services.RunningScheduleThread;
-import services.RunningScheduleThreadManager;
+import services.*;
 import views.html.schedule.schedule_activation;
 import views.html.schedule.schedule_creation;
 import views.html.schedule.schedule_page;
@@ -30,22 +27,7 @@ import static services.BlockUtils.*;
 public class ScheduleController extends Controller {
 
 	@Inject
-	ScheduleRepository scheduleRepository;
-
-	@Inject
-	RunningScheduleRepository runningScheduleRepository;
-
-	@Inject
-	ScreenRepository screenRepository;
-
-	@Inject
 	FluxRepository fluxRepository;
-
-	@Inject
-	TeamRepository teamRepository;
-
-	@Inject
-	UserRepository userRepository;
 
 	private final FluxManager fluxManager;
 	private final RunningScheduleThreadManager serviceManager;
@@ -53,92 +35,102 @@ public class ScheduleController extends Controller {
 
 	private Form<ScheduleData> form;
 
-	private DataUtils dataUtils;
+	private final ServicePicker servicePicker;
+	private final DataUtils dataUtils;
 
 	@Inject
 	public ScheduleController(FormFactory formFactory,
 							  FluxManager fluxManager,
 							  RunningScheduleThreadManager serviceManager,
+							  ServicePicker servicePicker,
 							  DataUtils dataUtils,
 							  FluxChecker fluxChecker) {
 		this.fluxChecker = fluxChecker;
+		this.dataUtils = dataUtils;
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
 		this.serviceManager = serviceManager;
-		this.dataUtils = dataUtils;
+		this.servicePicker = servicePicker;
 		Thread t = new Thread(this.fluxManager);
 		t.start();
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result index(Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), null));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_page.render(servicePicker.getScheduleService().getAllSchedulesOfTeam(teamId),
+			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	private Result indexWithErrorMessage(Http.Request request, String error) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), error));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return badRequest(schedule_page.render(servicePicker.getScheduleService().getAllSchedulesOfTeam(teamId),
+			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result updateView(Http.Request request, String name) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_update.render(form,
-			new ScheduleData(scheduleRepository.getByName(name)),
-			dataUtils.getAllFluxesOfTeam(teamId),
-			dataUtils.getAllFluxesOfTeam(teamId),
-			dataUtils.getAllLocatedFluxesOfTeam(teamId),
-			dataUtils.getAllGeneralFluxesOfTeam(teamId),
+			new ScheduleData(servicePicker.getScheduleService().getScheduleByName(name)),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllLocatedFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllGeneralFluxesOfTeam(teamId),
 			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	private Result updateViewWithErrorMessage(Http.Request request, String name, String error) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_update.render(form,
-			new ScheduleData(scheduleRepository.getByName(name)),
-			dataUtils.getAllFluxesOfTeam(teamId),
-			dataUtils.getAllFluxesOfTeam(teamId),
-			dataUtils.getAllLocatedFluxesOfTeam(teamId),
-			dataUtils.getAllGeneralFluxesOfTeam(teamId),
+			new ScheduleData(servicePicker.getScheduleService().getScheduleByName(name)),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllLocatedFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllGeneralFluxesOfTeam(teamId),
 			error));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result createView(Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_creation.render(form,
-			dataUtils.getAllFluxesOfTeam(teamId),
-			dataUtils.getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
 			null,
 			request));
 	}
 
 	@With(UserAuthentificationAction.class)
 	private Result createViewWithErrorMessage(Http.Request request, String error) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
 		return ok(schedule_creation.render(form,
-			dataUtils.getAllFluxesOfTeam(teamId),
-			dataUtils.getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
 			error,
 			request));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activateView(String name, Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
-		return ok(schedule_activation.render(form, dataUtils.getAllScreensOfTeam(teamId), new ScheduleData(name), null, request));
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		return ok(schedule_activation.render(form,
+			servicePicker.getScreenService().getAllScreensOfTeam(teamId),
+			new ScheduleData(name),
+			null,
+			request));
 	}
 
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+		ScreenService screenService = servicePicker.getScreenService();
 		ScheduleData data = boundForm.get();
 
-		Schedule schedule = scheduleRepository.getByName(data.getName());
+		Schedule schedule = scheduleService.getScheduleByName(data.getName());
 
 		// incorrect name
 		if (schedule == null) {
@@ -148,30 +140,30 @@ public class ScheduleController extends Controller {
 
 			// create runningSchedule
 			RunningSchedule rs = new RunningSchedule(schedule);
-			if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
+			if (scheduleService.getRunningScheduleByScheduleId(schedule.getId()) != null) {
 				return indexWithErrorMessage(request, "This schedule is already activated");
 			}
-			rs = runningScheduleRepository.add(rs);
-			// TODO use trigger to avoid add + merge -> set rs id of screen for each screen of rs at insert
+			rs = scheduleService.create(rs);
 
 			List<Screen> screens = new ArrayList<>();
 			for (String screenMac : data.getScreens()) {
-				Screen screen = screenRepository.getByMacAddress(screenMac);
+				Screen screen = screenService.getScreenByMacAddress(screenMac);
 				if (screen == null) {
 					return indexWithErrorMessage(request, "screen mac address does not exist : " + screenMac);
 				}
-				rs.addToScreens(screenRepository.getByMacAddress(screenMac).getId());
+				rs.addToScreens(screen.getId());
 				screen.setRunningscheduleId(rs.getId());
 				screen.setActive(true);
 
 				screens.add(screen);
-				screenRepository.update(screen);
+
+				screenService.update(screen);
 			}
-			runningScheduleRepository.update(rs);
+			scheduleService.update(rs);
 
 			// add service as observer of FluxManager
 			RunningScheduleThread service2 = new RunningScheduleThread(
-				runningScheduleRepository.getByScheduleId(schedule.getId()),
+				rs,
 				screens,
 				new ArrayList<>(schedule.getFallbacks()),
 				dataUtils.getTimeTable(schedule),
@@ -189,21 +181,21 @@ public class ScheduleController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name, Http.Request request) {
-		Schedule schedule = scheduleRepository.getByName(name);
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+		Schedule schedule = scheduleService.getScheduleByName(name);
 
 		// incorrect name
 		if (schedule == null) {
 			return indexWithErrorMessage(request, "Schedule does not exists");
 		}
 		else {
-			RunningSchedule rs = runningScheduleRepository.getByScheduleId(schedule.getId());
+			RunningSchedule rs = scheduleService.getRunningScheduleByScheduleId(schedule.getId());
 
 			if (rs == null) {
 				return indexWithErrorMessage(request, "Schedule is not activated");
 			}
 
-			runningScheduleRepository.delete(rs);
+			scheduleService.delete(rs);
 
 			serviceManager.removeRunningSchedule(schedule.getId());
 
@@ -214,7 +206,9 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+		TeamService teamService = servicePicker.getTeamService();
 
 		ScheduleData data = boundForm.get();
 
@@ -222,7 +216,7 @@ public class ScheduleController extends Controller {
 			return createViewWithErrorMessage(request, "You must enter a name for the new schedule");
 		}
 		// schedule already exists
-		else if (scheduleRepository.getByName(data.getName()) != null) {
+		else if (scheduleService.getScheduleByName(data.getName()) != null) {
 			return createViewWithErrorMessage(request, "Schedule name already exists");
 		}
 		else {
@@ -234,19 +228,19 @@ public class ScheduleController extends Controller {
 			}
 
 			schedule.setFallbacks(new HashSet<>(getFallbackFluxIds(data)));
-			schedule = scheduleRepository.add(schedule);
+			schedule = scheduleService.create(schedule);
 
 			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
 				sf.setScheduleId(schedule.getId());
-				sf = fluxRepository.addScheduledFlux(sf);
+				sf = servicePicker.getFluxService().createScheduled(sf);
 				schedule.addToFluxes(sf.getId());
 			}
-			scheduleRepository.update(schedule);
+			scheduleService.update(schedule);
 
 			// add new schedule to current user's team
-			Team team = teamRepository.getById(teamId);
+			Team team = teamService.getTeamById(teamId);
 			team.addToSchedules(schedule.getId());
-			teamRepository.update(team);
+			teamService.update(team);
 
 			return index(request);
 		}
@@ -256,8 +250,10 @@ public class ScheduleController extends Controller {
 	public Result update(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+
 		ScheduleData data = boundForm.get();
-		Schedule schedule = scheduleRepository.getByName(data.getName());
+		Schedule schedule = scheduleService.getScheduleByName(data.getName());
 
 
 		// name is incorrect
@@ -265,7 +261,7 @@ public class ScheduleController extends Controller {
 			return updateViewWithErrorMessage(request, data.getName(), "Schedule name does not exists");
 		}
 		// schedule is activated
-		else if (runningScheduleRepository.getByScheduleId(schedule.getId()) != null) {
+		else if (scheduleService.getRunningScheduleByScheduleId(schedule.getId()) != null) {
 			return updateViewWithErrorMessage(request, data.getName(), "You can not update a schedule that is running");
 		}
 		else {
@@ -281,10 +277,10 @@ public class ScheduleController extends Controller {
 			// TODO Warning: there are no checks to avoid bad timetable init -> overlapping fluxes, etc
 			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
 				sf.setScheduleId(schedule.getId());
-				sf = fluxRepository.addScheduledFlux(sf);
+				sf = servicePicker.getFluxService().createScheduled(sf);
 				schedule.addToFluxes(sf.getId());
 			}
-			scheduleRepository.update(schedule);
+			scheduleService.update(schedule);
 
 			return index(request);
 		}
@@ -292,16 +288,17 @@ public class ScheduleController extends Controller {
 
 	@With(UserAuthentificationAction.class)
 	public Result delete(String name, Http.Request request) {
-		Integer teamId = dataUtils.getTeamIdOfUserByEmail(request.cookie("email").value());
+		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		ScheduleService scheduleService = servicePicker.getScheduleService();
 
-		Schedule schedule = scheduleRepository.getByName(name);
+		Schedule schedule = scheduleService.getScheduleByName(name);
 
 		// name is incorrect
 		if (schedule == null) {
-			return badRequest(schedule_page.render(dataUtils.getAllSchedulesOfTeam(teamId), "Name in incorrect"));
+			return badRequest(schedule_page.render(servicePicker.getScheduleService().getAllSchedulesOfTeam(teamId), "Name in incorrect"));
 		}
 		else {
-			scheduleRepository.delete(schedule);
+			scheduleService.delete(schedule);
 
 			return index(request);
 		}
@@ -314,7 +311,7 @@ public class ScheduleController extends Controller {
 			String[] fluxDatas = fluxData.split("#");
 			String fluxName = fluxDatas[0];
 
-			if (fluxName == null || fluxRepository.getByName(fluxName) == null) {
+			if (fluxName == null || servicePicker.getFluxService().getFluxByName(fluxName) == null) {
 				error = createViewWithErrorMessage(request, "Flux name does not exists");
 			}
 
@@ -345,7 +342,7 @@ public class ScheduleController extends Controller {
 				String fluxTime = fluxDatas[1];
 
 				ScheduledFlux sf = new ScheduledFlux();
-				sf.setFluxId(fluxRepository.getByName(fluxName).getId());
+				sf.setFluxId(servicePicker.getFluxService().getFluxByName(fluxName).getId());
 				sf.setStartBlock(getBlockNumberOfTime(fluxTime));
 				scheduledFluxes.add(sf);
 			}
@@ -363,7 +360,7 @@ public class ScheduleController extends Controller {
 
 			// we must add a un-scheduled flux -> fallback flux
 			if (fluxDatas.length != 2) {
-				fallbacksIds.add(fluxRepository.getByName(fluxName).getId());
+				fallbacksIds.add(servicePicker.getFluxService().getFluxByName(fluxName).getId());
 			}
 		}
 		return fallbacksIds;
