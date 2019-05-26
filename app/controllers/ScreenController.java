@@ -118,7 +118,7 @@ public class ScreenController extends Controller {
 				public void run() {
 
 					RunningSchedule rs = scheduleService.getRunningScheduleById(
-						scheduleService.getRunningScheduleOfScreenById(screen.getId()).getId()
+						scheduleService.getRunningScheduleOfScreenById(screen.getId())
 					);
 					if (rs != null) {
 						RunningScheduleThread rst = serviceManager.getServiceByScheduleId(rs.getScheduleId());

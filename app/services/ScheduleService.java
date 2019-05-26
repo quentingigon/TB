@@ -48,7 +48,7 @@ public class ScheduleService {
 		return runningScheduleRepository.getByScheduleId(id);
 	}
 
-	public RunningSchedule getRunningScheduleOfScreenById(Integer id) {
+	public Integer getRunningScheduleOfScreenById(Integer id) {
 		return runningScheduleRepository.getRunningScheduleIdByScreenId(id);
 	}
 
