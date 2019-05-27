@@ -116,8 +116,10 @@ CREATE TABLE schedule
   (
     schedule_id SERIAL PRIMARY KEY,
     name VARCHAR(100),
+    scheduledfluxes INTEGER[],
     fluxes INTEGER[],
-    fallbacks INTEGER[]
+    fallbacks INTEGER[],
+    keep_order BOOLEAN
   );
 
 
@@ -128,6 +130,15 @@ CREATE TABLE scheduled_flux
     schedule_id INTEGER REFERENCES schedule (schedule_id),
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id),
     start_block INTEGER
+  );
+
+
+DROP TABLE IF EXISTS schedule_scheduledfluxes CASCADE;
+CREATE TABLE schedule_scheduledfluxes
+  (
+    schedule_schedule_id INTEGER REFERENCES schedule (schedule_id),
+    scheduledfluxes INTEGER REFERENCES scheduled_flux(scheduled_flux_id),
+    PRIMARY KEY (schedule_schedule_id, scheduledfluxes)
   );
 
 
@@ -244,10 +255,10 @@ CREATE TABLE flux
   );
 
 
-INSERT INTO flux(name, url, type) VALUES ('Waiting Page', '/waiting', 'URL');
-INSERT INTO flux(name, url, type) VALUES ('Maintenance', '/maintenance', 'URL');
-INSERT INTO flux(name, url, type) VALUES ('No Schedule', '/no_schedule', 'URL');
-INSERT INTO flux(name, url, type) VALUES ('Site error', '/site_error', 'URL');
+INSERT INTO flux(name, url, type, phase_duration, phase_n) VALUES ('Waiting Page', '/waiting', 'URL', 1, 1);
+INSERT INTO flux(name, url, type, phase_duration, phase_n) VALUES ('Maintenance', '/maintenance', 'URL', 1, 1);
+INSERT INTO flux(name, url, type, phase_duration, phase_n) VALUES ('No Schedule', '/no_schedule', 'URL', 1, 1);
+INSERT INTO flux(name, url, type, phase_duration, phase_n) VALUES ('Site error', '/site_error', 'URL', 1, 1);
 
 
 DROP TABLE IF EXISTS locatedflux CASCADE;
@@ -360,6 +371,9 @@ BEGIN
     DELETE FROM schedule_fallbacks
     WHERE schedule_schedule_id = OLD.schedule_id;
 
+    DELETE FROM schedule_scheduledfluxes
+    WHERE schedule_schedule_id = OLD.schedule_id;
+
     DELETE FROM scheduled_flux
     WHERE schedule_id = OLD.schedule_id;
 RETURN OLD;
@@ -402,8 +416,9 @@ $$
 LANGUAGE plpgsql;
 
 
--- Triggers
+-- Triggers --
 
+-- Deletes
 CREATE TRIGGER on_runningschedule_delete BEFORE DELETE
    ON runningschedule
    FOR EACH ROW EXECUTE PROCEDURE delete_screens_of_runningschedule();
@@ -420,10 +435,6 @@ CREATE TRIGGER on_schedule_delete BEFORE DELETE
    ON schedule
    FOR EACH ROW EXECUTE PROCEDURE delete_fluxes_of_schedule();
 
-CREATE TRIGGER on_teammember_insert AFTER INSERT
-   ON teammember
-   FOR EACH ROW EXECUTE PROCEDURE add_teammember_to_team();
-
 CREATE TRIGGER on_flux_delete BEFORE DELETE
    ON flux
    FOR EACH ROW EXECUTE PROCEDURE delete_general_or_located_or_scheduled();
@@ -431,4 +442,10 @@ CREATE TRIGGER on_flux_delete BEFORE DELETE
 CREATE TRIGGER on_user_delete BEFORE DELETE
    ON users
    FOR EACH ROW EXECUTE PROCEDURE delete_teammember_or_admin();
+
+
+-- Inserts
+CREATE TRIGGER on_teammember_insert AFTER INSERT
+   ON teammember
+   FOR EACH ROW EXECUTE PROCEDURE add_teammember_to_team();
 
