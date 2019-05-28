@@ -31,7 +31,7 @@ public class DiffuserController extends Controller {
 
 	private Form<DiffuserData> form;
 
-	private final RunningScheduleThreadManager serviceManager;
+	private final RunningScheduleThreadManager threadManager;
 
 	private final ServicePicker servicePicker;
 	private final TimeTableUtils timeTableUtils;
@@ -40,7 +40,7 @@ public class DiffuserController extends Controller {
 
 	@Inject
 	public DiffuserController(FormFactory formFactory,
-							  RunningScheduleThreadManager serviceManager,
+							  RunningScheduleThreadManager threadManager,
 							  ServicePicker servicePicker,
 							  TimeTableUtils timeTableUtils,
 							  FluxChecker fluxChecker,
@@ -50,7 +50,7 @@ public class DiffuserController extends Controller {
 		this.timeTableUtils = timeTableUtils;
 		this.servicePicker = servicePicker;
 		this.form = formFactory.form(DiffuserData.class);
-		this.serviceManager = serviceManager;
+		this.threadManager = threadManager;
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -195,29 +195,33 @@ public class DiffuserController extends Controller {
 			for (Integer id: runningScheduleIds) {
 				RunningSchedule rs = scheduleService.getRunningScheduleById(id);
 				Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
-				RunningScheduleThread rst = serviceManager.getServiceByScheduleId(rs.getScheduleId());
+				RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
 				if (rst != null) {
 					// if diffuser has priority, it overwrites the timetable. Else it tries to schedule the flux at the given time
 					// but does it not if not enough place
 					if (diffuser.isOverwrite()) {
 						rst.scheduleFluxFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
-						serviceManager.removeRunningSchedule(id);
-						// add service as observer of FluxManager
-						RunningScheduleThread task = new RunningScheduleThread(
-							rs,
-							screens,
-							new ArrayList<>(schedule.getFluxes()),
-							rst.getTimetable(),
-							fluxRepository,
-							fluxChecker,
-							schedule.isKeepOrder());
-
-						task.addObserver(fluxManager);
-						serviceManager.addRunningSchedule(rs.getScheduleId(), task);
 					}
 					else {
 						rst.scheduleFluxIfPossibleFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
 					}
+
+					// stop old thread
+					rst.abort();
+					threadManager.removeRunningSchedule(schedule.getId());
+
+					// create new thread with values from old thread (timetable especially) and start it
+					RunningScheduleThread task = new RunningScheduleThread(
+						rs,
+						screens,
+						new ArrayList<>(schedule.getFluxes()),
+						rst.getTimetable(),
+						fluxRepository,
+						fluxChecker,
+						schedule.isKeepOrder());
+
+					task.addObserver(fluxManager);
+					threadManager.addRunningScheduleThread(rs.getScheduleId(), task);
 				}
 			}
 
@@ -264,7 +268,7 @@ public class DiffuserController extends Controller {
 					scheduleService.update(schedule);
 				}
 
-				RunningScheduleThread rst = serviceManager.getServiceByScheduleId(id);
+				RunningScheduleThread rst = threadManager.getServiceByScheduleId(id);
 				if (rst != null) {
 					rst.removeScheduledFluxFromDiffuser(
 						fluxService.getFluxById(diffuser.getFlux()),

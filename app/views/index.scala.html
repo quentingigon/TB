@@ -36,6 +36,12 @@
         <td>@screen.getMac</td>
         <td>@screen.getSite</td>
         <td>@screen.getCurrentFluxName</td>
+        <td>
+         <div class="btn-group" role="group" aria-label="Basic example">
+          <a class="btn btn-secondary" href="@routes.ScreenController.deactivate(screen.getMac)">Deactivate Screen</a>
+         </div>
+
+        </td>
        </tr>
       }
      }

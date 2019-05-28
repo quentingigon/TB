@@ -8,7 +8,6 @@ import models.repositories.interfaces.FluxRepository;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static services.BlockUtils.*;
 import static services.RunningScheduleUtils.SITE_ERROR;
@@ -20,13 +19,13 @@ public class RunningScheduleThread extends Observable implements Runnable {
 	private FluxChecker fluxChecker;
 
 	private RunningSchedule runningSchedule;
-	private List<Screen> screens;
+	private volatile List<Screen> screens;
 
 	private volatile HashMap<Integer, Integer> timetable;
 	private volatile HashMap<Integer, List<Integer>> timetableHistory;
 	private List<Integer> unscheduledFluxIds;
 
-	private boolean running;
+	private volatile boolean running;
 	private boolean keepOrder;
 
 	private volatile FluxEvent lastFluxEvent;
@@ -238,8 +237,6 @@ public class RunningScheduleThread extends Observable implements Runnable {
 	}
 
 	public void scheduleFluxFromDiffuser(Flux flux, int blockIndex, int diffuserId) {
-		final ReentrantLock lock = new ReentrantLock();
-		lock.lock();
 		this.timetableHistory.computeIfAbsent(diffuserId, k -> new ArrayList<>());
 		for (int i = 0; i < flux.getTotalDuration(); i++) {
 			// save old timetable
@@ -247,7 +244,6 @@ public class RunningScheduleThread extends Observable implements Runnable {
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
 			this.timetable.put(blockIndex + i, flux.getId());
 		}
-		lock.unlock();
 	}
 
 	public void scheduleFluxIfPossible(Flux flux, int blockIndex) {
@@ -312,7 +308,15 @@ public class RunningScheduleThread extends Observable implements Runnable {
 		this.running = running;
 	}
 
+	public void abort() {
+		this.running = false;
+	}
+
 	public HashMap<Integer, Integer> getTimetable() {
 		return timetable;
+	}
+
+	public synchronized void removeFromScreens(Screen screen) {
+		this.screens.remove(screen);
 	}
 }

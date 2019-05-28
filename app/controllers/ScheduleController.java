@@ -19,7 +19,6 @@ import views.html.schedule.schedule_update;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import static services.BlockUtils.*;
@@ -30,7 +29,7 @@ public class ScheduleController extends Controller {
 	FluxRepository fluxRepository;
 
 	private final FluxManager fluxManager;
-	private final RunningScheduleThreadManager serviceManager;
+	private final RunningScheduleThreadManager threadManager;
 	private final FluxChecker fluxChecker;
 
 	private Form<ScheduleData> form;
@@ -41,7 +40,7 @@ public class ScheduleController extends Controller {
 	@Inject
 	public ScheduleController(FormFactory formFactory,
 							  FluxManager fluxManager,
-							  RunningScheduleThreadManager serviceManager,
+							  RunningScheduleThreadManager threadManager,
 							  ServicePicker servicePicker,
 							  TimeTableUtils timeTableUtils,
 							  FluxChecker fluxChecker) {
@@ -49,7 +48,7 @@ public class ScheduleController extends Controller {
 		this.timeTableUtils = timeTableUtils;
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
-		this.serviceManager = serviceManager;
+		this.threadManager = threadManager;
 		this.servicePicker = servicePicker;
 		Thread t = new Thread(this.fluxManager);
 		t.start();
@@ -174,7 +173,7 @@ public class ScheduleController extends Controller {
 			service2.addObserver(fluxManager);
 
 			// the schedule is activated
-			serviceManager.addRunningSchedule(schedule.getId(), service2);
+			threadManager.addRunningScheduleThread(schedule.getId(), service2);
 
 			return index(request);
 		}
@@ -183,6 +182,7 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name, Http.Request request) {
 		ScheduleService scheduleService = servicePicker.getScheduleService();
+		ScreenService screenService = servicePicker.getScreenService();
 		Schedule schedule = scheduleService.getScheduleByName(name);
 
 		// incorrect name
@@ -196,9 +196,19 @@ public class ScheduleController extends Controller {
 				return indexWithErrorMessage(request, "Schedule is not activated");
 			}
 
+			for (int screenId: scheduleService.getAllScreenIdsOfRunningScheduleById(rs.getId())) {
+				Screen screen = screenService.getScreenById(screenId);
+				if (screen != null) {
+					screen.setActive(false);
+					screenService.update(screen);
+				}
+			}
+
 			scheduleService.delete(rs);
 
-			serviceManager.removeRunningSchedule(schedule.getId());
+			RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
+			rst.abort();
+			threadManager.removeRunningSchedule(schedule.getId());
 
 			return index(request);
 		}

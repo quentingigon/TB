@@ -31,7 +31,7 @@ import java.util.List;
 @Singleton
 public class AutomatedScheduleStarter {
 
-    private final RunningScheduleThreadManager serviceManager;
+    private final RunningScheduleThreadManager threadManager;
     private final FluxManager fluxManager;
     private final TimeTableUtils timeTableUtils;
 
@@ -50,14 +50,14 @@ public class AutomatedScheduleStarter {
                                     FluxRepository fluxRepository,
                                     RunningScheduleRepository repo,
                                     ScheduleRepository scheduleRepository,
-                                    RunningScheduleThreadManager serviceManager,
+                                    RunningScheduleThreadManager threadManager,
                                     FluxChecker fluxChecker) {
         this.fluxChecker = fluxChecker;
         this.screenRepository = screenRepository;
         this.fluxRepository = fluxRepository;
         this.scheduleRepository = scheduleRepository;
         this.fluxManager = fluxManager;
-        this.serviceManager = serviceManager;
+        this.threadManager = threadManager;
         this.runningScheduleRepository = repo;
         this.timeTableUtils = timeTableUtils;
 
@@ -88,7 +88,7 @@ public class AutomatedScheduleStarter {
                 service.addObserver(fluxManager);
 
                 // the schedule is activated
-                serviceManager.addRunningSchedule(schedule.getId(), service);
+                threadManager.addRunningScheduleThread(schedule.getId(), service);
 
 
             }

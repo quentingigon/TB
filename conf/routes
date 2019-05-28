@@ -35,6 +35,8 @@ POST    /screens/update                 controllers.ScreenController.update(requ
 
 POST    /screens/delete/:mac            controllers.ScreenController.delete(request: Request, mac: String)
 
+GET     /screens/deactivate/:mac        controllers.ScreenController.deactivate(request: Request, mac: String)
+
 
 # Events
 GET     /events                         controllers.EventSourceController.index
@@ -107,7 +109,7 @@ GET     /diffusers/new                  controllers.DiffuserController.createVie
 
 POST    /diffusers/new                  controllers.DiffuserController.create(request: Request)
 
-GET     /diffusers/update/:name         controllers.DiffuserController.updateView(name: String)
+GET     /diffusers/update/:name         controllers.DiffuserController.updateView(request: Request, name: String)
 
 POST    /diffusers/update               controllers.DiffuserController.update(request: Request)
 

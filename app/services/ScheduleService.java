@@ -100,4 +100,8 @@ public class ScheduleService {
 		}
 		return schedules;
 	}
+
+	public List<Integer> getAllScreenIdsOfRunningScheduleById(int runningScheduleId) {
+		return new ArrayList<>(runningScheduleRepository.getScreensIdsByRunningScheduleId(runningScheduleId));
+	}
 }

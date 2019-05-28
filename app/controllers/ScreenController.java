@@ -3,10 +3,7 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.ScreenData;
-import models.repositories.interfaces.RunningScheduleRepository;
-import models.repositories.interfaces.ScreenRepository;
-import models.repositories.interfaces.SiteRepository;
-import models.repositories.interfaces.TeamRepository;
+import models.repositories.interfaces.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -23,22 +20,33 @@ import views.html.screen.screen_update;
 import javax.inject.Inject;
 import java.util.*;
 
+import static services.RunningScheduleUtils.NO_SCHEDULE;
+
 public class ScreenController extends Controller {
+
+	@Inject
+	FluxRepository fluxRepository;
 
 	@Inject
 	SiteRepository siteRepository;
 
 	private Form<ScreenData> form;
 
-	private final RunningScheduleThreadManager serviceManager;
+	private final RunningScheduleThreadManager threadManager;
 	private final ServicePicker servicePicker;
+	private final FluxChecker fluxChecker;
+	private final FluxManager fluxManager;
 
 	@Inject
 	public ScreenController(FormFactory formFactory,
-							RunningScheduleThreadManager serviceManager,
-							ServicePicker servicePicker) {
+							RunningScheduleThreadManager threadManager,
+							ServicePicker servicePicker,
+							FluxChecker fluxChecker,
+							FluxManager fluxManager) {
+		this.fluxManager = fluxManager;
+		this.fluxChecker = fluxChecker;
 		this.servicePicker = servicePicker;
-		this.serviceManager = serviceManager;
+		this.threadManager = threadManager;
 		this.form = formFactory.form(ScreenData.class);
 	}
 
@@ -121,7 +129,7 @@ public class ScreenController extends Controller {
 						scheduleService.getRunningScheduleOfScreenById(screen.getId())
 					);
 					if (rs != null) {
-						RunningScheduleThread rst = serviceManager.getServiceByScheduleId(rs.getScheduleId());
+						RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
 						List<Screen> screenList = new ArrayList<>();
 						screenList.add(screen);
 						System.out.println("FORCE SEND");
@@ -243,13 +251,71 @@ public class ScreenController extends Controller {
 		Screen screen = servicePicker.getScreenService().getScreenByMacAddress(mac);
 
 		if (screen == null) {
-			// screen is not known
 			return indexWithErrorMessage(request, "MAC address does not exists");
 		}
 		else {
 			servicePicker.getScreenService().delete(screen);
 			return index(request);
 		}
+	}
+
+	@With(UserAuthentificationAction.class)
+	public Result deactivate(Http.Request request, String mac) {
+		Screen screen = servicePicker.getScreenService().getScreenByMacAddress(mac);
+		ScheduleService scheduleService = servicePicker.getScheduleService();
+		ScreenService screenService = servicePicker.getScreenService();
+		FluxService fluxService = servicePicker.getFluxService();
+
+		if (screen == null) {
+			return indexWithErrorMessage(request, "MAC address does not exists");
+		}
+		else {
+
+			Integer rsId = scheduleService.getRunningScheduleOfScreenById(screen.getId());
+
+			if (rsId == null) {
+				return redirect(routes.HomeController.index());
+			}
+
+			RunningSchedule rs = scheduleService.getRunningScheduleById(rsId);
+
+			// screen is active
+			if (rs != null) {
+				List<Integer> screenIds = scheduleService.getAllScreenIdsOfRunningScheduleById(rs.getId());
+				screenIds.remove(screen.getId());
+				rs.setScreens(screenIds);
+
+				RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
+				rst.removeFromScreens(screen);
+
+				List<Screen> screenList =new ArrayList<>();
+				for (Integer screenId: screenIds) {
+					screenList.add(screenService.getScreenById(screenId));
+				}
+
+				// stop old thread
+				rst.abort();
+				threadManager.removeRunningSchedule(rs.getScheduleId());
+
+				Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
+
+				// create new thread with values from old thread (timetable especially) and start it
+				RunningScheduleThread task = new RunningScheduleThread(
+					rs,
+					screenList,
+					new ArrayList<>(schedule.getFluxes()),
+					rst.getTimetable(),
+					fluxRepository,
+					fluxChecker,
+					schedule.isKeepOrder());
+
+				task.addObserver(fluxManager);
+				threadManager.addRunningScheduleThread(rs.getScheduleId(), task);
+
+			}
+			scheduleService.update(rs);
+		}
+		return index(request);
 	}
 
 	private String screenRegisterCodeGenerator() {

@@ -77,4 +77,8 @@ public class ScreenService {
 		}
 		return data;
 	}
+
+	public List<Screen> getAllScreensOfRunningScheduleById(int runningScheduleId) {
+		return new ArrayList<>(screenRepository.getAllByRunningScheduleId(runningScheduleId));
+	}
 }
