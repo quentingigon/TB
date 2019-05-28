@@ -12,6 +12,7 @@ public class FluxData {
 	private String type;
 	private String site;
 	private String team;
+	private String startTime;
 
 	public FluxData() {
 	}
@@ -33,6 +34,11 @@ public class FluxData {
 		this.duration = String.valueOf(flux.getDuration());
 		this.url = flux.getUrl();
 		this.type = flux.getType();
+		this.numberOfPhases = String.valueOf(flux.getNumberOfPhases());
+
+		if (flux.getDataCheckUrl() != null)
+			this.dataCheckUrl = flux.getDataCheckUrl();
+
 	}
 
 	public String getName() {
@@ -97,5 +103,13 @@ public class FluxData {
 
 	public void setNumberOfPhases(String numberOfPhases) {
 		this.numberOfPhases = numberOfPhases;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
 }

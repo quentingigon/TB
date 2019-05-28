@@ -2,7 +2,7 @@ package controllers;
 
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
-import models.entities.DataUtils;
+import services.TimeTableUtils;
 import models.entities.ScheduleData;
 import models.repositories.interfaces.*;
 import play.data.Form;
@@ -36,17 +36,17 @@ public class ScheduleController extends Controller {
 	private Form<ScheduleData> form;
 
 	private final ServicePicker servicePicker;
-	private final DataUtils dataUtils;
+	private final TimeTableUtils timeTableUtils;
 
 	@Inject
 	public ScheduleController(FormFactory formFactory,
 							  FluxManager fluxManager,
 							  RunningScheduleThreadManager serviceManager,
 							  ServicePicker servicePicker,
-							  DataUtils dataUtils,
+							  TimeTableUtils timeTableUtils,
 							  FluxChecker fluxChecker) {
 		this.fluxChecker = fluxChecker;
-		this.dataUtils = dataUtils;
+		this.timeTableUtils = timeTableUtils;
 		this.form = formFactory.form(ScheduleData.class);
 		this.fluxManager = fluxManager;
 		this.serviceManager = serviceManager;
@@ -72,24 +72,24 @@ public class ScheduleController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result updateView(Http.Request request, String name) {
 		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		Schedule schedule = servicePicker.getScheduleService().getScheduleByName(name);
 		return ok(schedule_update.render(form,
-			new ScheduleData(servicePicker.getScheduleService().getScheduleByName(name)),
+			new ScheduleData(schedule),
 			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
 			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
-			servicePicker.getFluxService().getAllLocatedFluxesOfTeam(teamId),
-			servicePicker.getFluxService().getAllGeneralFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfScheduleById(schedule.getId()),
 			null));
 	}
 
 	@With(UserAuthentificationAction.class)
 	private Result updateViewWithErrorMessage(Http.Request request, String name, String error) {
 		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
+		Schedule schedule = servicePicker.getScheduleService().getScheduleByName(name);
 		return ok(schedule_update.render(form,
-			new ScheduleData(servicePicker.getScheduleService().getScheduleByName(name)),
+			new ScheduleData(schedule),
 			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
 			servicePicker.getFluxService().getAllFluxesOfTeam(teamId),
-			servicePicker.getFluxService().getAllLocatedFluxesOfTeam(teamId),
-			servicePicker.getFluxService().getAllGeneralFluxesOfTeam(teamId),
+			servicePicker.getFluxService().getAllFluxesOfScheduleById(schedule.getId()),
 			error));
 	}
 
@@ -165,10 +165,11 @@ public class ScheduleController extends Controller {
 			RunningScheduleThread service2 = new RunningScheduleThread(
 				rs,
 				screens,
-				new ArrayList<>(schedule.getFallbacks()),
-				dataUtils.getTimeTable(schedule),
+				new ArrayList<>(schedule.getFluxes()),
+				timeTableUtils.getTimeTable(schedule),
 				fluxRepository,
-				fluxChecker);
+				fluxChecker,
+				schedule.isKeepOrder());
 
 			service2.addObserver(fluxManager);
 
@@ -220,20 +221,27 @@ public class ScheduleController extends Controller {
 			return createViewWithErrorMessage(request, "Schedule name already exists");
 		}
 		else {
-			Schedule schedule = new Schedule(data.getName());
+			Schedule schedule = new Schedule(data);
 
 			Result error = checkFluxesIntegrity(data, request);
 			if (error != null) {
 				return error;
 			}
 
-			schedule.setFallbacks(new HashSet<>(getFallbackFluxIds(data)));
+			for (Integer fluxId: getFallbackFluxIds(data)) {
+				schedule.addToFallbacks(fluxId);
+			}
+
+			for (Integer fluxId: getUnscheduledFluxIds(data)) {
+				schedule.addToFluxes(fluxId);
+			}
+
 			schedule = scheduleService.create(schedule);
 
 			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
 				sf.setScheduleId(schedule.getId());
-				sf = servicePicker.getFluxService().createScheduled(sf);
-				schedule.addToFluxes(sf.getId());
+				servicePicker.getFluxService().createScheduled(sf);
+				schedule.addToScheduledFluxes(sf.getId());
 			}
 			scheduleService.update(schedule);
 
@@ -270,6 +278,10 @@ public class ScheduleController extends Controller {
 			if (error != null) {
 				return error;
 			}
+			for (Integer fluxId: getUnscheduledFluxIds(data)) {
+				schedule.addToFluxes(fluxId);
+			}
+
 			for (Integer fluxId: getFallbackFluxIds(data)) {
 				schedule.addToFallbacks(fluxId);
 			}
@@ -278,7 +290,7 @@ public class ScheduleController extends Controller {
 			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
 				sf.setScheduleId(schedule.getId());
 				sf = servicePicker.getFluxService().createScheduled(sf);
-				schedule.addToFluxes(sf.getId());
+				schedule.addToScheduledFluxes(sf.getId());
 			}
 			scheduleService.update(schedule);
 
@@ -306,63 +318,89 @@ public class ScheduleController extends Controller {
 
 	private Result checkFluxesIntegrity(ScheduleData data, Http.Request request) {
 		Result error = null;
-		for (String fluxData: data.getFluxes()) {
 
-			String[] fluxDatas = fluxData.split("#");
-			String fluxName = fluxDatas[0];
+		if (data.getFluxes() != null) {
+			for (String fluxData: data.getFluxes()) {
 
-			if (fluxName == null || servicePicker.getFluxService().getFluxByName(fluxName) == null) {
-				error = createViewWithErrorMessage(request, "Flux name does not exists");
-			}
+				String[] fluxDatas = fluxData.split("#");
+				String fluxName = fluxDatas[0];
 
-			// we must create a ScheduledFlux for this entry
-			if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
-				String fluxTime = fluxDatas[1];
-				int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
+				if (fluxName == null || servicePicker.getFluxService().getFluxByName(fluxName) == null) {
+					error = createViewWithErrorMessage(request, "Flux name does not exists");
+				}
 
-				if (fluxHour < beginningHour || fluxHour > endHour) {
-					error = createViewWithErrorMessage(request,
-						"Time for flux: " + fluxName + " is not within bounds: " + beginningHour + " -> " + endHour);
+				// we must create a ScheduledFlux for this entry
+				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
+					String fluxTime = fluxDatas[1];
+					int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
+
+					if (fluxHour < beginningHour || fluxHour > endHour) {
+						error = createViewWithErrorMessage(request,
+							"Time for flux: " + fluxName + " is not within bounds: " + beginningHour + " -> " + endHour);
+					}
 				}
 			}
 		}
+
 		return error;
 	}
 
 	private List<ScheduledFlux> getScheduledFluxesFromData(ScheduleData data) {
 		List<ScheduledFlux> scheduledFluxes = new ArrayList<>();
 
-		for (String fluxData: data.getFluxes()) {
+		if (data.getFluxes() != null) {
+			for (String fluxData: data.getFluxes()) {
 
-			String[] fluxDatas = fluxData.split("#");
-			String fluxName = fluxDatas[0];
+				String[] fluxDatas = fluxData.split("#");
+				String fluxName = fluxDatas[0];
 
-			// we must create a ScheduledFlux for this entry
-			if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
-				String fluxTime = fluxDatas[1];
+				// we must create a ScheduledFlux for this entry
+				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
+					String fluxTime = fluxDatas[1];
 
-				ScheduledFlux sf = new ScheduledFlux();
-				sf.setFluxId(servicePicker.getFluxService().getFluxByName(fluxName).getId());
-				sf.setStartBlock(getBlockNumberOfTime(fluxTime));
-				scheduledFluxes.add(sf);
+					ScheduledFlux sf = new ScheduledFlux();
+					sf.setFluxId(servicePicker.getFluxService().getFluxByName(fluxName).getId());
+					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
+					scheduledFluxes.add(sf);
+				}
 			}
 		}
+
 		return scheduledFluxes;
+	}
+
+	private List<Integer> getUnscheduledFluxIds(ScheduleData data) {
+
+		List<Integer> unscheduledIds = new ArrayList<>();
+
+		if (data.getFluxes() != null) {
+			for (String fluxData : data.getFluxes()) {
+				String[] fluxDatas = fluxData.split("#");
+				String fluxName = fluxDatas[0];
+
+				// we must add a un-scheduled flux -> fallback flux
+				if (fluxDatas.length != 2) {
+					unscheduledIds.add(servicePicker.getFluxService().getFluxByName(fluxName).getId());
+				}
+			}
+		}
+
+		return unscheduledIds;
 	}
 
 	private List<Integer> getFallbackFluxIds(ScheduleData data) {
 
 		List<Integer> fallbacksIds = new ArrayList<>();
 
-		for (String fluxData : data.getFluxes()) {
-			String[] fluxDatas = fluxData.split("#");
-			String fluxName = fluxDatas[0];
+		if (data.getFallbackFluxes() != null) {
+			for (String fluxData : data.getFallbackFluxes()) {
+				String[] fluxDatas = fluxData.split("#");
+				String fluxName = fluxDatas[0];
 
-			// we must add a un-scheduled flux -> fallback flux
-			if (fluxDatas.length != 2) {
 				fallbacksIds.add(servicePicker.getFluxService().getFluxByName(fluxName).getId());
 			}
 		}
+
 		return fallbacksIds;
 	}
 }

@@ -19,7 +19,6 @@ public interface ScheduleRepository {
 
 	List<Schedule> getAll();
 	List<Integer> getAllScheduleIdsOfTeam(Integer id);
-	List<ScheduledFlux> getAllScheduledFluxesByScheduleId(Integer id);
 
 	Schedule update(Schedule schedule);
 	void delete(Schedule schedule);

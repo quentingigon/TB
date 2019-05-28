@@ -48,9 +48,9 @@ public class Flux {
 
 	public Flux(FluxData fluxData) {
 		name = fluxData.getName();
-		duration = Long.valueOf(fluxData.getDuration());
+		duration = Long.parseLong(fluxData.getDuration());
 		if (fluxData.getNumberOfPhases() != null)
-			numberOfPhases = Long.valueOf(fluxData.getNumberOfPhases());
+			numberOfPhases = Long.parseLong(fluxData.getNumberOfPhases());
 		else
 			numberOfPhases = 1;
 		url = fluxData.getUrl();

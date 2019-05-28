@@ -18,9 +18,10 @@ public class RunningScheduleThreadManager {
 		this.tasks = new HashMap<>();
 	}
 
-	public void addRunningSchedule(Integer scheduleId, RunningScheduleThread r) {
-		tasks.put(scheduleId, r);
-		executorService.submit(r);
+	public void addRunningSchedule(Integer scheduleId, RunningScheduleThread rst) {
+		tasks.put(scheduleId, rst);
+		executorService.submit(rst);
+		System.out.println("Schedule activated");
 	}
 
 	public void removeRunningSchedule(Integer scheduleId) {

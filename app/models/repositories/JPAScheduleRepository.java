@@ -110,22 +110,6 @@ public class JPAScheduleRepository implements ScheduleRepository {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<ScheduledFlux> getAllScheduledFluxesByScheduleId(Integer id) {
-		return jpaApi.withTransaction(entityManager -> {
-			String scheduleId = "'" + id + "'";
-			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM scheduled_flux WHERE schedule_id = " + scheduleId,
-				ScheduledFlux.class);
-			try {
-				return (List<ScheduledFlux>) query.getResultList();
-			} catch (NoResultException e) {
-				return null;
-			}
-		});
-	}
-
-	@Override
 	public void activate(RunningSchedule schedule) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(schedule);

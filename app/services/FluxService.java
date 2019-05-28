@@ -50,6 +50,35 @@ public class FluxService {
 		return fluxRepository.update(flux);
 	}
 
+	public List<FluxData> getScheduledFluxesOfScheduleById(int scheduleId) {
+		List<FluxData> data = new ArrayList<>();
+		for (ScheduledFlux sf: fluxRepository.getAllScheduledFluxByScheduleId(scheduleId)) {
+			if (fluxRepository.getById(sf.getFluxId()) != null) {
+				FluxData fluxData = new FluxData(fluxRepository.getById(sf.getFluxId()));
+				fluxData.setStartTime(BlockUtils.getTimeOfBlockNumber(sf.getStartBlock()));
+				data.add(fluxData);
+			}
+		}
+		return data;
+	}
+
+	public List<FluxData> getUnscheduledFluxesOfScheduleById(int scheduleId) {
+		List<FluxData> data = new ArrayList<>();
+		for (Flux f: fluxRepository.getAllUnscheduledFluxByScheduleId(scheduleId)) {
+			if (fluxRepository.getById(f.getId()) != null) {
+				FluxData fluxData = new FluxData(fluxRepository.getById(f.getId()));
+				data.add(fluxData);
+			}
+		}
+		return data;
+	}
+
+	public List<FluxData> getAllFluxesOfScheduleById(int scheduleId) {
+		List<FluxData> output = getScheduledFluxesOfScheduleById(scheduleId);
+		output.addAll(getUnscheduledFluxesOfScheduleById(scheduleId));
+		return output;
+	}
+
 	public List<FluxData> getAllFluxes() {
 		List<FluxData> data = new ArrayList<>();
 		for (Flux f: fluxRepository.getAll()) {

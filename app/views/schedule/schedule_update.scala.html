@@ -6,8 +6,7 @@
         data: ScheduleData,
         fluxes: util.List[FluxData],
         fallbacks: util.List[FluxData],
-        locatedFluxes_curr: util.List[FluxData],
-        generalFluxes_curr: util.List[FluxData],
+        fluxes_curr: util.List[FluxData],
         error: String)
 
 
@@ -199,20 +198,29 @@
                 <input name="name" type="text" class="form-control" id="inputName" value="@data.getName">
             </div>
 
-            <label for="currentLocatedFluxes"> Current Located Fluxes </label>
-            <ul id="currentLocatedFluxes" class="list-group">
-            @for(locatedFlux <- locatedFluxes_curr) {
-                <li class="list-group-item">@locatedFlux.getName</li>
-            }
-            </ul>
-
-
-            <label for="currentGeneralFluxes"> Current General Fluxes </label>
-            <ul id="currentGeneralFluxes" class="list-group">
-            @for(generalFlux <- generalFluxes_curr) {
-                <li class="list-group-item">@generalFlux.getName</li>
-            }
-            </ul>
+            <label for="currentFluxes"> Current Fluxes </label>
+            <table id="currentFluxes" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Start Time</th>
+                        <th scope="col">Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if(fluxes_curr != null) {
+                    @for(flux <- fluxes_curr) {
+                        <tr>
+                            <td>@flux.getName</td>
+                            <td>@flux.getType</td>
+                            <td>@flux.getStartTime</td>
+                            <td>@flux.getDuration</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
 
             <div class="container">
                 <div class="table-wrapper">

@@ -19,6 +19,7 @@
             <thead>
                 <tr>
                     <th scope="col">Name</th>
+                    <th scope="col">Activated</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,7 +27,7 @@
                 @for(diffuser <- diffusers) {
                     <tr>
                         <td>@diffuser.getName()</td>
-
+                        <td>@diffuser.isActivated</td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
 

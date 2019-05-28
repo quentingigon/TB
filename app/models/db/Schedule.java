@@ -1,5 +1,7 @@
 package models.db;
 
+import models.entities.ScheduleData;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,10 +19,16 @@ public class Schedule {
 	private String name;
 
 	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> scheduledFluxes;
+
+	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fluxes;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fallbacks;
+
+	@Column(name="keep_order")
+	private boolean keepOrder;
 
 	public Schedule() {
 		fallbacks = new HashSet<>();
@@ -30,6 +38,14 @@ public class Schedule {
 	public Schedule(String name) {
 		this.name = name;
 		fallbacks = new HashSet<>();
+	}
+
+	public Schedule(ScheduleData data) {
+		this.name = data.getName();
+		this.keepOrder = data.isKeepOrder();
+		this.scheduledFluxes = new HashSet<>();
+		this.fluxes = new HashSet<>();
+		this.fallbacks = new HashSet<>();
 	}
 
 	public Integer getId() {
@@ -85,5 +101,29 @@ public class Schedule {
 			this.fallbacks = new HashSet<>();
 		}
 		this.fallbacks.add(fluxId);
+	}
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getScheduledFluxes() {
+		return scheduledFluxes;
+	}
+
+	public void setScheduledFluxes(Set<Integer> scheduledFluxes) {
+		this.scheduledFluxes = scheduledFluxes;
+	}
+
+	public void addToScheduledFluxes(Integer sfId) {
+		if (this.scheduledFluxes == null) {
+			this.scheduledFluxes = new HashSet<>();
+		}
+		this.scheduledFluxes.add(sfId);
+	}
+
+	public boolean isKeepOrder() {
+		return keepOrder;
+	}
+
+	public void setKeepOrder(boolean keepOrder) {
+		this.keepOrder = keepOrder;
 	}
 }

@@ -22,6 +22,9 @@ public interface FluxRepository {
 	LocatedFlux getLocatedFluxByFluxId(Integer id);
 	GeneralFlux getGeneralFluxByFluxId(Integer id);
 
+	List<ScheduledFlux> getAllScheduledFluxByScheduleId(Integer id);
+	List<Flux> getAllUnscheduledFluxByScheduleId(Integer id);
+
 	List<Flux> getAll();
 	List<Integer> getAllFluxIdsOfTeam(Integer id);
 

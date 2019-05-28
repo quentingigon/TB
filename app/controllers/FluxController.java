@@ -107,7 +107,7 @@ public class FluxController extends Controller {
 			return createViewWithErrorMessage("You must enter an integer for duration");
 		}
 		// flux duration is too long
-		else if (Integer.valueOf(data.getDuration()) > blockNumber) {
+		else if (Integer.parseInt(data.getDuration()) > blockNumber) {
 			return createViewWithErrorMessage("Flux duration is too long");
 		}
 		else {
@@ -166,10 +166,10 @@ public class FluxController extends Controller {
 		}
 		// update flux
 		else {
-			flux.setDuration(Long.valueOf(data.getDuration()));
+			flux.setDuration(Long.parseLong(data.getDuration()));
 			flux.setUrl(data.getUrl());
 			flux.setType(data.getType());
-			flux.setNumberOfPhases(Long.valueOf(data.getNumberOfPhases()));
+			flux.setNumberOfPhases(Long.parseLong(data.getNumberOfPhases()));
 
 			fluxService.update(flux);
 

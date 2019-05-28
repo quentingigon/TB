@@ -1,4 +1,4 @@
-package models.entities;
+package services;
 
 import models.db.Flux;
 import models.db.Schedule;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static services.BlockUtils.blockNumber;
 
-public class DataUtils {
+public class TimeTableUtils {
 
 	@Inject
 	FluxRepository fluxRepository;
@@ -19,12 +19,12 @@ public class DataUtils {
 	@Inject
 	ScheduleRepository scheduleRepository;
 
-	public DataUtils() {
+	public TimeTableUtils() {
 	}
 
 	public HashMap<Integer, Integer> getTimeTable(Schedule schedule) {
 
-		List<ScheduledFlux> scheduledFluxes = scheduleRepository.getAllScheduledFluxesByScheduleId(schedule.getId());
+		List<ScheduledFlux> scheduledFluxes = fluxRepository.getAllScheduledFluxByScheduleId(schedule.getId());
 		Flux lastFlux = new Flux();
 		long lastFluxDuration = 0;
 		boolean noFluxSent;

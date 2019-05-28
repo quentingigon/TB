@@ -1,6 +1,11 @@
 @import models.entities.DiffuserData
 
-@(form: Form[DiffuserData], data: DiffuserData, message: String)
+@import models.entities.FluxData
+@import java.util
+@(form: Form[DiffuserData],
+        data: DiffuserData,
+        fluxes: util.List[FluxData],
+        message: String) (implicit request: Http.Request)
 
 
 @main("Diffuser Updates Page") {
@@ -20,6 +25,31 @@
                 <label for="inputName">Name</label>
                 <input name="name" type="text" class="form-control" id="inputName" value="@data.getName">
             </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputFluxName">Flux</label>
+                <select name="fluxName" id="inputFluxName" class="form-control">
+                @for(flux <- fluxes) {
+                    <option>@flux.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="inputStartTime">Start time</label>
+                <input name="startTime" type="text" class="form-control" id="inputStartTime" value="@data.getStartTime">
+            </div>
+
+            <div class="form-group">
+                <label for="inputValidity">Validity</label>
+                <input name="validity" type="text" class="form-control" id="inputValidity" value="@data.getValidity">
+            </div>
+
+            <div class="form-group col-md-4">
+                <label for="inputOverwrite">Overwrite existing schedule ? </label>
+                <input name="overwrite" type="checkbox" class="form-control" id="inputOverwrite" value="@data.isOverwrite">
+            </div>
+
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
     </div>

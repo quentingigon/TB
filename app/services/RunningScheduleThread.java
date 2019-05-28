@@ -8,6 +8,7 @@ import models.repositories.interfaces.FluxRepository;
 import org.joda.time.DateTime;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static services.BlockUtils.*;
 import static services.RunningScheduleUtils.SITE_ERROR;
@@ -22,27 +23,30 @@ public class RunningScheduleThread extends Observable implements Runnable {
 	private List<Screen> screens;
 
 	private volatile HashMap<Integer, Integer> timetable;
-	private HashMap<Integer, List<Integer>> timetableHistory;
-	private List<Integer> fallbackFluxIds;
+	private volatile HashMap<Integer, List<Integer>> timetableHistory;
+	private List<Integer> unscheduledFluxIds;
 
 	private boolean running;
+	private boolean keepOrder;
 
 	private volatile FluxEvent lastFluxEvent;
 
 	public RunningScheduleThread(RunningSchedule runningSchedule,
 								 List<Screen> screens,
-								 List<Integer> fallbackFluxIds,
+								 List<Integer> unscheduledFluxIds,
 								 Map<Integer, Integer> timetable,
 								 FluxRepository fluxRepository,
-								 FluxChecker fluxChecker) {
+								 FluxChecker fluxChecker,
+								 boolean keepOrder) {
 		this.fluxChecker = fluxChecker;
 		this.runningSchedule = runningSchedule;
 		this.screens = screens;
 		this.timetable = (HashMap<Integer, Integer>) timetable;
-		this.fallbackFluxIds = fallbackFluxIds;
+		this.unscheduledFluxIds = unscheduledFluxIds;
 		this.fluxRepository = fluxRepository;
 		this.timetableHistory = new HashMap<>();
 		running = true;
+		this.keepOrder = keepOrder;
 		lastFluxEvent = null;
 	}
 
@@ -74,13 +78,17 @@ public class RunningScheduleThread extends Observable implements Runnable {
 
 					Flux nextFlux = fluxRepository.getById(timetable.get(blockIndex));
 
+					// TODO finish flux checking, there are some errors
 					// if next flux has data that must be checked before displaying
-					if (nextFlux.getDataCheckUrl() != null) {
+					if (nextFlux != null && nextFlux.getDataCheckUrl() != null) {
 						// if next flux has no data to display
+
+						/*
 						if (!fluxChecker.checkIfFluxHasSomethingToDisplayByDateTime(nextFlux)) {
 							// remove it from the timetable to make room for other fluxes
 							removeScheduledFlux(nextFlux);
 						}
+						 */
 					}
 
 					if (!doNotSend) {
@@ -91,42 +99,68 @@ public class RunningScheduleThread extends Observable implements Runnable {
 							lastFluxSent = currentFlux;
 						}
 						// choose from the unscheduled fluxes
-						else {
+						else if (!unscheduledFluxIds.isEmpty()) {
 							int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
 
 							boolean sent = false;
+							boolean noPossibleFlux = false;
+							int tryouts = 0;
+							int fluxId;
 
-							Collections.shuffle(fallbackFluxIds);
+							do {
+								// If it was specified at the schedule creation that the unscheduled fluxes
+								// must be sent in hte
+								if (keepOrder) {
+									// make a cycle
+									unscheduledFluxIds.add(unscheduledFluxIds.get(0));
+									fluxId = unscheduledFluxIds.remove(0);
+								}
+								else {
+									Collections.shuffle(unscheduledFluxIds);
+									fluxId = unscheduledFluxIds.get(0);
+								}
 
-							for (Integer fluxId : fallbackFluxIds) {
+								Flux unscheduledFlux = fluxRepository.getById(fluxId);
 
-								if (!sent) {
-									Flux flux = fluxRepository.getById(fluxId);
-									// if this flux can be inserted in the remaining blocks
-									if (flux != null && flux.getTotalDuration() <= freeBlocksN) {
+								// if this flux can be inserted in the remaining blocks
+								if (unscheduledFlux != null && unscheduledFlux.getTotalDuration() <= freeBlocksN) {
 
-										// update timetable
-										scheduleFlux(flux, blockIndex);
+									// update timetable
+									scheduleFlux(unscheduledFlux, blockIndex);
 
-										// send event to observer
-										sendFluxEventAsGeneralOrLocated(flux);
-										lastFluxSent = currentFlux;
-										sent = true;
+									// send event to observer
+									sendFluxEventAsGeneralOrLocated(unscheduledFlux);
+									lastFluxSent = unscheduledFlux;
+									sent = true;
+								}
+								else {
+									// if we looped through all possibilities or at least
+									if (++tryouts == unscheduledFluxIds.size()) {
+										noPossibleFlux = true;
 									}
 								}
+							} while (!sent && !noPossibleFlux);
+
+							// no flux was sent, resend last flux if not null
+							if (noPossibleFlux && lastFluxSent != null) {
+								sendFluxEventAsGeneralOrLocated(lastFluxSent);
 							}
 						}
-
-						try {
-							if (Thread.currentThread().isInterrupted()) {
-								throw new InterruptedException("Thread interrupted");
-							}
-							Thread.sleep((long) blockDuration * 60000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+						// TODO add else if for fallbacks
+						// send error flux if no flux
+						else {
+							sendFluxEvent(fluxRepository.getByName(WAIT_FLUX), screens);
 						}
 					}
 
+					try {
+						if (Thread.currentThread().isInterrupted()) {
+							throw new InterruptedException("Thread interrupted");
+						}
+						Thread.sleep((long) blockDuration * 60000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 
 				} while (blockIndex < blockNumber && running);
 			}
@@ -197,46 +231,49 @@ public class RunningScheduleThread extends Observable implements Runnable {
 	}
 
 	private void scheduleFlux(Flux flux, int blockIndex) {
-		for (int i = 0; i < flux.getTotalDuration(); i++) {
+		for (int i = blockIndex; i < flux.getTotalDuration(); i++) {
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
-			this.timetable.put(blockIndex + i, flux.getId());
+			this.timetable.put(i, flux.getId());
 		}
 	}
 
 	public void scheduleFluxFromDiffuser(Flux flux, int blockIndex, int diffuserId) {
-		timetableHistory.computeIfAbsent(diffuserId, k -> new ArrayList<>());
+		final ReentrantLock lock = new ReentrantLock();
+		lock.lock();
+		this.timetableHistory.computeIfAbsent(diffuserId, k -> new ArrayList<>());
 		for (int i = 0; i < flux.getTotalDuration(); i++) {
 			// save old timetable
-			timetableHistory.get(diffuserId).add(timetable.get(blockIndex + i));
+			this.timetableHistory.get(diffuserId).add(timetable.get(blockIndex + i));
 			// add the flux to all the block from blockIndex to blockIndex + flux duration
 			this.timetable.put(blockIndex + i, flux.getId());
 		}
+		lock.unlock();
 	}
 
 	public void scheduleFluxIfPossible(Flux flux, int blockIndex) {
 		// if we can schedule the flux in the timetable (enough space until next scheduled flux)
-		if (!timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getTotalDuration()) {
+		if (!this.timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getTotalDuration()) {
 			scheduleFlux(flux, blockIndex);
 		}
 	}
 
 	public void scheduleFluxIfPossibleFromDiffuser(Flux flux, int blockIndex, int diffuserId) {
-		if (!timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getTotalDuration()) {
+		if (this.timetable.get(blockIndex).equals(-1) && getNumberOfBlocksToNextScheduledFlux(blockIndex) >= flux.getTotalDuration()) {
 			scheduleFluxFromDiffuser(flux, blockIndex, diffuserId);
 		}
 	}
 
 	public void removeScheduledFluxFromDiffuser(Flux flux, int diffuserId, int blockIndex) {
 		int index = 0;
-		for (int i = blockIndex; i < flux.getTotalDuration(); i++) {
+		for (int i = 0; i < flux.getTotalDuration(); i++) {
 			// re-put the flux value before the diffuser was activated
-			this.timetable.put(i, timetableHistory.get(diffuserId).get(index++));
+			this.timetable.put(blockIndex + i, this.timetableHistory.get(diffuserId).get(index++));
 		}
-		timetableHistory.remove(diffuserId);
+		this.timetableHistory.remove(diffuserId);
 	}
 
 	public void removeScheduledFlux(Flux flux) {
-		int index = new ArrayList<>(timetable.keySet()).indexOf(flux.getId());
+		int index = new ArrayList<>(this.timetable.keySet()).indexOf(flux.getId());
 		for (int i = index; i < flux.getTotalDuration(); i++) {
 			if (this.timetable.get(i).equals(flux.getId())) {
 				this.timetable.put(i, -1);
@@ -245,7 +282,7 @@ public class RunningScheduleThread extends Observable implements Runnable {
 	}
 
 	private int getNumberOfBlocksToNextScheduledFlux(int blockIndex) {
-		List<Integer> fluxes = new ArrayList<>(timetable.values());
+		List<Integer> fluxes = new ArrayList<>(this.timetable.values());
 		int n = 0;
 
 		// max 900 iterations and that case will never happen, so it should
@@ -273,5 +310,9 @@ public class RunningScheduleThread extends Observable implements Runnable {
 
 	public void setRunning(boolean running) {
 		this.running = running;
+	}
+
+	public HashMap<Integer, Integer> getTimetable() {
+		return timetable;
 	}
 }

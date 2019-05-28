@@ -3,7 +3,6 @@ package services;
 import models.db.RunningSchedule;
 import models.db.Schedule;
 import models.db.Screen;
-import models.entities.DataUtils;
 import models.repositories.interfaces.FluxRepository;
 import models.repositories.interfaces.RunningScheduleRepository;
 import models.repositories.interfaces.ScheduleRepository;
@@ -34,7 +33,7 @@ public class AutomatedScheduleStarter {
 
     private final RunningScheduleThreadManager serviceManager;
     private final FluxManager fluxManager;
-    private final DataUtils dataUtils;
+    private final TimeTableUtils timeTableUtils;
 
     private final ScreenRepository screenRepository;
     private final FluxRepository fluxRepository;
@@ -46,7 +45,7 @@ public class AutomatedScheduleStarter {
 
     @Inject
     public AutomatedScheduleStarter(FluxManager fluxManager,
-                                    DataUtils dataUtils,
+                                    TimeTableUtils timeTableUtils,
                                     ScreenRepository screenRepository,
                                     FluxRepository fluxRepository,
                                     RunningScheduleRepository repo,
@@ -60,7 +59,7 @@ public class AutomatedScheduleStarter {
         this.fluxManager = fluxManager;
         this.serviceManager = serviceManager;
         this.runningScheduleRepository = repo;
-        this.dataUtils = dataUtils;
+        this.timeTableUtils = timeTableUtils;
 
         // This code is called when the application starts.
         // get all existing runningSchedules
@@ -81,14 +80,17 @@ public class AutomatedScheduleStarter {
                     rs,
                     screens,
                     new ArrayList<>(schedule.getFallbacks()),
-                    dataUtils.getTimeTable(schedule),
+                    timeTableUtils.getTimeTable(schedule),
                     fluxRepository,
-                    fluxChecker);
+                    fluxChecker,
+                    schedule.isKeepOrder());
 
                 service.addObserver(fluxManager);
 
                 // the schedule is activated
                 serviceManager.addRunningSchedule(schedule.getId(), service);
+
+
             }
         }
     }

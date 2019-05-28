@@ -113,6 +113,38 @@ public class JPAFluxRepository implements FluxRepository {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<ScheduledFlux> getAllScheduledFluxByScheduleId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM scheduled_flux WHERE schedule_id = " + scheduleId,
+				ScheduledFlux.class);
+			try {
+				return (List<ScheduledFlux>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Flux> getAllUnscheduledFluxByScheduleId(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM schedule_fluxes WHERE schedule_schedule_id = " + scheduleId,
+				Flux.class);
+			try {
+				return (List<Flux>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public List<Flux> getAll() {
 		return jpaApi.withTransaction(entityManager -> {
 			Query query = entityManager.createNativeQuery(

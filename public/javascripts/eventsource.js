@@ -1,5 +1,5 @@
 function displayFlux(url) {
-    $("#frame0").attr('src', url);
+    $("#frame0").show().attr('src', url);
 }
 
 // TODO autoplay not working,
