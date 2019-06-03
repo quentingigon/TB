@@ -1,6 +1,4 @@
-
 public void run() {
-  
     while (running) {
         // il y a des event a envoyer
         if (!fluxEvents.isEmpty()) {

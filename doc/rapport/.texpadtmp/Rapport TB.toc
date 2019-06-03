@@ -1,64 +1,86 @@
 \select@language {french}
-\contentsline {section}{\numberline {1}Introduction au projet}{3}
-\contentsline {section}{\numberline {2}Cahier des charges}{3}
-\contentsline {subsection}{\numberline {2.1}Contraintes et besoins}{3}
-\contentsline {subsection}{\numberline {2.2}Fonctionnalit\IeC {\'e}s}{3}
-\contentsline {subsection}{\numberline {2.3}Ech\IeC {\'e}ancier}{4}
-\contentsline {section}{\numberline {3}Pr\IeC {\'e}sentation des technologies utilis\IeC {\'e}es}{5}
-\contentsline {subsection}{\numberline {3.1}Framework Play!}{5}
-\contentsline {subsection}{\numberline {3.2}EventSource}{5}
-\contentsline {subsection}{\numberline {3.3}PostgreSQL}{5}
-\contentsline {subsection}{\numberline {3.4}JPA}{5}
-\contentsline {subsection}{\numberline {3.5}JWT}{5}
-\contentsline {subsection}{\numberline {3.6}HTML5}{5}
-\contentsline {section}{\numberline {4}Sch\IeC {\'e}ma de base de donn\IeC {\'e}e}{6}
-\contentsline {section}{\numberline {5}Analyse et Architecture}{7}
-\contentsline {subsection}{\numberline {5.1}Site}{7}
-\contentsline {subsection}{\numberline {5.2}Team}{7}
-\contentsline {subsection}{\numberline {5.3}Organisation des flux}{7}
-\contentsline {subsubsection}{\numberline {5.3.1}Flux}{7}
-\contentsline {subsubsection}{\numberline {5.3.2}Schedules}{8}
-\contentsline {subsubsection}{\numberline {5.3.3}Diffuser}{8}
-\contentsline {subsection}{\numberline {5.4}Ecrans}{9}
-\contentsline {subsubsection}{\numberline {5.4.1}Affichage}{9}
-\contentsline {subsubsection}{\numberline {5.4.2}Events}{9}
-\contentsline {subsubsection}{\numberline {5.4.3}Authentification}{9}
-\contentsline {subsubsection}{\numberline {5.4.4}Groupe d'\IeC {\'e}crans}{10}
-\contentsline {section}{\numberline {6}Protocole de communication \IeC {\'e}cran-serveur}{11}
-\contentsline {subsection}{\numberline {6.1}Ecran inconnu du serveur}{11}
-\contentsline {subsection}{\numberline {6.2}Ecran connu du serveur}{12}
-\contentsline {subsection}{\numberline {6.3}Ecran connu - erreurs de connexion}{13}
-\contentsline {section}{\numberline {7}R\IeC {\'e}alisation technique}{14}
-\contentsline {subsection}{\numberline {7.1}Organisation des flux}{14}
-\contentsline {subsubsection}{\numberline {7.1.1}Bloc-horaire}{14}
-\contentsline {subsubsection}{\numberline {7.1.2}RunningScheduleThread}{15}
-\contentsline {subsubsection}{\numberline {7.1.3}FluxManager}{17}
-\contentsline {subsection}{\numberline {7.2}Contr\IeC {\^o}leurs}{19}
-\contentsline {subsubsection}{\numberline {7.2.1}EventSource}{19}
-\contentsline {subsubsection}{\numberline {7.2.2}Ecrans}{21}
-\contentsline {subsubsection}{\numberline {7.2.3}Schedules}{21}
-\contentsline {paragraph}{\numberline {7.2.3.1}Activation}{22}
-\contentsline {paragraph}{\numberline {7.2.3.2}D\IeC {\'e}sactivation}{22}
-\contentsline {subsubsection}{\numberline {7.2.4}Diffusers}{22}
-\contentsline {paragraph}{\numberline {7.2.4.1}Activation}{22}
-\contentsline {paragraph}{\numberline {7.2.4.2}D\IeC {\'e}sactivation}{22}
-\contentsline {subsection}{\numberline {7.3}Vues}{23}
-\contentsline {subsubsection}{\numberline {7.3.1}Affichage des flux}{23}
-\contentsline {subsubsection}{\numberline {7.3.2}Echange de donn\IeC {\'e}es}{24}
-\contentsline {paragraph}{\numberline {7.3.2.1}Serveur -> client}{24}
-\contentsline {paragraph}{\numberline {7.3.2.2}Client -> serveur}{24}
-\contentsline {section}{\numberline {8}Cas d'utilisation}{26}
-\contentsline {subsection}{\numberline {8.1}Administrateur:}{26}
-\contentsline {subsection}{\numberline {8.2}TeamAdmin:}{28}
-\contentsline {subsection}{\numberline {8.3}TeamMember:}{29}
-\contentsline {section}{\numberline {9}Mockups}{31}
-\contentsline {subsection}{\numberline {9.1}Utilisateurs}{31}
-\contentsline {subsection}{\numberline {9.2}Ecrans}{32}
-\contentsline {subsection}{\numberline {9.3}Teams}{33}
-\contentsline {subsection}{\numberline {9.4}Flux}{34}
-\contentsline {subsection}{\numberline {9.5}Schedules}{35}
-\contentsline {subsection}{\numberline {9.6}Diffusers}{36}
-\contentsline {section}{\numberline {10}Tests}{36}
-\contentsline {subsection}{\numberline {10.1}Tests JUnit}{36}
-\contentsline {subsection}{\numberline {10.2}Tests fonctionnels}{36}
-\contentsline {section}{\numberline {11}Remarques personnelles et commentaires}{36}
+\contentsline {section}{\numberline {1}Pr\IeC {\'e}face}{5}
+\contentsline {section}{\numberline {2}Introduction au projet}{6}
+\contentsline {section}{\numberline {3}Pr\IeC {\'e}sentation des technologies utilis\IeC {\'e}es}{7}
+\contentsline {subsection}{\numberline {3.1}Framework Play!}{7}
+\contentsline {subsection}{\numberline {3.2}EventSource}{7}
+\contentsline {subsection}{\numberline {3.3}PostgreSQL}{7}
+\contentsline {subsection}{\numberline {3.4}JPA}{7}
+\contentsline {subsection}{\numberline {3.5}HTML5}{7}
+\contentsline {section}{\numberline {4}Analyse et Architecture}{8}
+\contentsline {subsection}{\numberline {4.1}Site}{8}
+\contentsline {subsection}{\numberline {4.2}Team et utilisateurs}{8}
+\contentsline {subsection}{\numberline {4.3}Organisation des flux}{8}
+\contentsline {subsubsection}{\numberline {4.3.1}Flux}{8}
+\contentsline {subsubsection}{\numberline {4.3.2}Schedules}{9}
+\contentsline {subsubsection}{\numberline {4.3.3}Diffuser}{10}
+\contentsline {subsection}{\numberline {4.4}Ecrans}{10}
+\contentsline {subsubsection}{\numberline {4.4.1}Affichage}{10}
+\contentsline {subsubsection}{\numberline {4.4.2}Events}{10}
+\contentsline {subsubsection}{\numberline {4.4.3}Authentification}{11}
+\contentsline {subsubsection}{\numberline {4.4.4}Groupe d'\IeC {\'e}crans}{11}
+\contentsline {section}{\numberline {5}Sch\IeC {\'e}ma de base de donn\IeC {\'e}e}{13}
+\contentsline {subsection}{\numberline {5.1}Equipes et utilisateurs}{13}
+\contentsline {subsection}{\numberline {5.2}Flux}{13}
+\contentsline {subsection}{\numberline {5.3}Schedule}{13}
+\contentsline {subsection}{\numberline {5.4}Diffuser}{15}
+\contentsline {subsection}{\numberline {5.5}Ecrans}{15}
+\contentsline {section}{\numberline {6}R\IeC {\'e}alisation}{16}
+\contentsline {subsection}{\numberline {6.1}Organisation des flux}{16}
+\contentsline {subsubsection}{\numberline {6.1.1}Bloc-horaire}{16}
+\contentsline {subsubsection}{\numberline {6.1.2}RunningScheduleThread}{17}
+\contentsline {subsubsection}{\numberline {6.1.3}FluxManager}{19}
+\contentsline {subsubsection}{\numberline {6.1.4}AutomatedScheduleStarter}{20}
+\contentsline {subsubsection}{\numberline {6.1.5}FluxChecker}{21}
+\contentsline {subsection}{\numberline {6.2}Contr\IeC {\^o}leurs}{22}
+\contentsline {subsubsection}{\numberline {6.2.1}EventSourceController}{22}
+\contentsline {subsubsection}{\numberline {6.2.2}ScreenController}{24}
+\contentsline {paragraph}{\numberline {6.2.2.1}Authentification}{24}
+\contentsline {paragraph}{\numberline {6.2.2.2}D\IeC {\'e}sactivation}{24}
+\contentsline {subsubsection}{\numberline {6.2.3}ScheduleController}{25}
+\contentsline {paragraph}{\numberline {6.2.3.1}Activation}{25}
+\contentsline {paragraph}{\numberline {6.2.3.2}D\IeC {\'e}sactivation}{26}
+\contentsline {subsubsection}{\numberline {6.2.4}DiffuserController}{27}
+\contentsline {paragraph}{\numberline {6.2.4.1}Activation/d\IeC {\'e}sactivation}{27}
+\contentsline {paragraph}{\numberline {6.2.4.2}D\IeC {\'e}tection d'un Diffuser actif}{28}
+\contentsline {subsection}{\numberline {6.3}DAOs}{29}
+\contentsline {subsubsection}{\numberline {6.3.1}Requ\IeC {\^e}tes SQL}{29}
+\contentsline {subsubsection}{\numberline {6.3.2}Services}{30}
+\contentsline {subsubsection}{\numberline {6.3.3}Impl\IeC {\'e}mentation Java des entit\IeC {\'e}s BD}{31}
+\contentsline {subsection}{\numberline {6.4}Restriction d'acc\IeC {\`e}s}{32}
+\contentsline {subsection}{\numberline {6.5}Triggers}{33}
+\contentsline {subsection}{\numberline {6.6}Vues}{34}
+\contentsline {subsubsection}{\numberline {6.6.1}Affichage des flux}{34}
+\contentsline {subsubsection}{\numberline {6.6.2}Echange de donn\IeC {\'e}es}{35}
+\contentsline {paragraph}{\numberline {6.6.2.1}Serveur -> client}{35}
+\contentsline {paragraph}{\numberline {6.6.2.2}Client -> serveur}{36}
+\contentsline {paragraph}{\numberline {6.6.2.3}Erreurs}{36}
+\contentsline {section}{\numberline {7}Interface}{38}
+\contentsline {subsection}{\numberline {7.1}Home}{38}
+\contentsline {subsection}{\numberline {7.2}Teams}{38}
+\contentsline {subsection}{\numberline {7.3}Users}{39}
+\contentsline {subsection}{\numberline {7.4}Fluxes}{39}
+\contentsline {subsection}{\numberline {7.5}Screens}{40}
+\contentsline {subsection}{\numberline {7.6}Schedules}{40}
+\contentsline {subsection}{\numberline {7.7}Diffusers}{41}
+\contentsline {section}{\numberline {8}Tests}{42}
+\contentsline {subsection}{\numberline {8.1}Tests unitaire}{42}
+\contentsline {subsection}{\numberline {8.2}Tests fonctionnels}{42}
+\contentsline {section}{\numberline {9}Commentaires et conclusion}{43}
+\contentsline {section}{Appendices}{44}
+\contentsline {section}{\numberline {A}Cahier des charges}{44}
+\contentsline {subsection}{\numberline {A.1}Contraintes et besoins}{44}
+\contentsline {subsection}{\numberline {A.2}Fonctionnalit\IeC {\'e}s}{44}
+\contentsline {subsection}{\numberline {A.3}Ech\IeC {\'e}ancier}{45}
+\contentsline {section}{\numberline {B}Journal de travail}{46}
+\contentsline {section}{\numberline {C}Cas d'utilisation}{47}
+\contentsline {subsection}{\numberline {C.1}Administrateur:}{47}
+\contentsline {subsection}{\numberline {C.2}TeamAdmin:}{49}
+\contentsline {subsection}{\numberline {C.3}TeamMember:}{50}
+\contentsline {section}{\numberline {D}Mockups}{52}
+\contentsline {subsection}{\numberline {D.1}Utilisateurs}{52}
+\contentsline {subsection}{\numberline {D.2}Ecrans}{53}
+\contentsline {subsection}{\numberline {D.3}Teams}{54}
+\contentsline {subsection}{\numberline {D.4}Flux}{55}
+\contentsline {subsection}{\numberline {D.5}Schedules}{56}
+\contentsline {subsection}{\numberline {D.6}Diffusers}{57}

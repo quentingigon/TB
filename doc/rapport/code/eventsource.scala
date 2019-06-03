@@ -4,9 +4,7 @@ class EventSourceController @Inject() (system: ActorSystem,
                                        (implicit executionContext: ExecutionContext)
 extends AbstractController(cc) {
 
-
   private[this] val manager = system.actorOf(EventActorManager.props)
-
   implicit def pair[E]: EventNameExtractor[E] = EventNameExtractor[E](_ => Some("test1"))
 
   def send(event: String) =  {
@@ -18,8 +16,8 @@ extends AbstractController(cc) {
   def index = Action {
     Ok(eventsource.render())
   }
-  def events = Action {
 
+  def events = Action {
     val source  =
       Source
         .actorRef[String](32, OverflowStrategy.dropHead)
@@ -30,10 +28,7 @@ extends AbstractController(cc) {
         }
 
     val eventSource = Source.fromGraph(source.map(EventSource.Event.event))
-
-
     Ok.chunked(eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
-
   }
 }
 

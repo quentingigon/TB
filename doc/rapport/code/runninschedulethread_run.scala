@@ -1,5 +1,4 @@
 public void run() {
-
   while (running) {
 
     DateTime dt = new DateTime();

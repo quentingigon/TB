@@ -1,12 +1,10 @@
 @Singleton
 public class EventSourceController extends Controller implements Observer {
-
     private static Source<String, ?> source;
 
     @Override
     @SuppressWarnings("unchecked")
     public synchronized void update(Observable o, Object arg) {
-
         if (source == null) {
             source = Source.tick(Duration.ZERO, Duration.ofSeconds(5), "tick");
         }
@@ -19,13 +17,11 @@ public class EventSourceController extends Controller implements Observer {
     }
 
     public Result events() {
-
         final Source<EventSource.Event, ?> eventSource;
 
         return ok().chunked(source
             .map(EventSource.Event::event)
             .via(EventSource.flow()))
             .as(Http.MimeTypes.EVENT_STREAM);
-
     }
 }

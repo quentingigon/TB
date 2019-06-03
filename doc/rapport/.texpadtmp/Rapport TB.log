@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.3.30)  27 MAY 2019 13:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.3.30)  3 JUN 2019 12:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -23,12 +23,65 @@ File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 \abovecaptionskip=\skip41
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
-) (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/graphicx.sty
-Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
- (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/keyval.sty
+) (/usr/local/texlive/2016/texmf-dist/tex/generic/babel/babel.sty
+Package: babel 2016/04/23 3.9r The Babel package
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/babel-french/frenchb.ldf
+Language: frenchb 2016/05/14 v3.2c French support from the babel system
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/babel/babel.def
+File: babel.def 2016/04/23 3.9r Babel common definitions
+\babel@savecnt=\count87
+\U@D=\dimen103
+)
+\l@acadian = a dialect from \language\l@french 
+\l@canadien = a dialect from \language\l@french 
+\FB@nonchar=\count88
+\FBcolonskip=\skip43
+\FBthinskip=\skip44
+Package babel Info: Making : an active character on input line 365.
+Package babel Info: Making ; an active character on input line 366.
+Package babel Info: Making ! an active character on input line 367.
+Package babel Info: Making ? an active character on input line 368.
+\FBguillskip=\skip45
+\FBguill@level=\count89
+\FB@everypar=\toks14
+\FB@Mht=\dimen104
+\std@mcc=\count90
+\dec@mcc=\count91
+\listindentFB=\skip46
+\labelwidthFB=\skip47
+\leftmarginFB=\skip48
+\parindentFFN=\dimen105
+\FBfnindent=\skip49
+)) (/usr/local/texlive/2016/texmf-dist/tex/latex/carlisle/scalefnt.sty) (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
-\KV@toks@=\toks14
-) (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/graphics.sty
+\KV@toks@=\toks15
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2010/09/12 v5.6 Page Geometry
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2016/05/14 v3.1 Provides the ifpdf switch
+) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifvtex.sty
+Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
+Package ifvtex Info: VTeX not detected.
+) (/usr/local/texlive/2016/texmf-dist/tex/generic/ifxetex/ifxetex.sty
+Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
+)
+\Gm@cnth=\count92
+\Gm@cntv=\count93
+\c@Gm@tempcnt=\count94
+\Gm@bindingoffset=\dimen106
+\Gm@wd@mp=\dimen107
+\Gm@odd@mp=\dimen108
+\Gm@even@mp=\dimen109
+\Gm@layoutwidth=\dimen110
+\Gm@layoutheight=\dimen111
+\Gm@layouthoffset=\dimen112
+\Gm@layoutvoffset=\dimen113
+\Gm@dimlist=\toks16
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/rotating/rotating.sty
+Package: rotating 2009/03/28 v2.16a rotated objects in LaTeX
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2016/05/09 v1.0r Standard LaTeX Graphics (DPC,SPQR)
  (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
@@ -43,79 +96,36 @@ Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
 ) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
 Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
 )
-\Gread@gobject=\count87
+\Gread@gobject=\count95
 ))
-\Gin@req@height=\dimen103
-\Gin@req@width=\dimen104
-) (/usr/local/texlive/2016/texmf-dist/tex/generic/babel/babel.sty
-Package: babel 2016/04/23 3.9r The Babel package
- (/usr/local/texlive/2016/texmf-dist/tex/generic/babel-french/frenchb.ldf
-Language: frenchb 2016/05/14 v3.2c French support from the babel system
- (/usr/local/texlive/2016/texmf-dist/tex/generic/babel/babel.def
-File: babel.def 2016/04/23 3.9r Babel common definitions
-\babel@savecnt=\count88
-\U@D=\dimen105
+\Gin@req@height=\dimen114
+\Gin@req@width=\dimen115
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
 )
-\l@acadian = a dialect from \language\l@french 
-\l@canadien = a dialect from \language\l@french 
-\FB@nonchar=\count89
-\FBcolonskip=\skip43
-\FBthinskip=\skip44
-Package babel Info: Making : an active character on input line 365.
-Package babel Info: Making ; an active character on input line 366.
-Package babel Info: Making ! an active character on input line 367.
-Package babel Info: Making ? an active character on input line 368.
-\FBguillskip=\skip45
-\FBguill@level=\count90
-\FB@everypar=\toks15
-\FB@Mht=\dimen106
-\std@mcc=\count91
-\dec@mcc=\count92
-\listindentFB=\skip46
-\labelwidthFB=\skip47
-\leftmarginFB=\skip48
-\parindentFFN=\dimen107
-\FBfnindent=\skip49
-)) (/usr/local/texlive/2016/texmf-dist/tex/latex/carlisle/scalefnt.sty) (/usr/local/texlive/2016/texmf-dist/tex/latex/geometry/geometry.sty
-Package: geometry 2010/09/12 v5.6 Page Geometry
- (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifpdf.sty
-Package: ifpdf 2016/05/14 v3.1 Provides the ifpdf switch
-) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifvtex.sty
-Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
-Package ifvtex Info: VTeX not detected.
-) (/usr/local/texlive/2016/texmf-dist/tex/generic/ifxetex/ifxetex.sty
-Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
-)
-\Gm@cnth=\count93
-\Gm@cntv=\count94
-\c@Gm@tempcnt=\count95
-\Gm@bindingoffset=\dimen108
-\Gm@wd@mp=\dimen109
-\Gm@odd@mp=\dimen110
-\Gm@even@mp=\dimen111
-\Gm@layoutwidth=\dimen112
-\Gm@layoutheight=\dimen113
-\Gm@layouthoffset=\dimen114
-\Gm@layoutvoffset=\dimen115
-\Gm@dimlist=\toks16
+\c@r@tfl@t=\count96
+\rotFPtop=\skip50
+\rotFPbot=\skip51
+\rot@float@box=\box26
+\rot@mess@toks=\toks17
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count96
-\lst@gtempboxa=\box26
-\lst@token=\toks17
-\lst@length=\count97
+\lst@mode=\count97
+\lst@gtempboxa=\box27
+\lst@token=\toks18
+\lst@length=\count98
 \lst@currlwidth=\dimen116
-\lst@column=\count98
-\lst@pos=\count99
+\lst@column=\count99
+\lst@pos=\count100
 \lst@lostspace=\dimen117
 \lst@width=\dimen118
-\lst@newlines=\count100
-\lst@lineno=\count101
+\lst@newlines=\count101
+\lst@lineno=\count102
 \lst@maxwidth=\dimen119
  (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
-\c@lstnumber=\count102
-\lst@skipnumbers=\count103
-\lst@framebox=\box27
+\c@lstnumber=\count103
+\lst@skipnumbers=\count104
+\lst@framebox=\box28
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2015/06/04 1.6 listings configuration
 ))
@@ -128,20 +138,18 @@ File: color.cfg 2016/01/02 v1.6 sample color configuration
 Package color Info: Driver file: pdftex.def on input line 144.
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/pdfpages/pdfpages.sty
 Package: pdfpages 2016/04/19 v0.5f Insert pages of external PDF documents (AM)
- (/usr/local/texlive/2016/texmf-dist/tex/latex/base/ifthen.sty
-Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
-) (/usr/local/texlive/2016/texmf-dist/tex/latex/tools/calc.sty
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count104
-\calc@Bcount=\count105
+\calc@Acount=\count105
+\calc@Bcount=\count106
 \calc@Adimen=\dimen120
 \calc@Bdimen=\dimen121
-\calc@Askip=\skip50
-\calc@Bskip=\skip51
+\calc@Askip=\skip52
+\calc@Bskip=\skip53
 LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count106
-\calc@Cskip=\skip52
+\calc@Ccount=\count107
+\calc@Cskip=\skip54
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/eso-pic/eso-pic.sty
 Package: eso-pic 2015/07/21 v2.0g eso-pic (RN)
  (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/atbegshi.sty
@@ -152,14 +160,15 @@ Package: atbegshi 2016/05/16 v1.17 At begin shipout hook (HO)
  (/usr/local/texlive/2016/texmf-dist/tex/latex/pdfpages/pppdftex.def
 File: pppdftex.def 2016/04/19 v0.5f Pdfpages driver for pdfTeX (AM)
 )
-\AM@pagebox=\box28
-\AM@global@opts=\toks18
-\AM@toc@title=\toks19
-\c@AM@survey=\count107
-\AM@templatesizebox=\box29
+\AM@pagebox=\box29
+\AM@global@opts=\toks19
+\AM@toc@title=\toks20
+\c@AM@survey=\count108
+\AM@templatesizebox=\box30
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/caption/caption.sty
 Package: caption 2016/02/21 v3.3-144 Customizing captions (AR)
- (/usr/local/texlive/2016/texmf-dist/tex/latex/caption/caption3.sty
+
+(/usr/local/texlive/2016/texmf-dist/tex/latex/caption/caption3.sty
 Package: caption3 2016/02/04 v1.7-139 caption3 kernel (AR)
 Package caption3 Info: TeX engine: e-TeX on input line 67.
 \captionmargin=\dimen124
@@ -170,10 +179,21 @@ Package caption3 Info: TeX engine: e-TeX on input line 67.
 \caption@parindent=\dimen129
 \caption@hangindent=\dimen130
 )
-\c@ContinuedFloat=\count108
+\c@ContinuedFloat=\count109
 Package caption Info: listings package is loaded.
+Package caption Info: rotating package is loaded.
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/appendix/appendix.sty
+Package: appendix 2009/09/02 v1.2b extra appendix facilities
+\c@@pps=\count110
+\c@@ppsavesec=\count111
+\c@@ppsaveapp=\count112
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/pdflscape.sty
+Package: pdflscape 2016/05/14 v0.11 Display of landscape pages in PDF (HO)
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2000/10/22 v3.01 Landscape Pages (DPC)
 )
-(/usr/local/texlive/2016/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
  (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
@@ -193,8 +213,8 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 File: svgnam.def 2016/05/11 v2.12 Predefined colors according to SVG 1.1 (UK)
 )) (/usr/local/texlive/2016/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2015/03/17 v1.2c Input encoding file
-\inpenc@prehook=\toks20
-\inpenc@posthook=\toks21
+\inpenc@prehook=\toks21
+\inpenc@posthook=\toks22
  (/usr/local/texlive/2016/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2016/02/28 v1.1s UTF-8 support for inputenc
 Now handling font encoding OML ...
@@ -820,97 +840,51 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 ) (/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.aux)
 \openout1 = `"Rapport TB.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 91.
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for FML/fncmi/m/it on input line 91.
-LaTeX Font Info:    Try loading font information for FML+fncmi on input line 91.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for FML/fncmi/m/it on input line 92.
+LaTeX Font Info:    Try loading font information for FML+fncmi on input line 92.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/fouriernc/fmlfncmi.fd
 File: fmlfncmi.fd 2005/12/20 Fontinst v1.928 font definitions for FML/fncmi.
 )
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for FMS/fncm/m/n on input line 91.
-LaTeX Font Info:    Try loading font information for FMS+fncm on input line 91.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for FMS/fncm/m/n on input line 92.
+LaTeX Font Info:    Try loading font information for FMS+fncm on input line 92.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/fouriernc/fmsfncm.fd
 File: fmsfncm.fd 2005/12/20 Fontinst v1.928 font definitions for FMS/fncm.
 )
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for FMX/futm/m/n on input line 91.
-LaTeX Font Info:    Try loading font information for FMX+futm on input line 91.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for FMX/futm/m/n on input line 92.
+LaTeX Font Info:    Try loading font information for FMX+futm on input line 92.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/fourier/fmxfutm.fd
 File: fmxfutm.fd futm-extension
 )
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 91.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 91.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 92.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 92.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 91.
-LaTeX Font Info:    Try loading font information for T1+fnc on input line 91.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Try loading font information for T1+fnc on input line 92.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/fouriernc/t1fnc.fd
 File: t1fnc.fd 2005/12/13 scaled font definitions for T1/fnc.
 )
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 9.29993pt on input line 91.
- (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
-[Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count109
-\scratchdimen=\dimen131
-\scratchbox=\box30
-\nofMPsegments=\count110
-\nofMParguments=\count111
-\everyMPshowfont=\toks22
-\MPscratchCnt=\count112
-\MPscratchDim=\dimen132
-\MPnumerator=\count113
-\makeMPintoPDFobject=\count114
-\everyMPtoPDFconversion=\toks23
-) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
-Package: pdftexcmds 2016/05/10 v0.21 Utility functions of pdfTeX for LuaTeX (HO)
- (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifluatex.sty
-Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
-)
-Package pdftexcmds Info: LuaTeX not detected.
-Package pdftexcmds Info: \pdf@primitive is available.
-Package pdftexcmds Info: \pdf@ifprimitive is available.
-Package pdftexcmds Info: \pdfdraftmode found.
-) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
-Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
- (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/grfext.sty
-Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
- (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
-Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
-)) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
- (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
-Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
- (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/etexcmds.sty
-Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
-Package etexcmds Info: Could not find \expanded.
-(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
-(etexcmds)             that some package has redefined \expanded.
-(etexcmds)             In the latter case, load this package earlier.
-)))
-Package grfext Info: Graphics extension search list:
-(grfext)             [.pdf,.png,.jpg,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 456.
- (/usr/local/texlive/2016/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-))
-LaTeX Info: Redefining \degres on input line 91.
-LaTeX Info: Redefining \dots on input line 91.
-LaTeX Info: Redefining \up on input line 91.
+(Font)              scaled to size 9.29993pt on input line 92.
+LaTeX Info: Redefining \degres on input line 92.
+LaTeX Info: Redefining \dots on input line 92.
+LaTeX Info: Redefining \up on input line 92.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -946,403 +920,515 @@ LaTeX Info: Redefining \up on input line 91.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-\c@lstlisting=\count115
-\AtBeginShipoutBox=\box31
-(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/pdflscape.sty
-Package: pdflscape 2016/05/14 v0.11 Display of landscape pages in PDF (HO)
- (/usr/local/texlive/2016/texmf-dist/tex/latex/graphics/lscape.sty
-Package: lscape 2000/10/22 v3.01 Landscape Pages (DPC)
+(/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count113
+\scratchdimen=\dimen131
+\scratchbox=\box31
+\nofMPsegments=\count114
+\nofMParguments=\count115
+\everyMPshowfont=\toks23
+\MPscratchCnt=\count116
+\MPscratchDim=\dimen132
+\MPnumerator=\count117
+\makeMPintoPDFobject=\count118
+\everyMPtoPDFconversion=\toks24
+) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2016/05/10 v0.21 Utility functions of pdfTeX for LuaTeX (HO)
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
 )
-Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
-)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
+)) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+ (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package grfext Info: Graphics extension search list:
+(grfext)             [.pdf,.png,.jpg,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 456.
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+\c@lstlisting=\count119
+\AtBeginShipoutBox=\box32
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 23.13821pt on input line 115.
+(Font)              scaled to size 23.13821pt on input line 116.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 13.39188pt on input line 127.
+(Font)              scaled to size 13.39188pt on input line 128.
 LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
-(Font)              scaled to size 13.39188pt on input line 127.
+(Font)              scaled to size 13.39188pt on input line 128.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 11.15991pt on input line 135.
+(Font)              scaled to size 11.15991pt on input line 136.
 LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
-(Font)              scaled to size 11.15991pt on input line 135.
+(Font)              scaled to size 11.15991pt on input line 136.
  [1
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 16.07027pt on input line 151.
+(Font)              scaled to size 16.07027pt on input line 152.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 8.36993pt on input line 151.
+(Font)              scaled to size 8.36993pt on input line 152.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 6.50995pt on input line 151.
+(Font)              scaled to size 6.50995pt on input line 152.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 11.03998pt on input line 151.
+(Font)              scaled to size 11.03998pt on input line 152.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 8.27998pt on input line 151.
+(Font)              scaled to size 8.27998pt on input line 152.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 6.43999pt on input line 151.
-LaTeX Font Info:    Try loading font information for FML+fncm on input line 151.
+(Font)              scaled to size 6.43999pt on input line 152.
+LaTeX Font Info:    Try loading font information for FML+fncm on input line 152.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/fouriernc/fmlfncm.fd
 File: fmlfncm.fd 2005/12/20 Fontinst v1.928 font definitions for FML/fncm.
 )
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 11.03998pt on input line 151.
+(Font)              scaled to size 11.03998pt on input line 152.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 8.27998pt on input line 151.
+(Font)              scaled to size 8.27998pt on input line 152.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 6.43999pt on input line 151.
+(Font)              scaled to size 6.43999pt on input line 152.
 LaTeX Font Info:    Font shape `T1/fnc/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/fnc/b/n' tried instead on input line 153.
+(Font)              Font shape `T1/fnc/b/n' tried instead on input line 154.
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
-(Font)              scaled to size 13.39188pt on input line 153.
+(Font)              scaled to size 13.39188pt on input line 154.
  (/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.toc
 LaTeX Font Info:    Font shape `T1/fnc/bx/n' in size <10> not available
 (Font)              Font shape `T1/fnc/b/n' tried instead on input line 2.
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
 (Font)              scaled to size 9.29993pt on input line 2.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 7.06795pt on input line 4.
+(Font)              scaled to size 7.06795pt on input line 5.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 5.57996pt on input line 4.
+(Font)              scaled to size 5.57996pt on input line 5.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 4.
+(Font)              scaled to size 9.19998pt on input line 5.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 6.99199pt on input line 4.
+(Font)              scaled to size 6.99199pt on input line 5.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 5.51999pt on input line 4.
+(Font)              scaled to size 5.51999pt on input line 5.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 4.
+(Font)              scaled to size 9.19998pt on input line 5.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 6.99199pt on input line 4.
+(Font)              scaled to size 6.99199pt on input line 5.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 5.51999pt on input line 4.
+(Font)              scaled to size 5.51999pt on input line 5.
  [1])
 \tf@toc=\write3
 \openout3 = `"Rapport TB.toc"'.
 
- [2]
+ [2] (/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.lof)
+\tf@lof=\write4
+\openout4 = `"Rapport TB.lof"'.
+
+ [3] (/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.lol)
+\tf@lol=\write5
+\openout5 = `"Rapport TB.lol"'.
+
+ [4] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 184--185
+
+ []
+
+[6]
 LaTeX Font Info:    Font shape `T1/fnc/bx/n' in size <12> not available
-(Font)              Font shape `T1/fnc/b/n' tried instead on input line 162.
+(Font)              Font shape `T1/fnc/b/n' tried instead on input line 193.
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
-(Font)              scaled to size 11.15991pt on input line 162.
-
-Underfull \hbox (badness 10000) in paragraph at lines 171--172
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 175--178
-
- []
-
-
-Overfull \hbox (28.46pt too wide) in paragraph at lines 200--201
-[]\T1/fnc/m/n/10 Modification de la dif-fu-sion ac-tuelle sur un écran/-groupe d'écrans (flux "hors-runningSchedule",
- []
-
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 245--246
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 274--275
-
- []
-
-[4]
+(Font)              scaled to size 11.15991pt on input line 193.
 LaTeX Font Info:    Font shape `T1/fnc/m/it' will be
-(Font)              scaled to size 9.29993pt on input line 283.
- [5] <db_schema.pdf, id=24, 845.0471pt x 597.51233pt>
-File: db_schema.pdf Graphic file (type pdf)
- <use db_schema.pdf>
-Package pdftex.def Info: db_schema.pdf used on input line 311.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
-LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
-(Font)              scaled to size 9.29993pt on input line 312.
- [6 <./db_schema.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 353--355
-
- []
-
-[7]
-Underfull \hbox (badness 10000) in paragraph at lines 358--359
-
+(Font)              scaled to size 9.29993pt on input line 194.
+ [7]
+Overfull \hbox (1.67657pt too wide) in paragraph at lines 222--226
+\T1/fnc/m/n/10 En plus des équipes, il fal-lait éga-le-ment un rôle d'ad-mi-nis-tra-teur cen-tral, à qui sont ré-ser-vées quelques
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 375--377
+Underfull \hbox (badness 10000) in paragraph at lines 229--230
 
  []
 
 [8]
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 402.
- (/usr/local/texlive/2016/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-Underfull \hbox (badness 10000) in paragraph at lines 418--420
+Underfull \hbox (badness 10000) in paragraph at lines 248--251
 
  []
 
-[9] [10] <protocol_v2.pdf, id=56, page=1, 845.0471pt x 597.51233pt>
-File: protocol_v2.pdf Graphic file (type pdf)
- <use protocol_v2.pdf, page 1>
-Package pdftex.def Info: protocol_v2.pdf, page1 used on input line 445.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
- [11 <./protocol_v2.pdf>] <protocol_v2.pdf, id=74, page=3, 845.0471pt x 597.51233pt>
-File: protocol_v2.pdf Graphic file (type pdf)
- <use protocol_v2.pdf, page 3>
-Package pdftex.def Info: protocol_v2.pdf, page3 used on input line 455.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
- [12 <./protocol_v2.pdf>] <protocol_v2.pdf, id=93, page=2, 845.0471pt x 597.51233pt>
-File: protocol_v2.pdf Graphic file (type pdf)
- <use protocol_v2.pdf, page 2>
-Package pdftex.def Info: protocol_v2.pdf, page2 used on input line 464.
-(pdftex.def)             Requested size: 422.52252pt x 298.75543pt.
- [13 <./protocol_v2.pdf>] <schemas/flux_organisation.png, id=111, 609.27625pt x 547.04375pt>
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 254.
+(/usr/local/texlive/2016/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+Underfull \hbox (badness 10000) in paragraph at lines 260--261
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 262--266
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 277--279
+
+ []
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 307--311
+
+ []
+
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 328--330
+
+ []
+
+<schemas/screen_protocol.png, id=41, 763.85374pt x 362.35374pt>
+File: schemas/screen_protocol.png Graphic file (type png)
+ <use schemas/screen_protocol.png>
+Package pdftex.def Info: schemas/screen_protocol.png used on input line 335.
+(pdftex.def)             Requested size: 381.92593pt x 181.17642pt.
+LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
+(Font)              scaled to size 9.29993pt on input line 336.
+ <schemas/screen_protocol_unknown.png, id=43, 492.84125pt x 241.90375pt>
+File: schemas/screen_protocol_unknown.png Graphic file (type png)
+ <use schemas/screen_protocol_unknown.png>
+Package pdftex.def Info: schemas/screen_protocol_unknown.png used on input line 351.
+(pdftex.def)             Requested size: 246.42001pt x 120.95157pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[11 <./schemas/screen_protocol.png>] [12 <./schemas/screen_protocol_unknown.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 382--384
+
+ []
+
+[13] <schemas/db_schema_full.png, id=56, 1105.12875pt x 809.0225pt>
+File: schemas/db_schema_full.png Graphic file (type png)
+ <use schemas/db_schema_full.png>
+Package pdftex.def Info: schemas/db_schema_full.png used on input line 390.
+(pdftex.def)             Requested size: 663.08238pt x 485.41725pt.
+
+
+LaTeX Warning: Float too large for page by 80.59724pt on input line 392.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[14 <./schemas/db_schema_full.png>] [15
+
+
+] <schemas/flux_organisation.png, id=64, 609.27625pt x 547.04375pt>
 File: schemas/flux_organisation.png Graphic file (type png)
  <use schemas/flux_organisation.png>
-Package pdftex.def Info: schemas/flux_organisation.png used on input line 481.
+Package pdftex.def Info: schemas/flux_organisation.png used on input line 420.
 (pdftex.def)             Requested size: 346.89731pt x 311.47594pt.
  (./code/timetable_creation.java
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 4.64996pt on input line 1.
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
 (Font)              Font shape `T1/cmtt/m/n' tried instead on input line 1.
- [14 <./schemas/flux_organisation.png>]) (./code/runninschedulethread_run.java [15]) <schemas/runningschedulethread_algo.png, id=121, 653.44125pt x 510.90875pt>
+ [16 <./schemas/flux_organisation.png>]) (./code/runninschedulethread_run.java [17]) [18] <schemas/runningschedulethread_algo.png, id=77, 713.66624pt x 510.90875pt>
 File: schemas/runningschedulethread_algo.png Graphic file (type png)
  <use schemas/runningschedulethread_algo.png>
-Package pdftex.def Info: schemas/runningschedulethread_algo.png used on input line 515.
-(pdftex.def)             Requested size: 346.89731pt x 271.2247pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[16] (./code/fluxmanager_run.java [17 <./schemas/runningschedulethread_algo.png>]) [18] (./code/eventsource.java) [19] (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang1.sty
+Package pdftex.def Info: schemas/runningschedulethread_algo.png used on input line 454.
+(pdftex.def)             Requested size: 346.89731pt x 248.34395pt.
+ (./code/fluxmanager_run.java [19 <./schemas/runningschedulethread_algo.png>]) [20] (./code/fluxchecker.java) [21] (./code/eventsource.java) [22] (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2015/06/04 1.6 listings language file
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang2.sty
 File: lstlang2.sty 2015/06/04 1.6 listings language file
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang3.sty
 File: lstlang3.sty 2015/06/04 1.6 listings language file
-) (./code/eventsource.scala) (./code/actors.scala [20]) (./code/authenticate.java) [21] [22] (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang1.sty
+) (./code/eventsource.scala) (./code/actors.scala) [23] (./code/authenticate.java) [24] (./code/screen_deactivation.java) [25] (./code/schedule_activation.java) (./code/schedule_deactivation.java) [26] (./code/diffuser_activation.java [27]) (./code/diffuser_detection.java) [28] <schemas/dao_schema.png, id=110, 560.0925pt x 241.90375pt>
+File: schemas/dao_schema.png Graphic file (type png)
+ <use schemas/dao_schema.png>
+Package pdftex.def Info: schemas/dao_schema.png used on input line 578.
+(pdftex.def)             Requested size: 346.89731pt x 149.83112pt.
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2015/06/04 1.6 listings language file
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
-) (./code/eventsource.html) (./code/eventsource.js) [23] (./code/userdata.java) (./code/server_to_client.java) (./code/client_to_server.java [24]) [25]
-Underfull \hbox (badness 10000) in paragraph at lines 624--625
+) (./code/sql_requests.java [29 <./schemas/dao_schema.png>]) (./code/service_picker.java) [30] (./code/schedule_dbmodel.java) [31] (./code/action_admin.java) (./code/action_usage.java) [32] (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2015/06/04 1.6 listings language file
+) (./code/triggers_delete.sql)
+Underfull \hbox (badness 10000) in paragraph at lines 635--636
+
+ []
+
+[33] (./code/eventsource.html) (./code/eventsource.js) [34] (./code/userdata.java) (./code/server_to_client.java) [35] (./code/client_to_server.java)
+Underfull \hbox (badness 10000) in paragraph at lines 681--682
+
+ []
+
+(./code/erreurs.java [36]) [37] <interface/homepage.png, id=141, 1162.3425pt x 540.0175pt>
+File: interface/homepage.png Graphic file (type png)
+ <use interface/homepage.png>
+Package pdftex.def Info: interface/homepage.png used on input line 702.
+(pdftex.def)             Requested size: 346.89731pt x 161.16602pt.
+ <interface/teampage.png, id=142, 948.54375pt x 352.31625pt>
+File: interface/teampage.png Graphic file (type png)
+ <use interface/teampage.png>
+Package pdftex.def Info: interface/teampage.png used on input line 714.
+(pdftex.def)             Requested size: 346.89731pt x 128.84433pt.
+ [38 <./interface/homepage.png> <./interface/teampage.png>] <interface/userpage_register.png, id=148, 690.58pt x 450.68375pt>
+File: interface/userpage_register.png Graphic file (type png)
+ <use interface/userpage_register.png>
+Package pdftex.def Info: interface/userpage_register.png used on input line 725.
+(pdftex.def)             Requested size: 346.89731pt x 226.39346pt.
+ <interface/fluxpage_creation.png, id=149, 1183.42125pt x 624.3325pt>
+File: interface/fluxpage_creation.png Graphic file (type png)
+ <use interface/fluxpage_creation.png>
+Package pdftex.def Info: interface/fluxpage_creation.png used on input line 737.
+(pdftex.def)             Requested size: 346.89731pt x 183.00473pt.
+ [39 <./interface/userpage_register.png> <./interface/fluxpage_creation.png>] <interface/schedulepage.png, id=155, 1067.99pt x 315.1775pt>
+File: interface/schedulepage.png Graphic file (type png)
+ <use interface/schedulepage.png>
+Package pdftex.def Info: interface/schedulepage.png used on input line 760.
+(pdftex.def)             Requested size: 346.89731pt x 102.37375pt.
+ <interface/schedulepage_activation.png, id=156, 699.61375pt x 361.35pt>
+File: interface/schedulepage_activation.png Graphic file (type png)
+ <use interface/schedulepage_activation.png>
+Package pdftex.def Info: interface/schedulepage_activation.png used on input line 768.
+(pdftex.def)             Requested size: 346.89731pt x 179.17482pt.
+ [40 <./interface/schedulepage.png> <./interface/schedulepage_activation.png>] <interface/schedulepage_creation.png, id=162, 1313.90875pt x 633.36626pt>
+File: interface/schedulepage_creation.png Graphic file (type png)
+ <use interface/schedulepage_creation.png>
+Package pdftex.def Info: interface/schedulepage_creation.png used on input line 776.
+(pdftex.def)             Requested size: 346.89731pt x 167.22273pt.
+ [41 <./interface/schedulepage_creation.png>] (./code/test_unitaire.java) [42] [43]
+Underfull \hbox (badness 10000) in paragraph at lines 828--829
+
+ []
+
+[44]
+Underfull \hbox (badness 10000) in paragraph at lines 910--911
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 626--630
+Underfull \hbox (badness 10000) in paragraph at lines 939--940
+
+ []
+
+[45] [46]
+Underfull \hbox (badness 10000) in paragraph at lines 969--970
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 631--635
+Underfull \hbox (badness 10000) in paragraph at lines 975--976
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 636--640
+Underfull \hbox (badness 10000) in paragraph at lines 977--981
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 641--644
+Underfull \hbox (badness 10000) in paragraph at lines 982--986
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 645--649
+Underfull \hbox (badness 10000) in paragraph at lines 987--991
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 650--654
-
- []
-
-[26]
-Underfull \hbox (badness 10000) in paragraph at lines 669--670
+Underfull \hbox (badness 10000) in paragraph at lines 992--995
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 672--676
-
- []
-
-[27]
-Underfull \hbox (badness 10000) in paragraph at lines 682--683
+Underfull \hbox (badness 10000) in paragraph at lines 996--1000
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 691--692
+Underfull \hbox (badness 10000) in paragraph at lines 1001--1005
+
+ []
+
+[47]
+Underfull \hbox (badness 10000) in paragraph at lines 1020--1021
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 700--701
+Underfull \hbox (badness 10000) in paragraph at lines 1023--1027
+
+ []
+
+[48]
+Underfull \hbox (badness 10000) in paragraph at lines 1033--1034
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 708--709
+Underfull \hbox (badness 10000) in paragraph at lines 1042--1043
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 718--719
-
- []
-
-[28]
-Underfull \hbox (badness 10000) in paragraph at lines 727--728
+Underfull \hbox (badness 10000) in paragraph at lines 1051--1052
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 734--735
+Underfull \hbox (badness 10000) in paragraph at lines 1059--1060
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 736--739
+Underfull \hbox (badness 10000) in paragraph at lines 1069--1070
+
+ []
+
+[49]
+Underfull \hbox (badness 10000) in paragraph at lines 1078--1079
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 740--744
+Underfull \hbox (badness 10000) in paragraph at lines 1085--1086
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 745--749
+Underfull \hbox (badness 10000) in paragraph at lines 1087--1090
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 750--755
+Underfull \hbox (badness 10000) in paragraph at lines 1091--1095
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 756--761
+Underfull \hbox (badness 10000) in paragraph at lines 1096--1100
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 762--767
+Underfull \hbox (badness 10000) in paragraph at lines 1101--1106
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 768--773
+Underfull \hbox (badness 10000) in paragraph at lines 1107--1112
 
  []
 
-[29] [30] <mockup/m_user_register.png, id=172, 900.36375pt x 562.1pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 1113--1118
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1119--1124
+
+ []
+
+[50] [51] <mockup/m_user_register.png, id=200, 900.36375pt x 562.1pt>
 File: mockup/m_user_register.png Graphic file (type png)
  <use mockup/m_user_register.png>
-Package pdftex.def Info: mockup/m_user_register.png used on input line 784.
-(pdftex.def)             Requested size: 360.13911pt x 224.83601pt.
- <mockup/m_user_login.png, id=173, 899.36pt x 562.1pt>
+Package pdftex.def Info: mockup/m_user_register.png used on input line 1136.
+(pdftex.def)             Requested size: 270.1112pt x 168.6313pt.
+ <mockup/m_user_login.png, id=201, 899.36pt x 562.1pt>
 File: mockup/m_user_login.png Graphic file (type png)
  <use mockup/m_user_login.png>
-Package pdftex.def Info: mockup/m_user_login.png used on input line 793.
-(pdftex.def)             Requested size: 359.73763pt x 224.83601pt.
- [31 <./mockup/m_user_register.png> <./mockup/m_user_login.png>] <mockup/m_screens_page.png, id=179, 899.36pt x 563.10374pt>
+Package pdftex.def Info: mockup/m_user_login.png used on input line 1145.
+(pdftex.def)             Requested size: 269.81007pt x 168.6313pt.
+ [52 <./mockup/m_user_register.png> <./mockup/m_user_login.png>] <mockup/m_screens_page.png, id=207, 899.36pt x 563.10374pt>
 File: mockup/m_screens_page.png Graphic file (type png)
  <use mockup/m_screens_page.png>
-Package pdftex.def Info: mockup/m_screens_page.png used on input line 803.
-(pdftex.def)             Requested size: 359.73763pt x 225.2375pt.
- <mockup/m_screen_register.png, id=180, 899.36pt x 562.1pt>
+Package pdftex.def Info: mockup/m_screens_page.png used on input line 1157.
+(pdftex.def)             Requested size: 269.81007pt x 168.93242pt.
+ <mockup/m_screen_register.png, id=208, 899.36pt x 562.1pt>
 File: mockup/m_screen_register.png Graphic file (type png)
  <use mockup/m_screen_register.png>
-Package pdftex.def Info: mockup/m_screen_register.png used on input line 812.
-(pdftex.def)             Requested size: 359.73763pt x 224.83601pt.
- <mockup/m_group_creation.png, id=181, 931.48pt x 583.17876pt>
-File: mockup/m_group_creation.png Graphic file (type png)
- <use mockup/m_group_creation.png>
-Package pdftex.def Info: mockup/m_group_creation.png used on input line 821.
-(pdftex.def)             Requested size: 372.5854pt x 233.26736pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[32 <./mockup/m_screens_page.png> <./mockup/m_screen_register.png>] <mockup/m_teams_page.png, id=187, 931.48pt x 582.175pt>
+Package pdftex.def Info: mockup/m_screen_register.png used on input line 1166.
+(pdftex.def)             Requested size: 269.81007pt x 168.6313pt.
+ [53 <./mockup/m_screens_page.png> <./mockup/m_screen_register.png>] <mockup/m_teams_page.png, id=214, 931.48pt x 582.175pt>
 File: mockup/m_teams_page.png Graphic file (type png)
  <use mockup/m_teams_page.png>
-Package pdftex.def Info: mockup/m_teams_page.png used on input line 831.
-(pdftex.def)             Requested size: 372.5854pt x 232.86588pt.
- <mockup/m_team_creation.png, id=188, 930.47626pt x 583.17876pt>
+Package pdftex.def Info: mockup/m_teams_page.png used on input line 1178.
+(pdftex.def)             Requested size: 279.44615pt x 174.65384pt.
+ <mockup/m_team_creation.png, id=215, 930.47626pt x 583.17876pt>
 File: mockup/m_team_creation.png Graphic file (type png)
  <use mockup/m_team_creation.png>
-Package pdftex.def Info: mockup/m_team_creation.png used on input line 838.
-(pdftex.def)             Requested size: 372.18391pt x 233.26736pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[33 <./mockup/m_group_creation.png> <./mockup/m_teams_page.png>] <mockup/m_flux_page.png, id=194, 930.47626pt x 583.17876pt>
+Package pdftex.def Info: mockup/m_team_creation.png used on input line 1187.
+(pdftex.def)             Requested size: 279.14502pt x 174.95497pt.
+ [54 <./mockup/m_teams_page.png> <./mockup/m_team_creation.png>] <mockup/m_flux_page.png, id=222, 930.47626pt x 583.17876pt>
 File: mockup/m_flux_page.png Graphic file (type png)
  <use mockup/m_flux_page.png>
-Package pdftex.def Info: mockup/m_flux_page.png used on input line 848.
-(pdftex.def)             Requested size: 372.18391pt x 233.26736pt.
- <mockup/m_flux_creation.png, id=195, 930.47626pt x 582.175pt>
+Package pdftex.def Info: mockup/m_flux_page.png used on input line 1199.
+(pdftex.def)             Requested size: 279.14502pt x 174.95497pt.
+ <mockup/m_flux_creation.png, id=223, 930.47626pt x 582.175pt>
 File: mockup/m_flux_creation.png Graphic file (type png)
  <use mockup/m_flux_creation.png>
-Package pdftex.def Info: mockup/m_flux_creation.png used on input line 855.
-(pdftex.def)             Requested size: 372.18391pt x 232.86588pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[34 <./mockup/m_team_creation.png> <./mockup/m_flux_page.png>] <mockup/m_schedules_page.png, id=201, 930.47626pt x 582.175pt>
+Package pdftex.def Info: mockup/m_flux_creation.png used on input line 1209.
+(pdftex.def)             Requested size: 279.14502pt x 174.65384pt.
+ [55 <./mockup/m_flux_page.png> <./mockup/m_flux_creation.png>] <mockup/m_schedules_page.png, id=229, 930.47626pt x 582.175pt>
 File: mockup/m_schedules_page.png Graphic file (type png)
  <use mockup/m_schedules_page.png>
-Package pdftex.def Info: mockup/m_schedules_page.png used on input line 865.
-(pdftex.def)             Requested size: 372.18391pt x 232.86588pt.
- <mockup/m_schedule_creation.png, id=202, 931.48pt x 586.19pt>
+Package pdftex.def Info: mockup/m_schedules_page.png used on input line 1221.
+(pdftex.def)             Requested size: 279.14502pt x 174.65384pt.
+ <mockup/m_schedule_creation.png, id=230, 931.48pt x 586.19pt>
 File: mockup/m_schedule_creation.png Graphic file (type png)
  <use mockup/m_schedule_creation.png>
-Package pdftex.def Info: mockup/m_schedule_creation.png used on input line 872.
-(pdftex.def)             Requested size: 372.5854pt x 234.47185pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[35 <./mockup/m_flux_creation.png> <./mockup/m_schedules_page.png>] <mockup/m_diffusers_page.png, id=208, 931.48pt x 584.1825pt>
+Package pdftex.def Info: mockup/m_schedule_creation.png used on input line 1229.
+(pdftex.def)             Requested size: 279.44615pt x 175.85835pt.
+ [56 <./mockup/m_schedules_page.png> <./mockup/m_schedule_creation.png>] <mockup/m_diffusers_page.png, id=236, 931.48pt x 584.1825pt>
 File: mockup/m_diffusers_page.png Graphic file (type png)
  <use mockup/m_diffusers_page.png>
-Package pdftex.def Info: mockup/m_diffusers_page.png used on input line 884.
-(pdftex.def)             Requested size: 372.5854pt x 233.66885pt.
- <mockup/m_diffuser_creation.png, id=209, 932.48375pt x 583.17876pt>
+Package pdftex.def Info: mockup/m_diffusers_page.png used on input line 1241.
+(pdftex.def)             Requested size: 279.44615pt x 175.25609pt.
+ <mockup/m_diffuser_creation.png, id=237, 932.48375pt x 583.17876pt>
 File: mockup/m_diffuser_creation.png Graphic file (type png)
  <use mockup/m_diffuser_creation.png>
-Package pdftex.def Info: mockup/m_diffuser_creation.png used on input line 891.
-(pdftex.def)             Requested size: 372.9869pt x 233.26736pt.
+Package pdftex.def Info: mockup/m_diffuser_creation.png used on input line 1250.
+(pdftex.def)             Requested size: 279.74728pt x 174.95497pt.
+ [57 <./mockup/m_diffusers_page.png> <./mockup/m_diffuser_creation.png>]
+Overfull \hbox (170.60081pt too wide) in paragraph at lines 1274--1276
+\T1/cmtt/m/n/10 https://www.tutorialrepublic.com/snippets/preview.php?topic=bootstrap&file=table-with-add-and-delete-row-feature 
+ []
 
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
+Overfull \hbox (65.62645pt too wide) in paragraph at lines 1278--1281
+\T1/cmtt/m/n/10 https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events 
+ []
 
-[36 <./mockup/m_schedule_creation.png> <./mockup/m_diffusers_page.png>] [37 <./mockup/m_diffuser_creation.png>] (/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.aux) ) 
+[58] (/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.aux) ) 
 Here is how much of TeX's memory you used:
- 9353 strings out of 493014
- 135938 string characters out of 6133351
- 496320 words of memory out of 5000000
- 12662 multiletter control sequences out of 15000+600000
+ 9980 strings out of 493014
+ 146094 string characters out of 6133351
+ 466230 words of memory out of 5000000
+ 13222 multiletter control sequences out of 15000+600000
  53409 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,8n,52p,925b,1732s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,8n,52p,1111b,1883s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ncntrsbk/uncb8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ncntrsbk/uncr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ncntrsbk/uncri8a.pfb>
-Output written on "/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.pdf" (38 pages, 629002 bytes).
+Output written on "/Users/quentingigon/Documents/TB/project/TB/doc/rapport/.texpadtmp/Rapport TB.pdf" (59 pages, 873913 bytes).
 PDF statistics:
- 242 PDF objects out of 1000 (max. 8388607)
- 145 compressed objects within 2 object streams
+ 268 PDF objects out of 1000 (max. 8388607)
+ 150 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 96 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 126 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,5 +1,4 @@
 public void run() {
-
   while (running) {
 
     DateTime dt = new DateTime();
@@ -17,35 +16,17 @@ public void run() {
         if (currentFlux != null) {
           sendFluxEventAsGeneralOrLocated(currentFlux);
         }
-        // sinon on choisi un flux sans heure de debut
+        // sinon on choisit un flux sans heure de debut
+        else if (!unscheduledFluxIds.isEmpty()) {
+          sendUnscheduledFlux(blockIndex);
+        }
+        // sinon on choisit un flux de fallback
+        else if (!fluxRepository.getAllFallbackIdsOfSchedule(runningSchedule.getScheduleId()).isEmpty()) {
+          sendFallbackFlux(blockIndex);
+        }
+        // sinon on envoie le flux d'erreur
         else {
-          int freeBlocksN = getNumberOfBlocksToNextScheduledFlux(blockIndex);
-          boolean sent = false;
-          int fluxId;
-
-          do {
-            // s'il a ete specifie que l'ordre des flux devait etre respecte
-            if (keepOrder) {
-              // cycle
-              unscheduledFluxIds.add(unscheduledFluxIds.get(0));
-              fluxId = unscheduledFluxIds.remove(0);
-            }
-            // sinon on en prend un au hasard
-            else {
-              Collections.shuffle(unscheduledFluxIds);
-              fluxId = unscheduledFluxIds.get(0);
-            }
-            Flux unscheduledFlux = fluxRepository.getById(fluxId);
-
-            // si la place est suffisante
-            if (unscheduledFlux.getTotalDuration() <= freeBlocksN) {
-              // mise a jour de l'horaire
-              scheduleFlux(unscheduledFlux, blockIndex);
-              // envoi de l'event au FluxManager
-              sendFluxEventAsGeneralOrLocated(unscheduledFlux);
-              sent = true;
-            }
-          } while (!sent);
+          sendFluxEvent(fluxRepository.getByName(WAIT_FLUX), screens);
         }
         // sleep pendant 1 minutes
         try {
