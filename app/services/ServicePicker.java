@@ -4,6 +4,9 @@ import models.repositories.interfaces.*;
 
 import javax.inject.Inject;
 
+/**
+ * This is the class that gives access to the different services using dependency injection
+ */
 public class ServicePicker {
 
 	@Inject

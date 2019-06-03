@@ -1,19 +1,13 @@
 @import models.db.Screen
 @import models.entities.ScreenData
 
-@(form: Form[ScreenData], error: String)
+@(form: Form[ScreenData],
+        error: String)
 
 
-@main("Screen Register Page") {
+@main("Screen Register Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(error != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@error</strong>
-            </div>
-        }
 
         @helper.form(routes.ScreenController.create()) {
             @helper.CSRF.formField

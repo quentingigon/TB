@@ -6,6 +6,9 @@ import models.repositories.JPADiffuserRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for Diffuser database operations.
+ */
 @ImplementedBy(JPADiffuserRepository.class)
 public interface DiffuserRepository {
 

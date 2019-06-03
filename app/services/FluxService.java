@@ -10,6 +10,9 @@ import models.repositories.interfaces.FluxRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the service used to make operations on the database for Fluxes.
+ */
 public class FluxService {
 
 	private final FluxRepository fluxRepository;
@@ -38,8 +41,16 @@ public class FluxService {
 		return fluxRepository.addLocatedFlux(flux);
 	}
 
+	public LocatedFlux getLocatedFluxByFluxId(Integer id) {
+		return fluxRepository.getLocatedFluxByFluxId(id);
+	}
+
 	public GeneralFlux createGeneral(GeneralFlux flux) {
 		return fluxRepository.addGeneralFlux(flux);
+	}
+
+	public GeneralFlux getGeneralFluxByFluxId(Integer id) {
+		return fluxRepository.getGeneralFluxByFluxId(id);
 	}
 
 	public ScheduledFlux createScheduled(ScheduledFlux flux) {
@@ -48,6 +59,10 @@ public class FluxService {
 
 	public Flux update(Flux flux) {
 		return fluxRepository.update(flux);
+	}
+
+	public List<Integer> getFallBackIdsOfScheduleById(Integer id) {
+		return fluxRepository.getAllFallbackIdsOfSchedule(id);
 	}
 
 	public List<FluxData> getScheduledFluxesOfScheduleById(int scheduleId) {
@@ -72,6 +87,8 @@ public class FluxService {
 		}
 		return data;
 	}
+
+
 
 	public List<FluxData> getAllFluxesOfScheduleById(int scheduleId) {
 		List<FluxData> output = getScheduledFluxesOfScheduleById(scheduleId);

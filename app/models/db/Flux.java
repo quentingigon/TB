@@ -4,6 +4,9 @@ import models.entities.FluxData;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for Flux.
+ */
 @Entity
 @Table(name="flux", schema="public")
 public class Flux {
@@ -22,12 +25,8 @@ public class Flux {
 	@Column(name="phase_n")
 	private long numberOfPhases;
 
-	// TODO change url to data
 	@Column(name="url")
 	private String url;
-
-	@Column(name="data_check_url")
-	private String dataCheckUrl;
 
 	@Column(name="type")
 	private String type;
@@ -55,8 +54,9 @@ public class Flux {
 			numberOfPhases = 1;
 		url = fluxData.getUrl();
 		type = fluxData.getType();
-		dataCheckUrl = fluxData.getDataCheckUrl();
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;
@@ -92,14 +92,6 @@ public class Flux {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public String getDataCheckUrl() {
-		return dataCheckUrl;
-	}
-
-	public void setDataCheckUrl(String dataCheckUrl) {
-		this.dataCheckUrl = dataCheckUrl;
 	}
 
 	public long getNumberOfPhases() {

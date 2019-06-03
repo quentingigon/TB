@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for Admin.
+ */
 @Entity
 @Table(name="admin", schema = "public")
 public class Admin {
@@ -26,6 +29,8 @@ public class Admin {
 	public Admin(User user) {
 		this.userId = user.getId();
 	}
+
+	// Getter and setters
 
 	public Integer getId() {
 		return id;

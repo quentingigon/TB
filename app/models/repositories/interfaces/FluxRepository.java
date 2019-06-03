@@ -9,6 +9,9 @@ import models.repositories.JPAFluxRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for Flux database operations.
+ */
 @ImplementedBy(JPAFluxRepository.class)
 public interface FluxRepository {
 
@@ -27,6 +30,7 @@ public interface FluxRepository {
 
 	List<Flux> getAll();
 	List<Integer> getAllFluxIdsOfTeam(Integer id);
+	List<Integer> getAllFallbackIdsOfSchedule(Integer id);
 
 	Flux update(Flux flux);
 	void delete(Flux flux);

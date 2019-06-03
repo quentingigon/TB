@@ -1,19 +1,14 @@
 @import models.db.Screen
 @import models.entities.FluxData
 
-@(form: Form[FluxData], data: FluxData, message: String)
+@(form: Form[FluxData],
+        data: FluxData,
+        error: String)
 
 
-@main("Flux Update Page") {
+@main("Flux Update Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(message != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@message</strong>
-            </div>
-        }
 
         <form action="@routes.FluxController.update()" method="POST">
             @helper.CSRF.formField
@@ -28,6 +23,10 @@
             <div class="form-group">
                 <label for="inputDuration">Duration</label>
                 <input name="duration" type="text" class="form-control" id="inputDuration" value="@data.getDuration">
+            </div>
+            <div class="form-group">
+                <label for="inputPhases">Number of phases</label>
+                <input name="numberOfPhases" type="text" class="form-control" id="inputPhases" value="@data.getNumberOfPhases">
             </div>
             <div class="form-group col-md-4">
                 <label for="inputType">Type</label>

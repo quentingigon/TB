@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class is the DM model for Team.
+ */
 @Entity
 @Table(name="team", schema="public")
 public class Team {
@@ -56,6 +59,8 @@ public class Team {
 	public Team(TeamData data) {
 		name = data.getName();
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

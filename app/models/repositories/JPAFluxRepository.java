@@ -161,9 +161,24 @@ public class JPAFluxRepository implements FluxRepository {
 	@SuppressWarnings("unchecked")
 	public List<Integer> getAllFluxIdsOfTeam(Integer id) {
 		return jpaApi.withTransaction(entityManager -> {
-			String fluxId = "'" + id + "'";
+			String teamId = "'" + id + "'";
 			Query query = entityManager.createNativeQuery(
-				"SELECT DISTINCT fluxes FROM team_fluxes WHERE team_team_id = " + fluxId);
+				"SELECT DISTINCT fluxes FROM team_fluxes WHERE team_team_id = " + teamId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Integer> getAllFallbackIdsOfSchedule(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT fallbacks FROM schedule_fallbacks WHERE schedule_schedule_id = " + scheduleId);
 			try {
 				return (List<Integer>) query.getResultList();
 			} catch (NoResultException e) {

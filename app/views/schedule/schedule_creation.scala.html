@@ -8,7 +8,7 @@
         error: String)(implicit request: Http.Request)
 
 
-@main("Schedule Creation Page") {
+@main("Schedule Creation Page", error) {
 
     <style>
             body {
@@ -182,13 +182,6 @@
 
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(error != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@error</strong>
-            </div>
-        }
 
         @helper.form(routes.ScheduleController.create(), '_id -> "form") {
             @helper.CSRF.formField

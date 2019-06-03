@@ -15,6 +15,11 @@ import views.html.eventsource
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 
+/**
+  * This class implements a controller for the Eventsources.
+  * It uses Akka Actors to represent the clients (screens) and
+  * register them to its "send-list"
+  */
 @Singleton
 class EventSourceController @Inject() (system: ActorSystem,
                                         cc: ControllerComponents)
@@ -48,9 +53,7 @@ extends AbstractController(cc) {
 
     val eventSource = Source.fromGraph(source.map(EventSource.Event.event))
 
-
     Ok.chunked(eventSource via EventSource.flow).as(ContentTypes.EVENT_STREAM)
-
   }
 }
 
@@ -63,7 +66,6 @@ class EventActor extends Actor {
     case UnRegister(actorRef) => actors -= actorRef
     case SendMessage(message) => actors.foreach(_ ! message)
   }
-
 }
 
 object EventActorManager {

@@ -2,6 +2,9 @@ package models.entities;
 
 import models.db.Screen;
 
+/**
+ * This class represents the Screen data being sent between clients and server.
+ */
 public class ScreenData {
 
 	private String name;
@@ -30,6 +33,8 @@ public class ScreenData {
 		this.logged = s.isLogged();
 		this.currentFluxName = s.getCurrentFluxName();
 	}
+
+	// Getters and setters
 
 	public String getMac() {
 		return mac;

@@ -10,16 +10,9 @@
         error: String)(implicit request: Http.Request)
 
 
-@main("Schedule Activation Page") {
+@main("Schedule Activation Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(error != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@error</strong>
-            </div>
-        }
 
         @helper.form(routes.ScheduleController.activate()) {
             @helper.CSRF.formField

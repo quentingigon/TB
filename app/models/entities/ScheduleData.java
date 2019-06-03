@@ -5,6 +5,9 @@ import models.db.Schedule;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the Schedule data being sent between clients and server.
+ */
 public class ScheduleData {
 
 	private String name;
@@ -28,6 +31,8 @@ public class ScheduleData {
 		fluxes = new ArrayList<>();
 		fallbackFluxes = new ArrayList<>();
 	}
+
+	// Getters and setters
 
 	public String getName() {
 		return name;

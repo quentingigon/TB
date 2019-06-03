@@ -9,6 +9,9 @@ import models.repositories.interfaces.ScheduleRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the service used to make operations on the database for Schedules.
+ */
 public class ScheduleService {
 
 	private final ScheduleRepository scheduleRepository;

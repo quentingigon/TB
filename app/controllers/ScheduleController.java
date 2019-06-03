@@ -23,10 +23,11 @@ import java.util.List;
 
 import static services.BlockUtils.*;
 
+/**
+ * This class implements a controller for the Schedules.
+ * It gives CRUD operation and offer means to active/deactivate them.
+ */
 public class ScheduleController extends Controller {
-
-	@Inject
-	FluxRepository fluxRepository;
 
 	private final FluxManager fluxManager;
 	private final RunningScheduleThreadManager threadManager;
@@ -166,7 +167,7 @@ public class ScheduleController extends Controller {
 				screens,
 				new ArrayList<>(schedule.getFluxes()),
 				timeTableUtils.getTimeTable(schedule),
-				fluxRepository,
+				servicePicker,
 				fluxChecker,
 				schedule.isKeepOrder());
 

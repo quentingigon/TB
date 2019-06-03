@@ -4,6 +4,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is the DM model for RunningDiffuser.
+ */
 @Entity
 @Table(name="runningdiffuser", schema="public")
 public class RunningDiffuser {
@@ -29,6 +32,8 @@ public class RunningDiffuser {
 	public RunningDiffuser(Diffuser d) {
 		diffuserId = d.getId();
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

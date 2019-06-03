@@ -4,6 +4,11 @@ import models.db.Diffuser;
 
 import java.util.List;
 
+import static services.BlockUtils.getTimeOfBlockNumber;
+
+/**
+ * This class represents the Diffuser data being sent between clients and server.
+ */
 public class DiffuserData {
 
 	private String name;
@@ -11,7 +16,6 @@ public class DiffuserData {
 	private String startTime;
 	private String validity;
 	private List<String> screens;
-	private boolean overwrite;
 
 	private boolean activated;
 
@@ -24,7 +28,11 @@ public class DiffuserData {
 
 	public DiffuserData(Diffuser diffuser) {
 		name = diffuser.getName();
+		validity = diffuser.getValidity().toString();
+		startTime = getTimeOfBlockNumber(diffuser.getStartBlock());
 	}
+
+	// Getters and setters
 
 	public String getName() {
 		return name;
@@ -64,14 +72,6 @@ public class DiffuserData {
 
 	public void setValidity(String validity) {
 		this.validity = validity;
-	}
-
-	public boolean isOverwrite() {
-		return overwrite;
-	}
-
-	public void setOverwrite(boolean overwrite) {
-		this.overwrite = overwrite;
 	}
 
 	public boolean isActivated() {

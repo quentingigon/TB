@@ -41,6 +41,20 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 	}
 
 	@Override
+	public RunningDiffuser getById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String ID = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM runningdiffuser WHERE runningdiffuser_id = " + ID, RunningDiffuser.class);
+			try {
+				return (RunningDiffuser) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
 	public RunningDiffuser getByDiffuserId(Integer id) {
 		return jpaApi.withTransaction(entityManager -> {
 			String diffuserId = "'" + id + "'";
@@ -48,6 +62,20 @@ public class JPARunningDiffuserRepository implements RunningDiffuserRepository {
 				"SELECT * FROM runningdiffuser WHERE diffuser_id = " + diffuserId, RunningDiffuser.class);
 			try {
 				return (RunningDiffuser) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public Integer getRunningDiffuserIdOfScreenById(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String screenId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT runningdiffuser_runningdiffuser_id FROM runningdiffuser_screens WHERE screens = " + screenId);
+			try {
+				return (Integer) query.getSingleResult();
 			} catch (NoResultException e) {
 				return null;
 			}

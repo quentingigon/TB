@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class is the DM model for Schedule.
+ */
 @Entity
 @Table(name="schedule", schema="public")
 public class Schedule {
@@ -47,6 +50,8 @@ public class Schedule {
 		this.fluxes = new HashSet<>();
 		this.fallbacks = new HashSet<>();
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

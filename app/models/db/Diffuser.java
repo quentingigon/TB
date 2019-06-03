@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for Diffuser.
+ */
 @Entity
 @Table(name="diffuser", schema="public")
 public class Diffuser {
@@ -23,15 +26,14 @@ public class Diffuser {
 	@Column(name="start_block")
 	private Integer startBlock;
 
-	@Column(name="overwrite")
-	private boolean overwrite;
-
 	public Diffuser() {
 	}
 
 	public Diffuser(String name) {
 		this.name = name;
 	}
+
+	// Getters and setters
 
 	public void setId(Integer id) {
 		this.id = id;
@@ -71,13 +73,5 @@ public class Diffuser {
 
 	public void setStartBlock(Integer startBlock) {
 		this.startBlock = startBlock;
-	}
-
-	public boolean isOverwrite() {
-		return overwrite;
-	}
-
-	public void setOverwrite(boolean overwrite) {
-		this.overwrite = overwrite;
 	}
 }

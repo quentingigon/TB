@@ -6,9 +6,7 @@ import models.db.GeneralFlux;
 import models.db.LocatedFlux;
 import models.db.Team;
 import models.entities.FluxData;
-import models.repositories.interfaces.FluxRepository;
 import models.repositories.interfaces.SiteRepository;
-import models.repositories.interfaces.TeamRepository;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Files;
@@ -30,6 +28,10 @@ import java.nio.file.Paths;
 
 import static services.BlockUtils.blockNumber;
 
+/**
+ * This class implements a controller for the Fluxes.
+ * It gives CRUD operations.
+ */
 public class FluxController extends Controller {
 
 	private final String PICTURES_DIR = System.getProperty("user.dir") + "/public/images/";

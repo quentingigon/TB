@@ -3,6 +3,9 @@ package models.entities;
 import models.db.User;
 import play.data.validation.Constraints;
 
+/**
+ * This class represents the User data being sent between clients and server.
+ */
 public class UserData {
 
 	@Constraints.Required
@@ -13,7 +16,6 @@ public class UserData {
 
 	private String team;
 
-	// == admin or team_admin
 	private boolean admin;
 
 	public UserData() {
@@ -27,6 +29,8 @@ public class UserData {
 		email = u.getEmail();
 		password = u.getPassword();
 	}
+
+	// Getters and setters
 
 	public String getEmail() {
 		return email;

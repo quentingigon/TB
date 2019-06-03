@@ -2,11 +2,13 @@ package models.entities;
 
 import models.db.Flux;
 
+/**
+ * This class represents the FLux data being sent between clients and server.
+ */
 public class FluxData {
 
 	private String name;
 	private String url;
-	private String dataCheckUrl;
 	private String duration;
 	private String numberOfPhases;
 	private String type;
@@ -35,11 +37,9 @@ public class FluxData {
 		this.url = flux.getUrl();
 		this.type = flux.getType();
 		this.numberOfPhases = String.valueOf(flux.getNumberOfPhases());
-
-		if (flux.getDataCheckUrl() != null)
-			this.dataCheckUrl = flux.getDataCheckUrl();
-
 	}
+
+	// Getters and setters
 
 	public String getName() {
 		return name;
@@ -87,14 +87,6 @@ public class FluxData {
 
 	public void setTeam(String team) {
 		this.team = team;
-	}
-
-	public String getDataCheckUrl() {
-		return dataCheckUrl;
-	}
-
-	public void setDataCheckUrl(String dataCheckUrl) {
-		this.dataCheckUrl = dataCheckUrl;
 	}
 
 	public String getNumberOfPhases() {

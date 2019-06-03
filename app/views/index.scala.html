@@ -9,16 +9,9 @@
         error: String)
 
 
-@main("Homepage") {
+@main("Homepage", error) {
 
    <div class="tab-pane active" id="vertical" role="tabpanel">
-
-    @if(error != null) {
-     <div class="alert">
-      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-      <strong>@error</strong>
-     </div>
-    }
 
     <label for="activeScreensTable">Active screens</label>
     <table class="table table-striped" id="activeScreensTable">
@@ -53,6 +46,7 @@
      <thead>
       <tr>
        <th scope="col">Name</th>
+       <th scope="col">Activated</th>
       </tr>
      </thead>
      <tbody>
@@ -60,6 +54,7 @@
       @for(schedule <- schedules) {
        <tr>
         <td>@schedule.getName</td>
+        <td>@schedule.isActivated</td>
        </tr>
       }
      }
@@ -74,6 +69,7 @@
        <th scope="col">Name</th>
        <th scope="col"> Flux </th>
        <th scope="col">Hour</th>
+       <th scope="col">Activated</th>
       </tr>
      </thead>
      <tbody>
@@ -83,6 +79,7 @@
         <td>@diffuser.getName</td>
         <td>@diffuser.getFluxName</td>
         <td>@diffuser.getStartTime</td>
+        <td>@diffuser.isActivated</td>
        </tr>
       }
      }

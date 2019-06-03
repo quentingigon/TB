@@ -7,6 +7,9 @@ import models.repositories.interfaces.TeamRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the service used to make operations on the database for Teams.
+ */
 public class TeamService {
 
 	private final TeamRepository teamRepository;

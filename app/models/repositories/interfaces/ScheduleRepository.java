@@ -8,6 +8,9 @@ import models.repositories.JPAScheduleRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for Schedule database operations.
+ */
 @ImplementedBy(JPAScheduleRepository.class)
 public interface ScheduleRepository {
 

@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for LocatedFlux.
+ */
 @Entity
 @Table(name="locatedflux", schema = "public")
 public class LocatedFlux {
@@ -24,6 +27,8 @@ public class LocatedFlux {
 		this.fluxId = fluxId;
 		this.siteId = siteId;
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

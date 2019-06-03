@@ -4,19 +4,12 @@
 @import models.entities.FluxData
 @(form: Form[DiffuserData],
         fluxes: util.List[FluxData],
-        message: String)
+        error: String)
 
 
-@main("Diffuser Creation Page") {
+@main("Diffuser Creation Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(message != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@message</strong>
-            </div>
-        }
 
         <form action="@routes.DiffuserController.create()" method="POST">
             @helper.CSRF.formField

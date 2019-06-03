@@ -7,6 +7,9 @@ import views.html.error.no_schedule;
 import views.html.error.site_error;
 import views.html.error.waiting_page;
 
+/**
+ * This class implements a controller for the different error pages.
+ */
 public class ErrorPageController extends Controller {
 
 	public Result maintenanceView() {

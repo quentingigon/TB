@@ -6,6 +6,9 @@ import models.repositories.JPARunningScheduleRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for RunningSchedule database operations.
+ */
 @ImplementedBy(JPARunningScheduleRepository.class)
 public interface RunningScheduleRepository {
 

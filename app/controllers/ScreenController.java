@@ -22,10 +22,11 @@ import java.util.*;
 
 import static services.RunningScheduleUtils.NO_SCHEDULE;
 
+/**
+ * This class implements a controller for the Screens.
+ * It gives CRUD operation and offer means to deactivate an active Screen.
+ */
 public class ScreenController extends Controller {
-
-	@Inject
-	FluxRepository fluxRepository;
 
 	@Inject
 	SiteRepository siteRepository;
@@ -305,7 +306,7 @@ public class ScreenController extends Controller {
 					screenList,
 					new ArrayList<>(schedule.getFluxes()),
 					rst.getTimetable(),
-					fluxRepository,
+					servicePicker,
 					fluxChecker,
 					schedule.isKeepOrder());
 

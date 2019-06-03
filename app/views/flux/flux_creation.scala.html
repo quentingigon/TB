@@ -1,19 +1,13 @@
 @import models.db.Screen
 @import models.entities.FluxData
 
-@(form: Form[FluxData], message: String)
+@(form: Form[FluxData],
+        error: String)
 
 
-@main("Flux Creation Page") {
+@main("Flux Creation Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(message != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@message</strong>
-            </div>
-        }
 
         @helper.form(action = routes.FluxController.create(), 'enctype -> "multipart/form-data") {
             @helper.CSRF.formField
@@ -25,10 +19,7 @@
                 <label for="inputUrl">URL</label>
                 <input name="url" type="text" class="form-control" id="inputUrl" placeholder="Flux url...">
             </div>
-            <div class="form-group">
-                <label for="inputCheckUrl">Data check URL</label>
-                <input name="dataCheckUrl" type="text" class="form-control" id="inputCheckUrl" placeholder="Data check url...">
-            </div>
+
             <div class="form-group">
                 <label for="inputDuration">Duration of 1 phase</label>
                 <input name="duration" type="text" class="form-control" id="inputDuration" placeholder="Duration (minutes)">

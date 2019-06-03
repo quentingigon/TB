@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for ScheduledFlux.
+ */
 @Entity
 @Table(name="scheduled_flux", schema = "public")
 public class ScheduledFlux {
@@ -11,7 +14,6 @@ public class ScheduledFlux {
 	@Column(name="scheduled_flux_id")
 	private Integer id;
 
-	// TODO maybe associate with RunningSchedule instead of Schedule -> big refactor
 	@Column(name="schedule_id")
 	private Integer scheduleId;
 
@@ -29,6 +31,8 @@ public class ScheduledFlux {
 		this.fluxId = fluxId;
 		this.startBlock = startBlock;
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

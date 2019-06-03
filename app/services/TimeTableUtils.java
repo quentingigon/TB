@@ -17,8 +17,6 @@ public class TimeTableUtils {
 	FluxRepository fluxRepository;
 
 	@Inject
-	ScheduleRepository scheduleRepository;
-
 	public TimeTableUtils() {
 	}
 

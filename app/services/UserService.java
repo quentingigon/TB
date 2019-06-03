@@ -9,6 +9,9 @@ import models.repositories.interfaces.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the service used to make operations on the database for Users.
+ */
 public class UserService {
 
 	private final UserRepository userRepository;

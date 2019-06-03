@@ -9,6 +9,9 @@ import models.repositories.interfaces.RunningDiffuserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the service used to make operations on the database for Diffusers.
+ */
 public class DiffuserService {
 
 	public final DiffuserRepository diffuserRepository;
@@ -38,6 +41,14 @@ public class DiffuserService {
 
 	public RunningDiffuser getRunningDiffuserByDiffuserId(Integer id) {
 		return runningDiffuserRepository.getByDiffuserId(id);
+	}
+
+	public RunningDiffuser getRunningDiffuserById(Integer id) {
+		return runningDiffuserRepository.getById(id);
+	}
+
+	public Integer getRunningDiffuserIdByScreenId(Integer screenId) {
+		return runningDiffuserRepository.getRunningDiffuserIdOfScreenById(screenId);
 	}
 
 	public RunningDiffuser create(RunningDiffuser diffuser) {

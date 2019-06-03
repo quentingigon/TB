@@ -6,6 +6,9 @@ import models.repositories.JPATeamRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for Team database operations.
+ */
 @ImplementedBy(JPATeamRepository.class)
 public interface TeamRepository {
 

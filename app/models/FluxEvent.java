@@ -6,6 +6,9 @@ import models.db.Screen;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents an Event being sent from a RunningScheduleThread to the FluxManager
+ */
 public class FluxEvent {
 
 	private Flux flux;

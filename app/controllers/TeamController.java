@@ -3,14 +3,12 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.Team;
 import models.entities.TeamData;
-import models.repositories.interfaces.*;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.FluxService;
 import services.ServicePicker;
 import services.TeamService;
 import views.html.team.team_creation;
@@ -20,6 +18,10 @@ import views.html.team.team_update;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
+/**
+ * This class implements a controller for the Teams.
+ * It gives CRUD operations.
+ */
 public class TeamController extends Controller {
 
 	private Form<TeamData> form;

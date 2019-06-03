@@ -7,6 +7,9 @@ import models.repositories.JPAScreenRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for Screen database operations.
+ */
 @ImplementedBy(JPAScreenRepository.class)
 public interface ScreenRepository {
 

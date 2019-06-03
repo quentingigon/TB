@@ -10,6 +10,10 @@ import views.html.index;
 
 import javax.inject.Inject;
 
+/**
+ * This class implements a controller for the Homepage.
+ * It returns the list of active Schedules, Diffusers and Screens
+ */
 public class HomeController extends Controller {
 
     private final ServicePicker servicePicker;

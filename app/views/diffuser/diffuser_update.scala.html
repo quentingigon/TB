@@ -5,19 +5,13 @@
 @(form: Form[DiffuserData],
         data: DiffuserData,
         fluxes: util.List[FluxData],
-        message: String) (implicit request: Http.Request)
+        error: String) (implicit request: Http.Request)
 
 
-@main("Diffuser Updates Page") {
+@main("Diffuser Updates Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
 
-        @if(message != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@message</strong>
-            </div>
-        }
 
         <form action="@routes.DiffuserController.update()" method="POST">
             @helper.CSRF.formField
@@ -43,11 +37,6 @@
             <div class="form-group">
                 <label for="inputValidity">Validity</label>
                 <input name="validity" type="text" class="form-control" id="inputValidity" value="@data.getValidity">
-            </div>
-
-            <div class="form-group col-md-4">
-                <label for="inputOverwrite">Overwrite existing schedule ? </label>
-                <input name="overwrite" type="checkbox" class="form-control" id="inputOverwrite" value="@data.isOverwrite">
             </div>
 
             <button type="submit" class="btn btn-primary">Update</button>

@@ -2,19 +2,13 @@
 @import models.entities.ScreenData
 
 @import java.util
-@(screens: util.List[ScreenData], error: String)
+@(screens: util.List[ScreenData],
+        error: String)
 
 
-@main("Screens Main Page") {
+@main("Screens Main Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(error != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@error</strong>
-            </div>
-        }
 
         <table class="table table-striped">
             <thead>

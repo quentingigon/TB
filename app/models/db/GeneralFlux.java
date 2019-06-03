@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for GeneralFlux.
+ */
 @Entity
 @Table(name="generalflux", schema="public")
 public class GeneralFlux {
@@ -20,6 +23,8 @@ public class GeneralFlux {
 	public GeneralFlux(Integer fluxId) {
 		this.fluxId = fluxId;
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

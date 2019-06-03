@@ -8,6 +8,9 @@ import models.repositories.interfaces.ScreenRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the service used to make operations on the database for Screens.
+ */
 public class ScreenService {
 
 	private final ScreenRepository screenRepository;

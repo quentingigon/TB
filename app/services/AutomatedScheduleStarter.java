@@ -7,7 +7,6 @@ import models.repositories.interfaces.FluxRepository;
 import models.repositories.interfaces.RunningScheduleRepository;
 import models.repositories.interfaces.ScheduleRepository;
 import models.repositories.interfaces.ScreenRepository;
-import play.inject.ApplicationLifecycle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,18 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class demonstrates how to run code when the
- * application starts and stops. It starts a timer when the
- * application starts. When the application stops it prints out how
- * long the application was running for.
- *
- * This class is registered for Guice dependency injection in the
- * {@link Module} class. We want the class to start when the application
- * starts, so it is registered as an "eager singleton". See the code
- * in the {@link Module} class to see how this happens.
- *
- * This class needs to run code when the server stops. It uses the
- * application's {@link ApplicationLifecycle} to create a stop hook.
+ * This class is called when the application starts to recreate a
+ * RunningScheduleThread from the RunningSchedules in the database.
  */
 @Singleton
 public class AutomatedScheduleStarter {
@@ -40,6 +29,7 @@ public class AutomatedScheduleStarter {
     private final ScheduleRepository scheduleRepository;
     private final RunningScheduleRepository runningScheduleRepository;
     private final FluxChecker fluxChecker;
+    private final ServicePicker servicePicker;
 
     private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("application");
 
@@ -51,7 +41,9 @@ public class AutomatedScheduleStarter {
                                     RunningScheduleRepository repo,
                                     ScheduleRepository scheduleRepository,
                                     RunningScheduleThreadManager threadManager,
-                                    FluxChecker fluxChecker) {
+                                    FluxChecker fluxChecker,
+                                    ServicePicker servicePicker) {
+        this.servicePicker = servicePicker;
         this.fluxChecker = fluxChecker;
         this.screenRepository = screenRepository;
         this.fluxRepository = fluxRepository;
@@ -81,7 +73,7 @@ public class AutomatedScheduleStarter {
                     screens,
                     new ArrayList<>(schedule.getFallbacks()),
                     timeTableUtils.getTimeTable(schedule),
-                    fluxRepository,
+                    servicePicker,
                     fluxChecker,
                     schedule.isKeepOrder());
 
@@ -89,8 +81,6 @@ public class AutomatedScheduleStarter {
 
                 // the schedule is activated
                 threadManager.addRunningScheduleThread(schedule.getId(), service);
-
-
             }
         }
     }

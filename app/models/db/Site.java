@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for Site.
+ */
 @Entity
 @Table(name="site", schema="public")
 public class Site {
@@ -20,6 +23,8 @@ public class Site {
 	public Site(String name) {
 		this.name = name;
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

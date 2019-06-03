@@ -1,5 +1,8 @@
 package services;
 
+/**
+ * This class contains some variables used principally in the RunningScheduleThreads
+ */
 public class RunningScheduleUtils {
 
 	public final static String MAINTENANCE = "Maintenance";

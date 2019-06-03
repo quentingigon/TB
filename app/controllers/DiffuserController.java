@@ -24,6 +24,10 @@ import java.util.Set;
 
 import static services.BlockUtils.getBlockNumberOfTime;
 
+/**
+ * This class implements a controller for the Diffusers.
+ * It gives CRUD operations and offer means to active/deactivate them
+ */
 public class DiffuserController extends Controller {
 
 	@Inject
@@ -140,90 +144,18 @@ public class DiffuserController extends Controller {
 		}
 		else {
 			// get names of RunningSchedules concerned by the new Diffuser
-			Set<Integer> scheduleIds = new HashSet<>();
-			Set<Integer> runningScheduleIds = new HashSet<>();
 			Set<Integer> screenIds = new HashSet<>();
-			List<Screen> screens = new ArrayList<>();
 
 			for (String mac: data.getScreens()) {
 				Screen screen = screenService.getScreenByMacAddress(mac);
 				if (screen == null) {
 					return activateViewWithErrorMessage(data.getName(), request, "Screen MAC address does not exists");
 				}
-				screens.add(screen);
+
 				screenIds.add(screen.getId());
-
-				// get running schedule + all ids
-				RunningSchedule rs = scheduleService.getRunningScheduleById(screen.getRunningScheduleId());
-
-				if (rs != null) {
-					runningScheduleIds.add(rs.getId());
-
-					// get associated schedule
-					scheduleIds.add(scheduleService.getScheduleById(rs.getScheduleId()).getId());
-				}
 			}
 
-			// no runningschedule are associated with the screens used by the diffuser
-			if (runningScheduleIds.isEmpty()) {
-				return activateViewWithErrorMessage(data.getName(), request, "None of the selected screens are active");
-			}
-
-			// Flux to add to schedules and services
 			Flux diffusedFlux = fluxService.getFluxById(diffuser.getFlux());
-
-			// TODO not working -> need checks to assure its possible to do it
-			/*
-			// update associated Schedule timetable
-			for (Integer id: scheduleIds) {
-				Schedule schedule = scheduleService.getScheduleById(id);
-				// update schedule's timetable by adding a new entry for ScheduledFlux
-				// and updating schedule
-				ScheduledFlux sf = new ScheduledFlux();
-				sf.setScheduleId(schedule.getId());
-				sf.setStartBlock(diffuser.getStartBlock());
-				sf.setFluxId(diffusedFlux.getId());
-
-				fluxService.createScheduled(sf);
-
-				// schedule.addToFluxes(sf.getId());
-
-				// scheduleService.update(schedule);
-			}*/
-
-			// update associated RunningScheduleThread
-			for (Integer id: runningScheduleIds) {
-				RunningSchedule rs = scheduleService.getRunningScheduleById(id);
-				Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
-				RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
-				if (rst != null) {
-					// if diffuser has priority, it overwrites the timetable. Else it tries to schedule the flux at the given time
-					// but does it not if not enough place
-					if (diffuser.isOverwrite()) {
-						rst.scheduleFluxFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
-					}
-					else {
-						rst.scheduleFluxIfPossibleFromDiffuser(diffusedFlux, diffuser.getStartBlock(), diffuser.getId());
-					}
-
-					// stop old thread
-					rst.abort();
-					threadManager.removeRunningSchedule(schedule.getId());
-
-					// create new thread with values from old thread (timetable especially) and start it
-					RunningScheduleThread task = new RunningScheduleThread(
-						rs,
-						screens,
-						new ArrayList<>(schedule.getFluxes()),
-						rst.getTimetable(),
-						fluxRepository,
-						fluxChecker,
-						schedule.isKeepOrder());
-
-					task.addObserver(fluxManager);
-					threadManager.addRunningScheduleThread(rs.getScheduleId(), task);
-				}
-			}
 
 			// create new runningDiffuser
 			RunningDiffuser rd = new RunningDiffuser(diffuser);
@@ -240,9 +172,6 @@ public class DiffuserController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(Http.Request request, String name) {
 		DiffuserService diffuserService = servicePicker.getDiffuserService();
-		ScreenService screenService = servicePicker.getScreenService();
-		ScheduleService scheduleService = servicePicker.getScheduleService();
-		FluxService fluxService = servicePicker.getFluxService();
 
 		Diffuser diffuser = diffuserService.getDiffuserByName(name);
 
@@ -251,32 +180,8 @@ public class DiffuserController extends Controller {
 			return indexWithErrorMessage(request, "Diffuser name does not exist");
 		}
 		else {
-
 			RunningDiffuser rd = diffuserService.getRunningDiffuserByDiffuserId(diffuser.getId());
 
-			for (Integer id: diffuserService.getScreenIdsOfRunningDiffuserById(rd.getId())) {
-
-				Screen screen = screenService.getScreenById(id);
-
-				// if screen is active, update associated schedule
-				if (screen.getRunningScheduleId() != null) {
-					RunningSchedule rs = scheduleService.getRunningScheduleById(screen.getRunningScheduleId());
-
-					Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
-					schedule.removeFromFluxes(diffuser.getFlux());
-
-					scheduleService.update(schedule);
-				}
-
-				RunningScheduleThread rst = threadManager.getServiceByScheduleId(id);
-				if (rst != null) {
-					rst.removeScheduledFluxFromDiffuser(
-						fluxService.getFluxById(diffuser.getFlux()),
-						diffuser.getId(),
-						diffuser.getStartBlock()
-					);
-				}
-			}
 			diffuserService.delete(rd);
 
 			return index(request);

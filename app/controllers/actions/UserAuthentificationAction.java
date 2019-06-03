@@ -18,6 +18,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 
+/**
+ * This class represents an Action used to restrict access to Member reserved resources
+ */
 public class UserAuthentificationAction extends play.mvc.Action.Simple {
 
 	private HttpExecutionContext executionContext;

@@ -1,21 +1,24 @@
 package services;
 
+/**
+ * This class contains all values and functions for the block system.
+ */
 public class BlockUtils {
-
-	// TODO comment + more variables
 
 	public static final double beginningHour = 8; // inclusive
 	public static final double endHour = 23; // exclusive
 	public static final double activeTime = endHour - beginningHour;
 
-	// minutes
-	public static final double blockDuration = 1;
+	// This variable represent the duration of 1 block.
+	// The program was created with 1 minute in mind for this duration,
+	// but it should not be to complicated to change it to another value.
+	public static final double blockDuration = 1; // minutes
 	public static final double blockNumber = 60 / blockDuration * activeTime;
 
 	public static int getBlockNumberOfTime(int hours, int minutes) {
 		double hoursToBlock = (hours - beginningHour) / activeTime * blockNumber * blockDuration;
 
-		// TODO warning: only works with blockDuration == 1 so better change it
+		// warning: only works with blockDuration == 1
 		return (int) hoursToBlock + minutes;
 	}
 

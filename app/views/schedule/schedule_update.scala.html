@@ -10,7 +10,7 @@
         error: String)
 
 
-@main("Schedule Creation Page") {
+@main("Schedule Creation Page", error) {
 
     <style>
             body {
@@ -183,13 +183,6 @@
     </script>
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(error != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@error</strong>
-            </div>
-        }
 
         @helper.form(routes.ScheduleController.update()) {
             @helper.CSRF.formField

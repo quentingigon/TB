@@ -3,19 +3,13 @@
 
 @import models.entities.ScheduleData
 @import java.util
-@(schedules: util.List[ScheduleData], error: String)
+@(schedules: util.List[ScheduleData],
+        error: String)
 
 
-@main("Schedules Main Page") {
+@main("Schedules Main Page", error) {
 
     <div class="tab-pane active" id="vertical" role="tabpanel">
-
-        @if(error != null) {
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <strong>@error</strong>
-            </div>
-        }
 
         <table class="table table-striped">
             <thead>

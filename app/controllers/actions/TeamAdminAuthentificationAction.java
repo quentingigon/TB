@@ -17,6 +17,9 @@ import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * This class represents an Action used to restrict access to TeamAdmin reserved resources
+ */
 public class TeamAdminAuthentificationAction extends play.mvc.Action.Simple {
 
 	private HttpExecutionContext executionContext;

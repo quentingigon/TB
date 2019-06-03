@@ -4,7 +4,8 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)
+@(title: String,
+        error: String)(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -107,6 +108,14 @@
                 </ul>
             </div>
         </nav>
+
+        @if(error != null) {
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <strong>@error</strong>
+            </div>
+        }
+
         @* And here's where we render the `Html` object containing
          * the page content. *@
         @content

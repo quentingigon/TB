@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for Screen.
+ */
 @Entity
 @Table(name="screen", schema = "public")
 public class Screen {
@@ -45,6 +48,8 @@ public class Screen {
 	public Screen() {
 
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

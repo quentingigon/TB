@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for WaitingScreen.
+ */
 @Entity
 @Table(name="waitingscreen", schema="public")
 public class WaitingScreen {
@@ -24,6 +27,8 @@ public class WaitingScreen {
 
 	public WaitingScreen() {
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

@@ -25,9 +25,7 @@ public class FluxChecker implements WSBodyReadables, WSBodyWritables {
 
 		final JsonNode[] jsonNode = new JsonNode[1];
 
-		ws.url(flux.getDataCheckUrl())
-			//.setContentType("application/x-www-form-urlencoded")
-			//.addHeader("headerKey", "headerValue")
+		ws.url("data check URL")
 			.addQueryParameter("fluxId", String.valueOf(flux.getId()))
 			.get()
 			.thenApply(r -> jsonNode[0] = r.getBody(json()));

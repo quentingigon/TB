@@ -23,6 +23,10 @@ import views.html.user.user_update;
 
 import javax.inject.Inject;
 
+/**
+ * This class implements a controller for the Users.
+ * It gives CRUD operation and permits login.
+ */
 public class UserController extends Controller {
 
 	private final Form<UserData> form;
@@ -95,10 +99,8 @@ public class UserController extends Controller {
 			return registerViewWithErrorMessage("Email is already used");
 		}
 		else {
-
 			newUser = userService.createUser(newUser);
 
-			// TODO verify its correct
 			// user created is part of a team
 			if (data.getTeam() != null) {
 				Team team = teamService.getTeamByName(data.getTeam());

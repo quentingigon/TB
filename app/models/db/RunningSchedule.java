@@ -4,6 +4,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is the DM model for RunningSchedule.
+ */
 @Entity
 @Table(name="runningschedule", schema="public")
 public class RunningSchedule {
@@ -28,6 +31,8 @@ public class RunningSchedule {
 		this.scheduleId = schedule.getId();
 		this.screens = new ArrayList<>();
 	}
+
+	// Getters and setters
 
 	public List<Integer> getScreens() {
 		return screens;

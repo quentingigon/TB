@@ -9,7 +9,7 @@ import models.repositories.JPAUserRepository;
 import java.util.List;
 
 /**
- * This interface provides a non-blocking API for possibly blocking operations.
+ * This interface defines the functions for User, TeamMember and Admin database operations.
  */
 @ImplementedBy(JPAUserRepository.class)
 public interface UserRepository {

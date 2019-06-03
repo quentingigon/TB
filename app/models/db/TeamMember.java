@@ -2,6 +2,9 @@ package models.db;
 
 import javax.persistence.*;
 
+/**
+ * This class is the DM model for TeamMember.
+ */
 @Entity
 @Table(name="teammember", schema="public")
 public class TeamMember {
@@ -26,6 +29,8 @@ public class TeamMember {
 
 	public TeamMember(String email, String password) {
 	}
+
+	// Getters and setters
 
 	public Integer getId() {
 		return id;

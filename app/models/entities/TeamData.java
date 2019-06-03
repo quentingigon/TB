@@ -4,6 +4,9 @@ import models.db.Team;
 
 import java.util.List;
 
+/**
+ * This class represents the Team data being sent between clients and server.
+ */
 public class TeamData {
 
 	private String name;
@@ -25,6 +28,8 @@ public class TeamData {
 	public TeamData(Team team) {
 		this.name = team.getName();
 	}
+
+	// Getters and setters
 
 	public String getName() {
 		return name;

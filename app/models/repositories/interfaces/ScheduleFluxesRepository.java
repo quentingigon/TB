@@ -6,6 +6,9 @@ import models.repositories.JPAScheduleFluxesRepository;
 
 import java.util.List;
 
+/**
+ * This interface defines the functions for ScheduledFlux database operations.
+ */
 @ImplementedBy(JPAScheduleFluxesRepository.class)
 public interface ScheduleFluxesRepository {
 
