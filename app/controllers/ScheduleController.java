@@ -139,63 +139,6 @@ public class ScheduleController extends Controller {
 			null,
 			request));
 	}
-/*
-	@With(UserAuthentificationAction.class)
-	public Result activate(Http.Request request) {
-		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		ScheduleService scheduleService = servicePicker.getScheduleService();
-		ScreenService screenService = servicePicker.getScreenService();
-		ScheduleData data = boundForm.get();
-
-		Schedule schedule = scheduleService.getScheduleByName(data.getName());
-
-		// incorrect name
-		if (schedule == null) {
-			return indexWithErrorMessage(request, "Schedule does not exist");
-		}
-		else {
-
-			// create runningSchedule
-			RunningSchedule rs = new RunningSchedule(schedule);
-			if (scheduleService.getRunningScheduleByScheduleId(schedule.getId()) != null) {
-				return indexWithErrorMessage(request, "This schedule is already activated");
-			}
-			rs = scheduleService.create(rs);
-
-			List<Screen> screens = new ArrayList<>();
-			for (String screenMac : data.getScreens()) {
-				Screen screen = screenService.getScreenByMacAddress(screenMac);
-				if (screen == null) {
-					return indexWithErrorMessage(request, "screen mac address does not exist : " + screenMac);
-				}
-				rs.addToScreens(screen.getId());
-				screen.setRunningscheduleId(rs.getId());
-				screen.setActive(true);
-
-				screens.add(screen);
-
-				screenService.update(screen);
-			}
-			scheduleService.update(rs);
-
-			// add service as observer of FluxManager
-			RunningScheduleThread service2 = new RunningScheduleThread(
-				rs,
-				screens,
-				new ArrayList<>(schedule.getFluxes()),
-				timeTableUtils.getTimeTable(schedule),
-				servicePicker,
-				fluxChecker,
-				schedule.isKeepOrder());
-
-			service2.addObserver(fluxManager);
-
-			// the schedule is activated
-			threadManager.addRunningScheduleThread(schedule.getId(), service2);
-
-			return index(request);
-		}
-	}*/
 
 	@With(UserAuthentificationAction.class)
 	public Result activate(Http.Request request) throws SchedulerException {
@@ -266,15 +209,6 @@ public class ScheduleController extends Controller {
 		}
 	}
 
-	private String getScreenIds(List<Screen> screens) {
-		StringBuilder output = new StringBuilder();
-
-		for (Screen screen: screens) {
-			output.append(screen.getId());
-		}
-		return output.toString();
-	}
-
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name, Http.Request request) {
 		ScheduleService scheduleService = servicePicker.getScheduleService();
@@ -303,7 +237,7 @@ public class ScheduleController extends Controller {
 			scheduleService.delete(rs);
 
 			SchedulerFactory sf = new StdSchedulerFactory();
-			Scheduler scheduler = null;
+			Scheduler scheduler;
 			try {
 				scheduler = sf.getScheduler();
 				scheduler.getListenerManager().removeJobListener(schedule.getName());
@@ -314,56 +248,6 @@ public class ScheduleController extends Controller {
 			return index(request);
 		}
 	}
-/*
-	@With(UserAuthentificationAction.class)
-	public Result create(Http.Request request) {
-		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
-		Integer teamId = servicePicker.getUserService().getTeamIdOfUserByEmail(request.cookie("email").value());
-		ScheduleService scheduleService = servicePicker.getScheduleService();
-		TeamService teamService = servicePicker.getTeamService();
-
-		ScheduleData data = boundForm.get();
-
-		if (data.getName().equals("")) {
-			return createViewWithErrorMessage(request, "You must enter a name for the new schedule");
-		}
-		// schedule already exists
-		else if (scheduleService.getScheduleByName(data.getName()) != null) {
-			return createViewWithErrorMessage(request, "Schedule name already exists");
-		}
-		else {
-			Schedule schedule = new Schedule(data);
-
-			Result error = checkFluxesIntegrity(data, request);
-			if (error != null) {
-				return error;
-			}
-
-			for (Integer fluxId: getFallbackFluxIds(data)) {
-				schedule.addToFallbacks(fluxId);
-			}
-
-			for (Integer fluxId: getUnscheduledFluxIds(data)) {
-				schedule.addToFluxes(fluxId);
-			}
-
-			schedule = scheduleService.create(schedule);
-
-			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
-				sf.setScheduleId(schedule.getId());
-				servicePicker.getFluxService().createScheduled(sf);
-				schedule.addToScheduledFluxes(sf.getId());
-			}
-			scheduleService.update(schedule);
-
-			// add new schedule to current user's team
-			Team team = teamService.getTeamById(teamId);
-			team.addToSchedules(schedule.getId());
-			teamService.update(team);
-
-			return index(request);
-		}
-	}*/
 
 	@With(UserAuthentificationAction.class)
 	public Result create(Http.Request request) {
@@ -596,5 +480,14 @@ public class ScheduleController extends Controller {
 		cmd.deleteCharAt(cmd.length() - 1);
 
 		return cmd.toString();
+	}
+
+	private String getScreenIds(List<Screen> screens) {
+		StringBuilder output = new StringBuilder();
+
+		for (Screen screen: screens) {
+			output.append(screen.getId());
+		}
+		return output.toString();
 	}
 }

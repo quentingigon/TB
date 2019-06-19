@@ -4,6 +4,10 @@ import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.ScreenData;
 import models.repositories.interfaces.*;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.impl.StdSchedulerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -122,19 +126,29 @@ public class ScreenController extends Controller {
 				return redirect(routes.ErrorPageController.noScheduleView());
 			}
 
+
+
 			// Timer task used to force a resend of current flux for the screen
-			/*TimerTask task = new TimerTask() {
+			TimerTask task = new TimerTask() {
 				public void run() {
 
 					RunningSchedule rs = scheduleService.getRunningScheduleById(
 						scheduleService.getRunningScheduleOfScreenById(screen.getId())
 					);
 					if (rs != null) {
-						RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
-						List<Screen> screenList = new ArrayList<>();
-						screenList.add(screen);
-						System.out.println("FORCE SEND");
-						rst.resendLastFluxEventToScreens(screenList);
+						Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
+
+						SchedulerFactory sf = new StdSchedulerFactory();
+						Scheduler scheduler;
+
+						try {
+							scheduler = sf.getScheduler();
+							SendEventJobsListener listener = (SendEventJobsListener) scheduler.getListenerManager().getJobListener(schedule.getName());
+							listener.resendLastEvent();
+
+						} catch (SchedulerException e) {
+							e.printStackTrace();
+						}
 					}
 
 				}
@@ -144,7 +158,7 @@ public class ScreenController extends Controller {
 			long delay = 2000L;
 			timer.schedule(task, delay);
 
-*/
+
 			// screen already logged in
 			if (!screen.isLogged()) {
 				screen.setLogged(true);

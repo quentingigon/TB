@@ -19,6 +19,7 @@ public class SendEventJobsListener extends Observable implements JobListener {
 	private ServicePicker servicePicker;
 
 	private String name;
+	private FluxEvent lastEvent;
 
 	public SendEventJobsListener(String name,
 								 EventSourceController eventController,
@@ -26,8 +27,8 @@ public class SendEventJobsListener extends Observable implements JobListener {
 		this.name = name;
 		this.eventController = eventController;
 		this.servicePicker = servicePicker;
+		lastEvent = null;
 	}
-
 
 	@Override
 	public String getName() {
@@ -48,11 +49,17 @@ public class SendEventJobsListener extends Observable implements JobListener {
 
 	@Override
 	public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
-		ScreenService screenService = servicePicker.getScreenService();
-
 		SendEventJob job = (SendEventJob) context.getJobInstance();
 
 		FluxEvent event = job.getEvent();
+
+
+		sendFluxEvent(event);
+
+	}
+
+	private void sendFluxEvent(FluxEvent event) {
+		ScreenService screenService = servicePicker.getScreenService();
 
 		Flux currentFlux = getFlux(event.getFluxId());
 		List<String> macAddresses = getMacAddresses(event.getScreenIds());
@@ -73,6 +80,14 @@ public class SendEventJobsListener extends Observable implements JobListener {
 				screen.setCurrentFluxName(currentFlux.getName());
 				screenService.update(screen);
 			}
+			lastEvent = event;
+		}
+	}
+
+	public void resendLastEvent() {
+		if (lastEvent != null) {
+			System.out.println("FORCE SEND");
+			sendFluxEvent(lastEvent);
 		}
 	}
 
