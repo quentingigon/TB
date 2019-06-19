@@ -80,7 +80,7 @@ public class AutomatedScheduleStarter {
                 service.addObserver(fluxManager);
 
                 // the schedule is activated
-                threadManager.addRunningScheduleThread(schedule.getId(), service);
+                // threadManager.addRunningScheduleThread(schedule.getId(), service);
             }
         }
     }

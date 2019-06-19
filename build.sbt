@@ -36,5 +36,7 @@ libraryDependencies += "org.assertj" % "assertj-core" % "3.11.1" % Test
 libraryDependencies += "org.awaitility" % "awaitility" % "3.1.3" % Test
 libraryDependencies += javaJdbc % Test
 
+libraryDependencies += "org.quartz-scheduler" % "quartz" % "2.3.1"
+
 // Make verbose tests
 testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v"))

@@ -212,7 +212,6 @@ public class DiffuserController extends Controller {
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.parseInt(data.getValidity()));
 			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
-			diffuser.setOverwrite(data.isOverwrite());
 
 			diffuser = diffuserService.create(diffuser);
 

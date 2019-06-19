@@ -5,7 +5,7 @@ package services;
  */
 public class BlockUtils {
 
-	public static final double beginningHour = 8; // inclusive
+	public static final double beginningHour = 0; // inclusive
 	public static final double endHour = 23; // exclusive
 	public static final double activeTime = endHour - beginningHour;
 

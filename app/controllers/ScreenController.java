@@ -123,7 +123,7 @@ public class ScreenController extends Controller {
 			}
 
 			// Timer task used to force a resend of current flux for the screen
-			TimerTask task = new TimerTask() {
+			/*TimerTask task = new TimerTask() {
 				public void run() {
 
 					RunningSchedule rs = scheduleService.getRunningScheduleById(
@@ -144,7 +144,7 @@ public class ScreenController extends Controller {
 			long delay = 2000L;
 			timer.schedule(task, delay);
 
-
+*/
 			// screen already logged in
 			if (!screen.isLogged()) {
 				screen.setLogged(true);

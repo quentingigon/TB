@@ -14,7 +14,15 @@ public class FluxEvent {
 	private Flux flux;
 	private List<String> macs;
 
+	private int fluxId;
+	private String screenIds;
+
 	public FluxEvent() {
+	}
+
+	public FluxEvent(int fluxId, String screenIds) {
+		this.fluxId = fluxId;
+		this.screenIds = screenIds;
 	}
 
 	public FluxEvent(Flux flux, List<Screen> screens) {
@@ -51,5 +59,21 @@ public class FluxEvent {
 
 	public void setMacs(List<String> macs) {
 		this.macs = macs;
+	}
+
+	public int getFluxId() {
+		return fluxId;
+	}
+
+	public void setFluxId(int fluxId) {
+		this.fluxId = fluxId;
+	}
+
+	public String getScreenIds() {
+		return screenIds;
+	}
+
+	public void setScreenIds(String screenIds) {
+		this.screenIds = screenIds;
 	}
 }

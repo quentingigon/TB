@@ -1,9 +1,6 @@
 package services;
 
-import models.db.Flux;
-import models.db.GeneralFlux;
-import models.db.LocatedFlux;
-import models.db.ScheduledFlux;
+import models.db.*;
 import models.entities.FluxData;
 import models.repositories.interfaces.FluxRepository;
 
@@ -55,6 +52,14 @@ public class FluxService {
 
 	public ScheduledFlux createScheduled(ScheduledFlux flux) {
 		return fluxRepository.addScheduledFlux(flux);
+	}
+
+	public FluxTrigger createFluxTrigger(FluxTrigger ft) {
+		return fluxRepository.addFluxTrigger(ft);
+	}
+
+	public List<FluxTrigger> getFluxTriggersOfScheduleById(Integer id) {
+		return fluxRepository.getAllFluxTriggerOfSchedule(id);
 	}
 
 	public Flux update(Flux flux) {

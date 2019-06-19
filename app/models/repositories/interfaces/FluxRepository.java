@@ -1,10 +1,7 @@
 package models.repositories.interfaces;
 
 import com.google.inject.ImplementedBy;
-import models.db.Flux;
-import models.db.GeneralFlux;
-import models.db.LocatedFlux;
-import models.db.ScheduledFlux;
+import models.db.*;
 import models.repositories.JPAFluxRepository;
 
 import java.util.List;
@@ -19,6 +16,7 @@ public interface FluxRepository {
 	LocatedFlux addLocatedFlux(LocatedFlux flux);
 	GeneralFlux addGeneralFlux(GeneralFlux flux);
 	ScheduledFlux addScheduledFlux(ScheduledFlux flux);
+	FluxTrigger addFluxTrigger(FluxTrigger flux);
 
 	Flux getByName(String name);
 	Flux getById(Integer id);
@@ -31,6 +29,7 @@ public interface FluxRepository {
 	List<Flux> getAll();
 	List<Integer> getAllFluxIdsOfTeam(Integer id);
 	List<Integer> getAllFallbackIdsOfSchedule(Integer id);
+	List<FluxTrigger> getAllFluxTriggerOfSchedule(Integer id);
 
 	Flux update(Flux flux);
 	void delete(Flux flux);

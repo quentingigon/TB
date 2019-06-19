@@ -1,9 +1,6 @@
 package models.repositories;
 
-import models.db.Flux;
-import models.db.GeneralFlux;
-import models.db.LocatedFlux;
-import models.db.ScheduledFlux;
+import models.db.*;
 import models.repositories.interfaces.FluxRepository;
 import play.db.jpa.JPAApi;
 
@@ -47,6 +44,14 @@ public class JPAFluxRepository implements FluxRepository {
 
 	@Override
 	public ScheduledFlux addScheduledFlux(ScheduledFlux flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(flux);
+		});
+		return flux;
+	}
+
+	@Override
+	public FluxTrigger addFluxTrigger(FluxTrigger flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(flux);
 		});
@@ -181,6 +186,22 @@ public class JPAFluxRepository implements FluxRepository {
 				"SELECT DISTINCT fallbacks FROM schedule_fallbacks WHERE schedule_schedule_id = " + scheduleId);
 			try {
 				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<FluxTrigger> getAllFluxTriggerOfSchedule(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM fluxtrigger WHERE schedule_id = " + scheduleId,
+				FluxTrigger.class);
+			try {
+				return (List<FluxTrigger>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

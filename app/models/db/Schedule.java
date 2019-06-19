@@ -21,8 +21,14 @@ public class Schedule {
 	@Column(name="name")
 	private String name;
 
+	@Column(name="days")
+	private String days;
+
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> scheduledFluxes;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> fluxtrigger;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fluxes;
@@ -130,5 +136,29 @@ public class Schedule {
 
 	public void setKeepOrder(boolean keepOrder) {
 		this.keepOrder = keepOrder;
+	}
+
+	public String getDays() {
+		return days;
+	}
+
+	public void setDays(String days) {
+		this.days = days;
+	}
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	public Set<Integer> getFluxtrigger() {
+		return fluxtrigger;
+	}
+
+	public void setFluxtrigger(Set<Integer> fluxtrigger) {
+		this.fluxtrigger = fluxtrigger;
+	}
+
+	public void addToFluxtrigger(Integer ftId) {
+		if (this.fluxtrigger == null) {
+			this.fluxtrigger = new HashSet<>();
+		}
+		this.fluxtrigger.add(ftId);
 	}
 }

@@ -15,6 +15,7 @@ public class ScheduleData {
 	private List<String> scheduledFluxes;
 	private List<String> fallbackFluxes;
 	private List<String> screens;
+	private List<String> days;
 
 	private boolean keepOrder;
 	private boolean activated;
@@ -88,5 +89,13 @@ public class ScheduleData {
 
 	public void setKeepOrder(boolean keepOrder) {
 		this.keepOrder = keepOrder;
+	}
+
+	public List<String> getDays() {
+		return days;
+	}
+
+	public void setDays(List<String> days) {
+		this.days = days;
 	}
 }
