@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static controllers.CronUtils.getCronCmdSchedule;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -148,17 +149,17 @@ public class ScheduleController extends Controller {
 		FluxService fluxService = servicePicker.getFluxService();
 		ScheduleData data = boundForm.get();
 
-		Schedule schedule = scheduleService.getScheduleByName(data.getName());
+		Schedule scheduleToActivate = scheduleService.getScheduleByName(data.getName());
 
 		// incorrect name
-		if (schedule == null) {
+		if (scheduleToActivate == null) {
 			return indexWithErrorMessage(request, "Schedule does not exist");
 		}
 		else {
 
 			// create runningSchedule
-			RunningSchedule rs = new RunningSchedule(schedule);
-			if (scheduleService.getRunningScheduleByScheduleId(schedule.getId()) != null) {
+			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
+			if (scheduleService.getRunningScheduleByScheduleId(scheduleToActivate.getId()) != null) {
 				return indexWithErrorMessage(request, "This schedule is already activated");
 			}
 			rs = scheduleService.create(rs);
@@ -168,6 +169,16 @@ public class ScheduleController extends Controller {
 				Screen screen = screenService.getScreenByMacAddress(screenMac);
 				if (screen == null) {
 					return indexWithErrorMessage(request, "screen mac address does not exist : " + screenMac);
+				}
+
+				RunningSchedule rs2 = scheduleService.getRunningScheduleById(
+					scheduleService.getRunningScheduleOfScreenById(screen.getId()));
+				Schedule existingSchedule = scheduleService.getScheduleById(rs2.getScheduleId());
+
+				// check if the schedule to activate overlaps with an other one
+				if (existingSchedule == null || !checkIfSchedulesOverlap(existingSchedule, scheduleToActivate)) {
+					return indexWithErrorMessage(request, "Screen: " + screen.getName() +
+						" already has an active schedule for the days chosen")
 				}
 				rs.addToScreens(screen.getId());
 				screen.setRunningscheduleId(rs.getId());
@@ -182,19 +193,18 @@ public class ScheduleController extends Controller {
 			SchedulerFactory sf = new StdSchedulerFactory();
 			Scheduler scheduler = sf.getScheduler();
 
-			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
+			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(scheduleToActivate.getId());
 
-			int index = scheduler.getCurrentlyExecutingJobs().size() + 1;
 			// run through triggers in DB and schedule job accordingly
 			for (FluxTrigger ft: triggers) {
 				Flux flux = fluxService.getFluxById(ft.getFluxId());
 
 				JobDetail job = newJob(SendEventJob.class)
-					.withIdentity("sendEventJob" + index++ + " for " + flux.getName(), schedule.getName())
+					.withIdentity("sendEventJob#" + flux.getName() + "#" + ft.getCronCmd(), scheduleToActivate.getName())
 					.build();
 
 				CronTrigger trigger = newTrigger()
-					.withIdentity("trigger" + index + " for " + flux.getName(), schedule.getName())
+					.withIdentity("trigger#" + flux.getName() + "#" + ft.getCronCmd(), scheduleToActivate.getName())
 					.usingJobData("screenIds", getScreenIds(screens))
 					.usingJobData("fluxId", flux.getId())
 					.withSchedule(cronSchedule(ft.getCronCmd()))
@@ -202,7 +212,10 @@ public class ScheduleController extends Controller {
 				scheduler.scheduleJob(job, trigger);
 			}
 
-			SendEventJobsListener listener = new SendEventJobsListener(schedule.getName(), eventSourceController, servicePicker);
+			SendEventJobsListener listener = new SendEventJobsListener(
+				scheduleToActivate.getName(),
+				eventSourceController,
+				servicePicker);
 			scheduler.getListenerManager().addJobListener(listener, allJobs());
 
 			return index(request);
@@ -285,8 +298,8 @@ public class ScheduleController extends Controller {
 			// create flux triggers for database
 			for (FluxTrigger ft: getFluxTriggerFromData(data, schedule)) {
 				ft.setScheduleId(schedule.getId());
-				servicePicker.getFluxService().createFluxTrigger(ft);
-				//schedule.addToFluxTriggers(ft);
+				ft = servicePicker.getFluxService().createFluxTrigger(ft);
+				schedule.addToFluxtrigger(ft.getId());
 			}
 			scheduleService.update(schedule);
 
@@ -319,23 +332,28 @@ public class ScheduleController extends Controller {
 		}
 		else {
 
+			StringBuilder days = new StringBuilder();
+			for (String day: data.getDays()) {
+				days.append(day).append(",");
+			}
+			days.deleteCharAt(days.length() - 1);
+			schedule.setDays(days.toString());
+
 			Result error = checkFluxesIntegrity(data, request);
 			if (error != null) {
 				return error;
-			}
-			for (Integer fluxId: getUnscheduledFluxIds(data)) {
-				schedule.addToFluxes(fluxId);
 			}
 
 			for (Integer fluxId: getFallbackFluxIds(data)) {
 				schedule.addToFallbacks(fluxId);
 			}
 
-			// TODO Warning: there are no checks to avoid bad timetable init -> overlapping fluxes, etc
-			for (ScheduledFlux sf: getScheduledFluxesFromData(data)) {
-				sf.setScheduleId(schedule.getId());
-				sf = servicePicker.getFluxService().createScheduled(sf);
-				schedule.addToScheduledFluxes(sf.getId());
+			// TODO Warning: no checks on overlap of fluxtrigger
+			// create flux triggers for database
+			for (FluxTrigger ft: getFluxTriggerFromData(data, schedule)) {
+				ft.setScheduleId(schedule.getId());
+				ft = servicePicker.getFluxService().createFluxTrigger(ft);
+				schedule.addToFluxtrigger(ft.getId());
 			}
 			scheduleService.update(schedule);
 
@@ -374,7 +392,7 @@ public class ScheduleController extends Controller {
 					error = createViewWithErrorMessage(request, "Flux name does not exists");
 				}
 
-				// we must create a ScheduledFlux for this entry
+				// we must create a FluxTrigger for this entry
 				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
 					String fluxTime = fluxDatas[1];
 					int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
@@ -386,7 +404,6 @@ public class ScheduleController extends Controller {
 				}
 			}
 		}
-
 		return error;
 	}
 
@@ -402,7 +419,7 @@ public class ScheduleController extends Controller {
 				Integer fluxId = servicePicker.getFluxService().getFluxByName(fluxName).getId();
 
 				// create trigger with cron command
-				fluxTriggers.add(new FluxTrigger(fluxId, getCronCmd(schedule, fluxTime)));
+				fluxTriggers.add(new FluxTrigger(fluxId, getCronCmdSchedule(schedule, fluxTime)));
 			}
 		}
 		return fluxTriggers;
@@ -467,21 +484,6 @@ public class ScheduleController extends Controller {
 		return fallbacksIds;
 	}
 
-	private String getCronCmd(Schedule schedule, String time) {
-		String hours = time.split(":")[0];
-		String minutes = time.split(":")[1];
-
-		StringBuilder cmd = new StringBuilder("0 " + minutes + " " + hours + " ? " + "* ");
-
-		List<String> activeDays = Arrays.asList(schedule.getDays().split(","));
-		for (String day: activeDays) {
-			cmd.append(day).append(",");
-		}
-		cmd.deleteCharAt(cmd.length() - 1);
-
-		return cmd.toString();
-	}
-
 	private String getScreenIds(List<Screen> screens) {
 		StringBuilder output = new StringBuilder();
 
@@ -489,5 +491,19 @@ public class ScheduleController extends Controller {
 			output.append(screen.getId());
 		}
 		return output.toString();
+	}
+
+	private boolean checkIfSchedulesOverlap(Schedule existingSchedule, Schedule scheduleToActivate) {
+		String[] existingDays = existingSchedule.getDays().split(",");
+		String[] newDays = scheduleToActivate.getDays().split(",");
+
+		boolean output = false;
+
+		for (String day: newDays) {
+			if (Arrays.asList(existingDays).contains(day)) {
+				output = true;
+			}
+		}
+		return output;
 	}
 }

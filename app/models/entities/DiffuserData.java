@@ -4,8 +4,6 @@ import models.db.Diffuser;
 
 import java.util.List;
 
-import static services.BlockUtils.getTimeOfBlockNumber;
-
 /**
  * This class represents the Diffuser data being sent between clients and server.
  */
@@ -15,6 +13,7 @@ public class DiffuserData {
 	private String fluxName;
 	private String startTime;
 	private String validity;
+	private List<String> days;
 	private List<String> screens;
 
 	private boolean activated;
@@ -29,7 +28,6 @@ public class DiffuserData {
 	public DiffuserData(Diffuser diffuser) {
 		name = diffuser.getName();
 		validity = diffuser.getValidity().toString();
-		startTime = getTimeOfBlockNumber(diffuser.getStartBlock());
 	}
 
 	// Getters and setters
@@ -80,5 +78,13 @@ public class DiffuserData {
 
 	public void setActivated(boolean activated) {
 		this.activated = activated;
+	}
+
+	public List<String> getDays() {
+		return days;
+	}
+
+	public void setDays(List<String> days) {
+		this.days = days;
 	}
 }

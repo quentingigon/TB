@@ -3,7 +3,10 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.DiffuserData;
+import models.entities.ScheduleData;
 import models.repositories.interfaces.FluxRepository;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -17,11 +20,13 @@ import views.html.diffuser.diffuser_page;
 import views.html.diffuser.diffuser_update;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static controllers.CronUtils.getCronCmdDiffuser;
+import static controllers.CronUtils.getCronCmdSchedule;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
 import static services.BlockUtils.getBlockNumberOfTime;
 
 /**
@@ -126,7 +131,7 @@ public class DiffuserController extends Controller {
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result activate(Http.Request request) {
+	public Result activate(Http.Request request) throws SchedulerException {
 
 		final Form<DiffuserData> boundForm = form.bindFromRequest(request);
 		DiffuserData data = boundForm.get();
@@ -143,8 +148,9 @@ public class DiffuserController extends Controller {
 			return activateViewWithErrorMessage(data.getName(), request, "Diffuser name does not exists");
 		}
 		else {
-			// get names of RunningSchedules concerned by the new Diffuser
+
 			Set<Integer> screenIds = new HashSet<>();
+			StringBuilder screenIdsString = new StringBuilder();
 
 			for (String mac: data.getScreens()) {
 				Screen screen = screenService.getScreenByMacAddress(mac);
@@ -153,6 +159,8 @@ public class DiffuserController extends Controller {
 				}
 
 				screenIds.add(screen.getId());
+
+				screenIdsString.append(screen.getId());
 			}
 
 			Flux diffusedFlux = fluxService.getFluxById(diffuser.getFlux());
@@ -164,6 +172,21 @@ public class DiffuserController extends Controller {
 			rd.setFluxId(diffusedFlux.getId());
 
 			diffuserService.create(rd);
+
+			SchedulerFactory sf = new StdSchedulerFactory();
+			Scheduler scheduler = sf.getScheduler();
+
+			JobDetail job = newJob(SendEventJob.class)
+				.withIdentity("sendEventJob#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
+				.build();
+
+			CronTrigger trigger = newTrigger()
+				.withIdentity("trigger#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
+				.usingJobData("screenIds", screenIdsString.toString())
+				.usingJobData("fluxId", diffusedFlux.getId())
+				.withSchedule(cronSchedule(diffuser.getCronCmd()))
+				.build();
+			scheduler.scheduleJob(job, trigger);
 
 			return index(request);
 		}
@@ -209,9 +232,18 @@ public class DiffuserController extends Controller {
 				return error;
 			}
 			Diffuser diffuser = new Diffuser(data.getName());
+
+			// set active days
+			StringBuilder days = new StringBuilder();
+			for (String day: data.getDays()) {
+				days.append(day).append(",");
+			}
+			days.deleteCharAt(days.length() - 1);
+			diffuser.setDays(days.toString());
+
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.parseInt(data.getValidity()));
-			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
+			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime()));
 
 			diffuser = diffuserService.create(diffuser);
 
@@ -246,7 +278,7 @@ public class DiffuserController extends Controller {
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setValidity(Integer.parseInt(data.getValidity()));
 			diffuser.setName(data.getName());
-			diffuser.setStartBlock(getBlockNumberOfTime(data.getStartTime()));
+			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime()));
 
 			diffuserService.update(diffuser);
 

@@ -23,8 +23,11 @@ public class Diffuser {
 	@Column(name="flux_id")
 	private Integer flux;
 
-	@Column(name="start_block")
-	private Integer startBlock;
+	@Column(name="cron_cmd")
+	private String cronCmd;
+
+	@Column(name="days")
+	private String days;
 
 	public Diffuser() {
 	}
@@ -67,11 +70,19 @@ public class Diffuser {
 		this.flux = flux;
 	}
 
-	public Integer getStartBlock() {
-		return startBlock;
+	public String getCronCmd() {
+		return cronCmd;
 	}
 
-	public void setStartBlock(Integer startBlock) {
-		this.startBlock = startBlock;
+	public void setCronCmd(String cronCmd) {
+		this.cronCmd = cronCmd;
+	}
+
+	public String getDays() {
+		return days;
+	}
+
+	public void setDays(String days) {
+		this.days = days;
 	}
 }
