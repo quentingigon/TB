@@ -108,10 +108,6 @@ public class FluxController extends Controller {
 		else if (!isInteger(data.getDuration())) {
 			return createViewWithErrorMessage("You must enter an integer for duration");
 		}
-		// flux duration is too long
-		else if (Integer.parseInt(data.getDuration()) > blockNumber) {
-			return createViewWithErrorMessage("Flux duration is too long");
-		}
 		else {
 
 			Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();

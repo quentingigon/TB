@@ -6,9 +6,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import java.util.Observable;
-
-public class SendEventJob extends Observable implements Job {
+public class SendEventJob implements Job {
 
 	private FluxEvent event;
 

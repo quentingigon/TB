@@ -27,6 +27,7 @@ import static controllers.CronUtils.getCronCmdSchedule;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
+import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
 import static services.BlockUtils.getBlockNumberOfTime;
 
 /**
@@ -35,31 +36,18 @@ import static services.BlockUtils.getBlockNumberOfTime;
  */
 public class DiffuserController extends Controller {
 
-	@Inject
-	FluxRepository fluxRepository;
-
+	private final EventSourceController eventSourceController;
 	private Form<DiffuserData> form;
-
-	private final RunningScheduleThreadManager threadManager;
-
 	private final ServicePicker servicePicker;
-	private final TimeTableUtils timeTableUtils;
-	private final FluxChecker fluxChecker;
-	private final FluxManager fluxManager;
 
 	@Inject
 	public DiffuserController(FormFactory formFactory,
-							  RunningScheduleThreadManager threadManager,
 							  ServicePicker servicePicker,
-							  TimeTableUtils timeTableUtils,
-							  FluxChecker fluxChecker,
-							  FluxManager fluxManager) {
-		this.fluxManager = fluxManager;
-		this.fluxChecker = fluxChecker;
-		this.timeTableUtils = timeTableUtils;
+							  EventSourceController eventSourceController) {
+
+		this.eventSourceController = eventSourceController;
 		this.servicePicker = servicePicker;
 		this.form = formFactory.form(DiffuserData.class);
-		this.threadManager = threadManager;
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -188,6 +176,12 @@ public class DiffuserController extends Controller {
 				.build();
 			scheduler.scheduleJob(job, trigger);
 
+			SendEventJobsListener listener = new SendEventJobsListener(
+				diffuser.getName(),
+				eventSourceController,
+				servicePicker);
+			scheduler.getListenerManager().addJobListener(listener, allJobs());
+
 			return index(request);
 		}
 	}
@@ -195,6 +189,7 @@ public class DiffuserController extends Controller {
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(Http.Request request, String name) {
 		DiffuserService diffuserService = servicePicker.getDiffuserService();
+		FluxService fluxService = servicePicker.getFluxService();
 
 		Diffuser diffuser = diffuserService.getDiffuserByName(name);
 
@@ -206,6 +201,20 @@ public class DiffuserController extends Controller {
 			RunningDiffuser rd = diffuserService.getRunningDiffuserByDiffuserId(diffuser.getId());
 
 			diffuserService.delete(rd);
+
+			SchedulerFactory sf = new StdSchedulerFactory();
+			Scheduler scheduler;
+
+			try {
+				scheduler = sf.getScheduler();
+				scheduler.getListenerManager().removeJobListener(diffuser.getName());
+
+				Flux flux = fluxService.getFluxById(diffuser.getFlux());
+				String jobName = "sendEventJob#" + flux.getName() + "#" + diffuser.getCronCmd();
+				scheduler.deleteJob(new JobKey(jobName, diffuser.getName()));
+			} catch (SchedulerException e) {
+				e.printStackTrace();
+			}
 
 			return index(request);
 		}

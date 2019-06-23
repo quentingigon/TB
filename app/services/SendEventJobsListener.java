@@ -118,9 +118,12 @@ public class SendEventJobsListener extends Observable implements JobListener {
 			}
 		}
 
-		// send diffused event
-		send(servicePicker.getFluxService().getFluxById(event.getFluxId()),
-			Collections.singletonList(screenIdsWithDiffuser.toString()));
+		if (!screenIdsWithDiffuser.toString().isEmpty()) {
+			// send diffused event
+			send(servicePicker.getFluxService().getFluxById(event.getFluxId()),
+				getMacAddresses(screenIdsWithDiffuser.toString()));
+		}
+
 
 		return screenIdsWithNoDiffuser.toString();
 	}
@@ -133,10 +136,12 @@ public class SendEventJobsListener extends Observable implements JobListener {
 			// send diffused flux to correct screen and returns the ids of the other screens
 			String screenIdsWithNoActiveDiffuser = sendDiffusedEventToConcernedScreens(event);
 
-			List<String> macAddresses = getMacAddresses(screenIdsWithNoActiveDiffuser);
+			if (!screenIdsWithNoActiveDiffuser.isEmpty()) {
+				List<String> macAddresses = getMacAddresses(screenIdsWithNoActiveDiffuser);
 
-			send(currentFlux, macAddresses);
-			lastEvent = event;
+				send(currentFlux, macAddresses);
+				lastEvent = event;
+			}
 		}
 	}
 
@@ -162,8 +167,14 @@ public class SendEventJobsListener extends Observable implements JobListener {
 	private RunningDiffuser getRunningDiffuserIfPresent(Screen s) {
 		DiffuserService diffuserService = servicePicker.getDiffuserService();
 
-		return diffuserService.getRunningDiffuserById(
-			diffuserService.getRunningDiffuserIdByScreenId(s.getId()));
+		Integer runningDiffuserId = diffuserService.getRunningDiffuserIdByScreenId(s.getId());
+
+		if (runningDiffuserId != null) {
+			return  diffuserService.getRunningDiffuserById(runningDiffuserId);
+		}
+		else {
+			return null;
+		}
 	}
 
 	public void resendLastEvent() {

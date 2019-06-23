@@ -27,6 +27,10 @@ public class DiffuserService {
 		return diffuserRepository.getByName(name);
 	}
 
+	public Diffuser getDiffuserById(Integer id) {
+		return diffuserRepository.getById(id);
+	}
+
 	public Diffuser create(Diffuser diffuser) {
 		return diffuserRepository.add(diffuser);
 	}

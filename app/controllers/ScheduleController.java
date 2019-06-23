@@ -35,33 +35,17 @@ import static services.BlockUtils.*;
  */
 public class ScheduleController extends Controller {
 
-	private final FluxManager fluxManager;
-	private final RunningScheduleThreadManager threadManager;
-	private final FluxChecker fluxChecker;
 	private final EventSourceController eventSourceController;
-
 	private Form<ScheduleData> form;
-
 	private final ServicePicker servicePicker;
-	private final TimeTableUtils timeTableUtils;
 
 	@Inject
 	public ScheduleController(FormFactory formFactory,
-							  FluxManager fluxManager,
-							  RunningScheduleThreadManager threadManager,
 							  ServicePicker servicePicker,
-							  TimeTableUtils timeTableUtils,
-							  FluxChecker fluxChecker,
 							  EventSourceController eventSourceController) {
-		this.fluxChecker = fluxChecker;
-		this.timeTableUtils = timeTableUtils;
 		this.form = formFactory.form(ScheduleData.class);
-		this.fluxManager = fluxManager;
-		this.threadManager = threadManager;
 		this.servicePicker = servicePicker;
 		this.eventSourceController = eventSourceController;
-		Thread t = new Thread(this.fluxManager);
-		t.start();
 
 		SchedulerFactory sf = new StdSchedulerFactory();
 		Scheduler scheduler;
@@ -142,11 +126,11 @@ public class ScheduleController extends Controller {
 	}
 
 	@With(UserAuthentificationAction.class)
-	public Result activate(Http.Request request) throws SchedulerException {
+	public Result activate(Http.Request request) {
 		final Form<ScheduleData> boundForm = form.bindFromRequest(request);
 		ScheduleService scheduleService = servicePicker.getScheduleService();
 		ScreenService screenService = servicePicker.getScreenService();
-		FluxService fluxService = servicePicker.getFluxService();
+
 		ScheduleData data = boundForm.get();
 
 		Schedule scheduleToActivate = scheduleService.getScheduleByName(data.getName());
@@ -162,7 +146,7 @@ public class ScheduleController extends Controller {
 			if (scheduleService.getRunningScheduleByScheduleId(scheduleToActivate.getId()) != null) {
 				return indexWithErrorMessage(request, "This schedule is already activated");
 			}
-			rs = scheduleService.create(rs);
+
 
 			List<Screen> screens = new ArrayList<>();
 			for (String screenMac : data.getScreens()) {
@@ -171,56 +155,38 @@ public class ScheduleController extends Controller {
 					return indexWithErrorMessage(request, "screen mac address does not exist : " + screenMac);
 				}
 
-				RunningSchedule rs2 = scheduleService.getRunningScheduleById(
-					scheduleService.getRunningScheduleOfScreenById(screen.getId()));
-				Schedule existingSchedule = scheduleService.getScheduleById(rs2.getScheduleId());
+				Integer runningScheduleId = scheduleService.getRunningScheduleOfScreenById(screen.getId());
+				if (runningScheduleId != null) {
+					RunningSchedule rs2 = scheduleService.getRunningScheduleById(runningScheduleId);
+					Schedule existingSchedule = scheduleService.getScheduleById(rs2.getScheduleId());
 
-				// check if the schedule to activate overlaps with an other one
-				if (existingSchedule == null || !checkIfSchedulesOverlap(existingSchedule, scheduleToActivate)) {
-					return indexWithErrorMessage(request, "Screen: " + screen.getName() +
-						" already has an active schedule for the days chosen")
+					// check if the schedule to activate overlaps with an other one
+					if (existingSchedule == null || checkIfSchedulesOverlap(existingSchedule, scheduleToActivate)) {
+						return indexWithErrorMessage(request, "Screen: " + screen.getName() +
+							" already has an active schedule for the days chosen");
+					}
 				}
+
 				rs.addToScreens(screen.getId());
-				screen.setRunningscheduleId(rs.getId());
-				screen.setActive(true);
 
 				screens.add(screen);
+			}
+			rs = scheduleService.create(rs);
 
+			// set RunningSchedule id for screens concerned
+			for (Screen screen: screens) {
+				screen.setRunningscheduleId(rs.getId());
+				screen.setActive(true);
 				screenService.update(screen);
 			}
-			scheduleService.update(rs);
 
-			SchedulerFactory sf = new StdSchedulerFactory();
-			Scheduler scheduler = sf.getScheduler();
-
-			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(scheduleToActivate.getId());
-
-			// run through triggers in DB and schedule job accordingly
-			for (FluxTrigger ft: triggers) {
-				Flux flux = fluxService.getFluxById(ft.getFluxId());
-
-				JobDetail job = newJob(SendEventJob.class)
-					.withIdentity("sendEventJob#" + flux.getName() + "#" + ft.getCronCmd(), scheduleToActivate.getName())
-					.build();
-
-				CronTrigger trigger = newTrigger()
-					.withIdentity("trigger#" + flux.getName() + "#" + ft.getCronCmd(), scheduleToActivate.getName())
-					.usingJobData("screenIds", getScreenIds(screens))
-					.usingJobData("fluxId", flux.getId())
-					.withSchedule(cronSchedule(ft.getCronCmd()))
-					.build();
-				scheduler.scheduleJob(job, trigger);
-			}
-
-			SendEventJobsListener listener = new SendEventJobsListener(
-				scheduleToActivate.getName(),
-				eventSourceController,
-				servicePicker);
-			scheduler.getListenerManager().addJobListener(listener, allJobs());
+			createJobsForSchedule(scheduleToActivate, screens);
 
 			return index(request);
 		}
 	}
+
+
 
 	@With(UserAuthentificationAction.class)
 	public Result deactivate(String name, Http.Request request) {
@@ -249,14 +215,7 @@ public class ScheduleController extends Controller {
 
 			scheduleService.delete(rs);
 
-			SchedulerFactory sf = new StdSchedulerFactory();
-			Scheduler scheduler;
-			try {
-				scheduler = sf.getScheduler();
-				scheduler.getListenerManager().removeJobListener(schedule.getName());
-			} catch (SchedulerException e) {
-				e.printStackTrace();
-			}
+			deleteJobsOfSchedule(schedule);
 
 			return index(request);
 		}
@@ -379,6 +338,67 @@ public class ScheduleController extends Controller {
 		}
 	}
 
+	private void createJobsForSchedule(Schedule schedule, List<Screen> screens) {
+		FluxService fluxService = servicePicker.getFluxService();
+
+		SchedulerFactory sf = new StdSchedulerFactory();
+		Scheduler scheduler;
+		try {
+			scheduler = sf.getScheduler();
+
+			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
+
+			// run through triggers in DB and schedule job accordingly
+			for (FluxTrigger ft: triggers) {
+				Flux flux = fluxService.getFluxById(ft.getFluxId());
+
+				JobDetail job = newJob(SendEventJob.class)
+					.withIdentity("sendEventJob#" + flux.getName() + "#" + ft.getCronCmd(), schedule.getName())
+					.build();
+
+				CronTrigger trigger = newTrigger()
+					.withIdentity("trigger#" + flux.getName() + "#" + ft.getCronCmd(), schedule.getName())
+					.usingJobData("screenIds", getScreenIds(screens))
+					.usingJobData("fluxId", flux.getId())
+					.withSchedule(cronSchedule(ft.getCronCmd()))
+					.build();
+				scheduler.scheduleJob(job, trigger);
+			}
+
+			SendEventJobsListener listener = new SendEventJobsListener(
+				schedule.getName(),
+				eventSourceController,
+				servicePicker);
+			scheduler.getListenerManager().addJobListener(listener, allJobs());
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+
+
+	}
+
+	private void deleteJobsOfSchedule(Schedule schedule) {
+		FluxService fluxService = servicePicker.getFluxService();
+
+		SchedulerFactory sf = new StdSchedulerFactory();
+		Scheduler scheduler;
+
+		try {
+			scheduler = sf.getScheduler();
+			scheduler.getListenerManager().removeJobListener(schedule.getName());
+
+			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
+
+			for (FluxTrigger ft: triggers) {
+				Flux flux = fluxService.getFluxById(ft.getFluxId());
+				String jobName = "sendEventJob#" + flux.getName() + "#" + ft.getCronCmd();
+				scheduler.deleteJob(new JobKey(jobName, schedule.getName()));
+			}
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private Result checkFluxesIntegrity(ScheduleData data, Http.Request request) {
 		Result error = null;
 
@@ -397,10 +417,7 @@ public class ScheduleController extends Controller {
 					String fluxTime = fluxDatas[1];
 					int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
 
-					if (fluxHour < beginningHour || fluxHour > endHour) {
-						error = createViewWithErrorMessage(request,
-							"Time for flux: " + fluxName + " is not within bounds: " + beginningHour + " -> " + endHour);
-					}
+					// TODO complete
 				}
 			}
 		}
@@ -423,49 +440,6 @@ public class ScheduleController extends Controller {
 			}
 		}
 		return fluxTriggers;
-	}
-
-	private List<ScheduledFlux> getScheduledFluxesFromData(ScheduleData data) {
-		List<ScheduledFlux> scheduledFluxes = new ArrayList<>();
-
-		if (data.getFluxes() != null) {
-			for (String fluxData: data.getFluxes()) {
-
-				String[] fluxDatas = fluxData.split("#");
-				String fluxName = fluxDatas[0];
-
-				// we must create a ScheduledFlux for this entry
-				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
-					String fluxTime = fluxDatas[1];
-
-					ScheduledFlux sf = new ScheduledFlux();
-					sf.setFluxId(servicePicker.getFluxService().getFluxByName(fluxName).getId());
-					sf.setStartBlock(getBlockNumberOfTime(fluxTime));
-					scheduledFluxes.add(sf);
-				}
-			}
-		}
-
-		return scheduledFluxes;
-	}
-
-	private List<Integer> getUnscheduledFluxIds(ScheduleData data) {
-
-		List<Integer> unscheduledIds = new ArrayList<>();
-
-		if (data.getFluxes() != null) {
-			for (String fluxData : data.getFluxes()) {
-				String[] fluxDatas = fluxData.split("#");
-				String fluxName = fluxDatas[0];
-
-				// we must add a un-scheduled flux -> fallback flux
-				if (fluxDatas.length != 2) {
-					unscheduledIds.add(servicePicker.getFluxService().getFluxByName(fluxName).getId());
-				}
-			}
-		}
-
-		return unscheduledIds;
 	}
 
 	private List<Integer> getFallbackFluxIds(ScheduleData data) {

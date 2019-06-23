@@ -20,9 +20,6 @@ import java.util.List;
 @Singleton
 public class AutomatedScheduleStarter {
 
-    private final RunningScheduleThreadManager threadManager;
-    private final FluxManager fluxManager;
-    private final TimeTableUtils timeTableUtils;
 
     private final ScreenRepository screenRepository;
     private final FluxRepository fluxRepository;
@@ -34,13 +31,10 @@ public class AutomatedScheduleStarter {
     private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("application");
 
     @Inject
-    public AutomatedScheduleStarter(FluxManager fluxManager,
-                                    TimeTableUtils timeTableUtils,
-                                    ScreenRepository screenRepository,
+    public AutomatedScheduleStarter(ScreenRepository screenRepository,
                                     FluxRepository fluxRepository,
                                     RunningScheduleRepository repo,
                                     ScheduleRepository scheduleRepository,
-                                    RunningScheduleThreadManager threadManager,
                                     FluxChecker fluxChecker,
                                     ServicePicker servicePicker) {
         this.servicePicker = servicePicker;
@@ -48,10 +42,7 @@ public class AutomatedScheduleStarter {
         this.screenRepository = screenRepository;
         this.fluxRepository = fluxRepository;
         this.scheduleRepository = scheduleRepository;
-        this.fluxManager = fluxManager;
-        this.threadManager = threadManager;
         this.runningScheduleRepository = repo;
-        this.timeTableUtils = timeTableUtils;
 
         // This code is called when the application starts.
         // get all existing runningSchedules
@@ -67,20 +58,6 @@ public class AutomatedScheduleStarter {
                     if (screen != null)
                         screens.add(screen);
                 }
-
-                RunningScheduleThread service = new RunningScheduleThread(
-                    rs,
-                    screens,
-                    new ArrayList<>(schedule.getFallbacks()),
-                    timeTableUtils.getTimeTable(schedule),
-                    servicePicker,
-                    fluxChecker,
-                    schedule.isKeepOrder());
-
-                service.addObserver(fluxManager);
-
-                // the schedule is activated
-                // threadManager.addRunningScheduleThread(schedule.getId(), service);
             }
         }
     }

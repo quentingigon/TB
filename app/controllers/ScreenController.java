@@ -37,21 +37,15 @@ public class ScreenController extends Controller {
 
 	private Form<ScreenData> form;
 
-	private final RunningScheduleThreadManager threadManager;
 	private final ServicePicker servicePicker;
 	private final FluxChecker fluxChecker;
-	private final FluxManager fluxManager;
 
 	@Inject
 	public ScreenController(FormFactory formFactory,
-							RunningScheduleThreadManager threadManager,
 							ServicePicker servicePicker,
-							FluxChecker fluxChecker,
-							FluxManager fluxManager) {
-		this.fluxManager = fluxManager;
+							FluxChecker fluxChecker) {
 		this.fluxChecker = fluxChecker;
 		this.servicePicker = servicePicker;
-		this.threadManager = threadManager;
 		this.form = formFactory.form(ScreenData.class);
 	}
 
@@ -100,6 +94,7 @@ public class ScreenController extends Controller {
 		String macAdr = request.queryString().get("mac")[0];
 		ScreenService screenService = servicePicker.getScreenService();
 		ScheduleService scheduleService = servicePicker.getScheduleService();
+		DiffuserService diffuserService = servicePicker.getDiffuserService();
 
 		Screen screen = screenService.getScreenByMacAddress(macAdr);
 
@@ -122,42 +117,34 @@ public class ScreenController extends Controller {
 		else {
 
 			// no active schedules for this screen
-			if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) == null) {
+			if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) == null &&
+			diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) == null) {
 				return redirect(routes.ErrorPageController.noScheduleView());
 			}
-
-
 
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
 
-					RunningSchedule rs = scheduleService.getRunningScheduleById(
-						scheduleService.getRunningScheduleOfScreenById(screen.getId())
-					);
-					if (rs != null) {
+					if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null) {
+						RunningDiffuser rd = diffuserService.getRunningDiffuserById(
+							diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));
+						Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
+
+						resendLastEvent(diffuser.getName());
+					}
+					else if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
+						RunningSchedule rs = scheduleService.getRunningScheduleById(
+							scheduleService.getRunningScheduleOfScreenById(screen.getId()));
 						Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
 
-						SchedulerFactory sf = new StdSchedulerFactory();
-						Scheduler scheduler;
-
-						try {
-							scheduler = sf.getScheduler();
-							SendEventJobsListener listener = (SendEventJobsListener) scheduler.getListenerManager().getJobListener(schedule.getName());
-							listener.resendLastEvent();
-
-						} catch (SchedulerException e) {
-							e.printStackTrace();
-						}
+						resendLastEvent(schedule.getName());
 					}
-
 				}
 			};
 			Timer timer = new Timer("Timer");
-
 			long delay = 2000L;
 			timer.schedule(task, delay);
-
 
 			// screen already logged in
 			if (!screen.isLogged()) {
@@ -172,6 +159,23 @@ public class ScreenController extends Controller {
 				Http.Cookie.builder("resolution", screen.getResolution())
 					.withHttpOnly(false)
 					.build());
+		}
+	}
+
+	private void resendLastEvent(String jobListenerName) {
+		SchedulerFactory sf = new StdSchedulerFactory();
+		Scheduler scheduler;
+
+		try {
+			scheduler = sf.getScheduler();
+			SendEventJobsListener listener =
+				(SendEventJobsListener) scheduler.getListenerManager().getJobListener(jobListenerName);
+
+			if (listener != null)
+				listener.resendLastEvent();
+
+		} catch (SchedulerException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -279,7 +283,6 @@ public class ScreenController extends Controller {
 		Screen screen = servicePicker.getScreenService().getScreenByMacAddress(mac);
 		ScheduleService scheduleService = servicePicker.getScheduleService();
 		ScreenService screenService = servicePicker.getScreenService();
-		FluxService fluxService = servicePicker.getFluxService();
 
 		if (screen == null) {
 			return indexWithErrorMessage(request, "MAC address does not exists");
@@ -300,32 +303,12 @@ public class ScreenController extends Controller {
 				screenIds.remove(screen.getId());
 				rs.setScreens(screenIds);
 
-				RunningScheduleThread rst = threadManager.getServiceByScheduleId(rs.getScheduleId());
-				rst.removeFromScreens(screen);
+
 
 				List<Screen> screenList =new ArrayList<>();
 				for (Integer screenId: screenIds) {
 					screenList.add(screenService.getScreenById(screenId));
 				}
-
-				// stop old thread
-				rst.abort();
-				threadManager.removeRunningSchedule(rs.getScheduleId());
-
-				Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
-
-				// create new thread with values from old thread (timetable especially) and start it
-				RunningScheduleThread task = new RunningScheduleThread(
-					rs,
-					screenList,
-					new ArrayList<>(schedule.getFluxes()),
-					rst.getTimetable(),
-					servicePicker,
-					fluxChecker,
-					schedule.isKeepOrder());
-
-				task.addObserver(fluxManager);
-				threadManager.addRunningScheduleThread(rs.getScheduleId(), task);
 
 			}
 			scheduleService.update(rs);
