@@ -12,16 +12,16 @@ CREATE TABLE site
   );
 
 INSERT INTO site (name) VALUES ('cheseaux');
-INSERT INTO site (name) VALUES ('y-park');
 INSERT INTO site (name) VALUES ('st-roch');
+INSERT INTO site (name) VALUES ('y-park');
 
 
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users
   (
     user_id SERIAL PRIMARY KEY,
-    email VARCHAR(100),
-    password VARCHAR(50)
+    email VARCHAR(30),
+    password VARCHAR(20)
   );
 
 
@@ -29,30 +29,58 @@ DROP TABLE IF EXISTS team CASCADE;
 CREATE TABLE team
   (
     team_id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
+    name VARCHAR(20),
     screens INTEGER[],
     screen_groups INTEGER[],
     schedules INTEGER[],
     diffusers INTEGER[],
     fluxes INTEGER[],
     members INTEGER[],
-    admins INTEGER[]
+    admins INTEGER[],
+    admin INTEGER
+  );
+
+
+DROP TABLE IF EXISTS teaminfo CASCADE;
+CREATE TABLE teaminfo
+  (
+    team_id INTEGER NOT NULL REFERENCES team (team_id),
+    admin_id INTEGER NOT NULL REFERENCES teammember (member_id),
+    PRIMARY KEY (team_id, admin_id)
+  );
+
+
+DROP TABLE IF EXISTS team_admins CASCADE;
+CREATE TABLE team_admins
+  (
+    team_team_id INTEGER REFERENCES team (team_id),
+    admins INTEGER NOT NULL REFERENCES users (user_id),
+    PRIMARY KEY (team_team_id, admins)
   );
 
 
 DROP TABLE IF EXISTS team_screens CASCADE;
 CREATE TABLE team_screens
   (
-    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    team_team_id INTEGER REFERENCES team (team_id),
     screens INTEGER NOT NULL REFERENCES screen (screen_id),
     PRIMARY KEY (team_team_id, screens)
+  );
+
+
+DROP TABLE IF EXISTS team_fluxes CASCADE;
+CREATE TABLE team_fluxes
+  (
+    team_team_id INTEGER REFERENCES team (team_id),
+    fluxes INTEGER NOT NULL REFERENCES screen (screen_id),
+    PRIMARY KEY (team_team_id, fluxes)
   );
 
 
 DROP TABLE IF EXISTS team_schedules CASCADE;
 CREATE TABLE team_schedules
   (
-    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    team_team_id INTEGER REFERENCES team (team_id),
     schedules INTEGER NOT NULL REFERENCES schedule (schedule_id),
     PRIMARY KEY (team_team_id, schedules)
   );
@@ -61,36 +89,27 @@ CREATE TABLE team_schedules
 DROP TABLE IF EXISTS team_diffusers CASCADE;
 CREATE TABLE team_diffusers
   (
-    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    team_team_id INTEGER REFERENCES team (team_id),
     diffusers INTEGER NOT NULL REFERENCES diffuser (diffuser_id),
     PRIMARY KEY (team_team_id, diffusers)
-  );
-
-
-DROP TABLE IF EXISTS team_fluxes CASCADE;
-CREATE TABLE team_fluxes
-  (
-    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
-    fluxes INTEGER NOT NULL REFERENCES flux (flux_id),
-    PRIMARY KEY (team_team_id, fluxes)
   );
 
 
 DROP TABLE IF EXISTS team_members CASCADE;
 CREATE TABLE team_members
   (
-    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
+    team_team_id INTEGER REFERENCES team (team_id),
     members INTEGER NOT NULL REFERENCES teammember (member_id),
     PRIMARY KEY (team_team_id, members)
   );
 
 
-DROP TABLE IF EXISTS team_admins CASCADE;
-CREATE TABLE team_admins
+DROP TABLE IF EXISTS team_groups CASCADE;
+CREATE TABLE team_groups
   (
-    team_team_id INTEGER NOT NULL REFERENCES team (team_id),
-    admins INTEGER NOT NULL REFERENCES teammember (member_id),
-    PRIMARY KEY (team_team_id, admins)
+    team_team_id INTEGER REFERENCES team (team_id),
+    groups INTEGER NOT NULL REFERENCES screengroup (group_id),
+    PRIMARY KEY (team_team_id, groups)
   );
 
 
@@ -103,8 +122,8 @@ CREATE TABLE teammember
   );
 
 
-DROP TABLE IF EXISTS admins CASCADE;
-CREATE TABLE admins
+DROP TABLE IF EXISTS admin CASCADE;
+CREATE TABLE admin
   (
     admin_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users (user_id)
@@ -115,38 +134,23 @@ DROP TABLE IF EXISTS schedule CASCADE;
 CREATE TABLE schedule
   (
     schedule_id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    scheduledfluxes INTEGER[],
-    fluxes INTEGER[],
-    fallbacks INTEGER[],
-    keep_order BOOLEAN
+    name VARCHAR(20),
+    days VARCHAR(100)
   );
 
-
-DROP TABLE IF EXISTS scheduled_flux CASCADE;
-CREATE TABLE scheduled_flux
+DROP TABLE IF EXISTS schedule_fluxtriggers CASCADE;
+CREATE TABLE schedule_fluxtriggers
   (
-    scheduled_flux_id SERIAL PRIMARY KEY,
-    schedule_id INTEGER REFERENCES schedule (schedule_id),
-    flux_id INTEGER NOT NULL REFERENCES flux (flux_id),
-    start_block INTEGER
+    schedule_schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
+    fluxtriggers INTEGER NOT NULL REFERENCES fluxtrigger (id),
+    PRIMARY KEY (schedule_schedule_id, fluxtriggers)
   );
-
-
-DROP TABLE IF EXISTS schedule_scheduledfluxes CASCADE;
-CREATE TABLE schedule_scheduledfluxes
-  (
-    schedule_schedule_id INTEGER REFERENCES schedule (schedule_id),
-    scheduledfluxes INTEGER REFERENCES scheduled_flux(scheduled_flux_id),
-    PRIMARY KEY (schedule_schedule_id, scheduledfluxes)
-  );
-
 
 DROP TABLE IF EXISTS schedule_fluxes CASCADE;
 CREATE TABLE schedule_fluxes
   (
     schedule_schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
-    fluxes INTEGER NOT NULL REFERENCES flux (flux_id),
+    fluxes INTEGER NOT NULL REFERENCES scheduled_flux (scheduled_flux_id),
     PRIMARY KEY (schedule_schedule_id, fluxes)
   );
 
@@ -182,11 +186,10 @@ DROP TABLE IF EXISTS diffuser CASCADE;
 CREATE TABLE diffuser
   (
     diffuser_id SERIAL PRIMARY KEY,
-    flux_id INTEGER,
-    name VARCHAR(100),
-    start_block INT,
-    validity BIGINT,
-    overwrite BOOLEAN
+    name VARCHAR(20),
+    days VARCHAR(100),
+    cron_cmd VARCHAR(100),
+    flux_id INTEGER NOT NULL REFERENCES flux(flux_id)
   );
 
 
@@ -195,10 +198,8 @@ CREATE TABLE runningdiffuser
   (
     runningdiffuser_id SERIAL PRIMARY KEY,
     diffuser_id INTEGER NOT NULL REFERENCES diffuser (diffuser_id),
-    screens INTEGER[],
-    flux_id INTEGER NOT NULL REFERENCES flux(flux_id)
+    screens INTEGER[]
   );
-
 
 DROP TABLE IF EXISTS runningdiffuser_screens CASCADE;
 CREATE TABLE runningdiffuser_screens
@@ -216,9 +217,9 @@ CREATE TABLE screen
     site_id INTEGER REFERENCES site (site_id),
     runningschedule_id INTEGER REFERENCES runningschedule (runningschedule_id),
     next_to INTEGER REFERENCES screen (screen_id),
-    name VARCHAR(100),
-    mac_address VARCHAR(50),
-    resolution VARCHAR(300),
+    name VARCHAR(20),
+    mac_address VARCHAR(20),
+    resolution VARCHAR(10),
     logged BOOLEAN,
     active BOOLEAN,
     current_flux_name VARCHAR(100)
@@ -242,18 +243,25 @@ CREATE TABLE screengroup
   );
 
 
+DROP TABLE IF EXISTS screengroup_screens CASCADE;
+CREATE TABLE screengroup_screens
+  (
+    screengroup_screengroup_id INTEGER NOT NULL REFERENCES screengroup (group_id),
+    screens INTEGER NOT NULL REFERENCES screen (screen_id),
+    PRIMARY KEY (screengroup_screengroup_id, screens)
+  );
+
+
 DROP TABLE IF EXISTS flux CASCADE;
 CREATE TABLE flux
   (
     flux_id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    url VARCHAR(500) NOT NULL,
-    data_check_url VARCHAR(500),
-    type VARCHAR(30),
+    name VARCHAR(20),
+    url VARCHAR(50) NOT NULL,
+    type VARCHAR(10),
     phase_n INTEGER,
     phase_duration INTEGER
   );
-
 
 INSERT INTO flux(name, url, type, phase_duration, phase_n) VALUES ('Waiting Page', '/waiting', 'URL', 1, 1);
 INSERT INTO flux(name, url, type, phase_duration, phase_n) VALUES ('Maintenance', '/maintenance', 'URL', 1, 1);
@@ -281,9 +289,20 @@ CREATE TABLE generalflux
 DROP TABLE IF EXISTS fallbackflux CASCADE;
 CREATE TABLE fallbackflux
   (
-    fallbackflux_id SERIAL PRIMARY KEY,
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id)
   );
+
+DROP TABLE IF EXISTS fluxtrigger CASCADE;
+CREATE TABLE fluxtrigger
+  (
+    id SERIAL PRIMARY KEY,
+    schedule_id INTEGER NOT NULL REFERENCES schedule(schedule_id),
+    flux_id INTEGER NOT NULL REFERENCES flux (flux_id),
+    time VARCHAR(20),
+    cron_cmd VARCHAR(100),
+    repeat BOOLEAN
+  );
+
 
 -- Functions
 
@@ -376,6 +395,12 @@ BEGIN
 
     DELETE FROM scheduled_flux
     WHERE schedule_id = OLD.schedule_id;
+
+    DELETE FROM fluxtrigger
+    WHERE schedule_id = OLD.schedule_id;
+
+    DELETE FROM schedule_fluxtriggers
+    WHERE schedule_schedule_id = OLD.schedule_id;
 RETURN OLD;
 END;
 $$
@@ -448,4 +473,3 @@ CREATE TRIGGER on_user_delete BEFORE DELETE
 CREATE TRIGGER on_teammember_insert AFTER INSERT
    ON teammember
    FOR EACH ROW EXECUTE PROCEDURE add_teammember_to_team();
-

@@ -251,8 +251,7 @@ public class DiffuserController extends Controller {
 			diffuser.setDays(days.toString());
 
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
-			diffuser.setValidity(Integer.parseInt(data.getValidity()));
-			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime()));
+			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
 
 			diffuser = diffuserService.create(diffuser);
 
@@ -285,9 +284,8 @@ public class DiffuserController extends Controller {
 				return error;
 			}
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
-			diffuser.setValidity(Integer.parseInt(data.getValidity()));
 			diffuser.setName(data.getName());
-			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime()));
+			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
 
 			diffuserService.update(diffuser);
 
@@ -319,13 +317,6 @@ public class DiffuserController extends Controller {
 		ScreenService screenService = servicePicker.getScreenService();
 
 		Result error = null;
-
-		if (data.getValidity() == null) {
-			if (action.equals("create"))
-				error = createViewWithErrorMessage(request, "You must enter a validity");
-			else if (action.equals("update"))
-				error = updateViewWithErrorMessage(request, data.getName(), "You must enter a validity");
-		}
 
 		if (data.getFluxName() != null) {
 			if (fluxService.getFluxByName(data.getFluxName()) ==  null) {

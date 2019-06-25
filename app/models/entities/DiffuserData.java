@@ -2,6 +2,7 @@ package models.entities;
 
 import models.db.Diffuser;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,7 +13,6 @@ public class DiffuserData {
 	private String name;
 	private String fluxName;
 	private String startTime;
-	private String validity;
 	private List<String> days;
 	private List<String> screens;
 
@@ -27,7 +27,7 @@ public class DiffuserData {
 
 	public DiffuserData(Diffuser diffuser) {
 		name = diffuser.getName();
-		validity = diffuser.getValidity().toString();
+		days = Arrays.asList(diffuser.getDays().split(","));
 	}
 
 	// Getters and setters
@@ -62,14 +62,6 @@ public class DiffuserData {
 
 	public void setStartTime(String startTime) {
 		this.startTime = startTime;
-	}
-
-	public String getValidity() {
-		return validity;
-	}
-
-	public void setValidity(String validity) {
-		this.validity = validity;
 	}
 
 	public boolean isActivated() {

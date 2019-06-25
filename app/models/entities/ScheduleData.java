@@ -17,7 +17,6 @@ public class ScheduleData {
 	private List<String> screens;
 	private List<String> days;
 
-	private boolean keepOrder;
 	private boolean activated;
 
 	public ScheduleData() {
@@ -81,14 +80,6 @@ public class ScheduleData {
 
 	public void setActivated(boolean activated) {
 		this.activated = activated;
-	}
-
-	public boolean isKeepOrder() {
-		return keepOrder;
-	}
-
-	public void setKeepOrder(boolean keepOrder) {
-		this.keepOrder = keepOrder;
 	}
 
 	public List<String> getDays() {

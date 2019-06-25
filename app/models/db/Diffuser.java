@@ -17,9 +17,6 @@ public class Diffuser {
 	@Column(name="name")
 	private String name;
 
-	@Column(name="validity")
-	private Integer validity;
-
 	@Column(name="flux_id")
 	private Integer flux;
 
@@ -44,14 +41,6 @@ public class Diffuser {
 
 	public Integer getId() {
 		return id;
-	}
-
-	public Integer getValidity() {
-		return validity;
-	}
-
-	public void setValidity(Integer validity) {
-		this.validity = validity;
 	}
 
 	public String getName() {

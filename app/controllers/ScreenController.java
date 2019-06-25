@@ -122,10 +122,11 @@ public class ScreenController extends Controller {
 				return redirect(routes.ErrorPageController.noScheduleView());
 			}
 
+
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
-
+					// TODO event is never sent to screen but should be
 					if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null) {
 						RunningDiffuser rd = diffuserService.getRunningDiffuserById(
 							diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));

@@ -112,6 +112,7 @@ public class UserController extends Controller {
 					team.addAdmin(member.getId());
 					teamService.update(team);
 				}
+
 			}
 			return redirect(routes.HomeController.index()).withCookies(
 				Http.Cookie.builder("email", newUser.getEmail())

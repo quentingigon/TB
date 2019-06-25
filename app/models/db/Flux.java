@@ -20,10 +20,10 @@ public class Flux {
 	private String name;
 
 	@Column(name="phase_duration")
-	private long duration;
+	private int duration;
 
 	@Column(name="phase_n")
-	private long numberOfPhases;
+	private int numberOfPhases;
 
 	@Column(name="url")
 	private String url;
@@ -36,7 +36,7 @@ public class Flux {
 		this.url = url;
 	}
 
-	public Flux(String name, long duration, String url) {
+	public Flux(String name, int duration, String url) {
 		this.name = name;
 		this.duration = duration;
 		this.url = url;
@@ -47,9 +47,9 @@ public class Flux {
 
 	public Flux(FluxData fluxData) {
 		name = fluxData.getName();
-		duration = Long.parseLong(fluxData.getDuration());
+		duration = Integer.parseInt(fluxData.getDuration());
 		if (fluxData.getNumberOfPhases() != null)
-			numberOfPhases = Long.parseLong(fluxData.getNumberOfPhases());
+			numberOfPhases = Integer.parseInt(fluxData.getNumberOfPhases());
 		else
 			numberOfPhases = 1;
 		url = fluxData.getUrl();
@@ -78,11 +78,11 @@ public class Flux {
 		this.url = url;
 	}
 
-	public long getDuration() {
+	public int getDuration() {
 		return duration;
 	}
 
-	public void setDuration(long duration) {
+	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 
@@ -94,15 +94,15 @@ public class Flux {
 		this.type = type;
 	}
 
-	public long getNumberOfPhases() {
+	public int getNumberOfPhases() {
 		return numberOfPhases;
 	}
 
-	public void setNumberOfPhases(long numberOfPhases) {
+	public void setNumberOfPhases(int numberOfPhases) {
 		this.numberOfPhases = numberOfPhases;
 	}
 
-	public long getTotalDuration() {
+	public int getTotalDuration() {
 		return numberOfPhases * duration;
 	}
 }

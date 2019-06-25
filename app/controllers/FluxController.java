@@ -164,10 +164,10 @@ public class FluxController extends Controller {
 		}
 		// update flux
 		else {
-			flux.setDuration(Long.parseLong(data.getDuration()));
+			flux.setDuration(Integer.parseInt(data.getDuration()));
 			flux.setUrl(data.getUrl());
 			flux.setType(data.getType());
-			flux.setNumberOfPhases(Long.parseLong(data.getNumberOfPhases()));
+			flux.setNumberOfPhases(Integer.parseInt(data.getNumberOfPhases()));
 
 			fluxService.update(flux);
 
