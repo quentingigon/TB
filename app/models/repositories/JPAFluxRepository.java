@@ -59,6 +59,14 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
+	public FluxLoop addFluxLoop(FluxLoop flux) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.persist(flux);
+		});
+		return flux;
+	}
+
+	@Override
 	public Flux getByName(String name) {
 		return jpaApi.withTransaction(entityManager -> {
 			String fluxName = "'" + name + "'";
@@ -110,6 +118,22 @@ public class JPAFluxRepository implements FluxRepository {
 				GeneralFlux.class);
 			try {
 				return (GeneralFlux) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<FluxLoop> getAllFluxLoopOfSchedule(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM fluxloop WHERE schedule_id = " + scheduleId,
+				FluxLoop.class);
+			try {
+				return (List<FluxLoop>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}
@@ -194,6 +218,21 @@ public class JPAFluxRepository implements FluxRepository {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<Integer> getAllUnscheduledIdsOfSchedule(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String scheduleId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT DISTINCT fluxes FROM schedule_fluxes WHERE schedule_schedule_id = " + scheduleId);
+			try {
+				return (List<Integer>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public List<FluxTrigger> getAllFluxTriggerOfSchedule(Integer id) {
 		return jpaApi.withTransaction(entityManager -> {
 			String scheduleId = "'" + id + "'";
@@ -206,6 +245,14 @@ public class JPAFluxRepository implements FluxRepository {
 				return null;
 			}
 		});
+	}
+
+	@Override
+	public FluxLoop update(FluxLoop loop) {
+		jpaApi.withTransaction(entityManager -> {
+			entityManager.merge(loop);
+		});
+		return loop;
 	}
 
 	@Override

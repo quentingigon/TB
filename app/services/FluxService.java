@@ -58,8 +58,20 @@ public class FluxService {
 		return fluxRepository.addFluxTrigger(ft);
 	}
 
+	public FluxLoop createFluxLoop(FluxLoop fl) {
+		return fluxRepository.addFluxLoop(fl);
+	}
+
 	public List<FluxTrigger> getFluxTriggersOfScheduleById(Integer id) {
 		return fluxRepository.getAllFluxTriggerOfSchedule(id);
+	}
+
+	public List<FluxLoop> getFluxLoopOfScheduleById(Integer id) {
+		return fluxRepository.getAllFluxLoopOfSchedule(id);
+	}
+
+	public FluxLoop update(FluxLoop loop) {
+		return fluxRepository.update(loop);
 	}
 
 	public Flux update(Flux flux) {
@@ -68,6 +80,10 @@ public class FluxService {
 
 	public List<Integer> getFallBackIdsOfScheduleById(Integer id) {
 		return fluxRepository.getAllFallbackIdsOfSchedule(id);
+	}
+
+	public List<Integer> getUnscheduledIdsOfSchedule(Integer id) {
+		return fluxRepository.getAllUnscheduledIdsOfSchedule(id);
 	}
 
 	public List<FluxData> getScheduledFluxesOfScheduleById(int scheduleId) {

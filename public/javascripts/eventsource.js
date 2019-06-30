@@ -13,9 +13,7 @@ function displayFooterText(text) {
 }
 
 function displayImage(url, width, height) {
-    $("#image0").attr('width', width);
-    $("#image0").attr('height', height);
-    $("#image0").attr('src', url);
+    $("#image0").show().attr('width', width).attr('height', height).attr('src', url);
 }
 
 
@@ -45,11 +43,13 @@ $(document).ready(function () {
         if (macs.includes(macAdress)) {
             if (type === "url") {
                 $('#footer0').hide();
-                $("#frame0").show();
                 $("#image0").hide();
                 displayFlux(data);
             }
             else if (type === "image") {
+
+                $("#frame0").hide();
+                $('#footer0').hide();
 
                 if (resolution === "1080") {
                     displayImage(data, 1900, 1080);

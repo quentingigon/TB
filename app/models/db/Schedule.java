@@ -28,6 +28,9 @@ public class Schedule {
 	private Set<Integer> fluxtriggers;
 
 	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<Integer> fluxloops;
+
+	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fluxes;
 
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -128,5 +131,20 @@ public class Schedule {
 			this.fluxtriggers = new HashSet<>();
 		}
 		this.fluxtriggers.add(ftId);
+	}
+
+	public Set<Integer> getFluxloops() {
+		return fluxloops;
+	}
+
+	public void setFluxloops(Set<Integer> fluxloops) {
+		this.fluxloops = fluxloops;
+	}
+
+	public void addToFluxloops(Integer flId) {
+		if (this.fluxloops == null) {
+			this.fluxloops = new HashSet<>();
+		}
+		this.fluxloops.add(flId);
 	}
 }

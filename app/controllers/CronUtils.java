@@ -1,9 +1,35 @@
 package controllers;
 
-import models.db.Diffuser;
-import models.db.Schedule;
+import models.db.*;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class CronUtils {
+
+	public static final String SCHEDULE_JOBS_LISTENER = "schedulesListener";
+	public static final String DIFFUSER_JOBS_LISTENER = "diffusersListener";
+	public static final String SCHEDULE_LOOP_JOBS_LISTENER = "schedulesLoopListener";
+
+	public static final String SEND_EVENT_GROUP = "sendEventGroup";
+	public static final String SEND_LOOP_EVENT_GROUP = "sendLoopEventGroup";
+
+	public static final String JOB_NAME_LOOP = "sendLoopEventJob#";
+	public static final String JOB_NAME_TRIGGER = "sendEventJob#";
+
+	public static final String TRIGGER_NAME = "trigger#";
+	public static final String TRIGGER_NAME_LOOP = "triggerLoop#";
+
+
+	public static final int startHour = 8;
+	public static final int endHour = 23;
+	public static final String startTime = "08:00";
+
+	private CronUtils() {}
+
+	public static String getCronCmdUnscheduled(String days, String time) {
+		return getCronCmd(time, days, 0, "");
+	}
 
 	public static String getCronCmdSchedule(Schedule schedule, String time, int repeatDuration, String nextTriggerStartHour) {
 		return getCronCmd(time, schedule.getDays(), repeatDuration, nextTriggerStartHour);
@@ -19,9 +45,10 @@ public class CronUtils {
 
 		if (repeatDuration != 0) {
 			minutes += "/" + repeatDuration;
-			if (!nextTriggerStartHour.equals(""))
-				hours = hours + "-" + nextTriggerStartHour;
 		}
+
+		if (!nextTriggerStartHour.equals(""))
+			hours = hours + "-" + nextTriggerStartHour;
 
 		StringBuilder cmd = new StringBuilder("0 " + minutes + " " + hours + " ? " + "* ");
 
@@ -32,5 +59,49 @@ public class CronUtils {
 		cmd.deleteCharAt(cmd.length() - 1);
 
 		return cmd.toString();
+	}
+
+	public static String getScreenIds(List<Screen> screens) {
+		StringBuilder output = new StringBuilder();
+
+		for (Screen screen: screens) {
+			output.append(screen.getId()).append(",");
+		}
+		output.deleteCharAt(output.length() - 1);
+		return output.toString();
+	}
+
+	public static String getFluxIds(List<Integer> fluxes) {
+		StringBuilder output = new StringBuilder();
+
+		for (Integer fluxId: fluxes) {
+			output.append(fluxId).append(",");
+		}
+		output.deleteCharAt(output.length() - 1);
+		return output.toString();
+	}
+
+	public static String getNextFluxTriggerTimeOfSchedule(List<FluxTrigger> triggers, String time) {
+		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
+
+		for (FluxTrigger ft : triggers) {
+			if (ft.getTime().compareTo(time) > 0) {
+				return ft.getTime();
+			}
+		}
+		return "";
+	}
+
+	public static boolean mustFluxLoopBeStarted(String currentTime, FluxLoop loop, List<FluxTrigger> triggers) {
+		if (loop.getStartTime().compareTo(currentTime) == 0 ||
+			(loop.getStartTime().compareTo(currentTime) < 0
+				&& getNextFluxTriggerTimeOfSchedule(triggers, currentTime).equals("")) ||
+			(loop.getStartTime().compareTo(currentTime) < 0
+				&& getNextFluxTriggerTimeOfSchedule(triggers, currentTime).compareTo(currentTime) > 0)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

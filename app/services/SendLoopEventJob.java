@@ -1,18 +1,18 @@
 package services;
 
 import models.FluxEvent;
+import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public class SendEventJob implements EventJob {
+public class SendLoopEventJob implements Job, EventJob {
 
 	private FluxEvent event;
-	private int scheduleId;
-	private int diffuserId;
 	private String source;
+	private int scheduleId;
 
-	public SendEventJob() {
+	public SendLoopEventJob() {
 
 	}
 
@@ -22,22 +22,14 @@ public class SendEventJob implements EventJob {
 		JobDataMap triggerDataMap = context.getTrigger().getJobDataMap();
 
 		String screenIds = triggerDataMap.getString("screenIds");
-		int fluxId = triggerDataMap.getInt("fluxId");
-
-		// if there is still a screen to send the event to
-		if (!screenIds.isEmpty()) {
-			event = new FluxEvent(fluxId, screenIds);
-		}
+		int currentFluxId = triggerDataMap.getInt("currentFluxId");
 
 		source = triggerDataMap.getString("source");
+		scheduleId = triggerDataMap.getInt("scheduleId");
 
-		if (source.equals("schedule")) {
-			scheduleId = triggerDataMap.getInt("scheduleId");
+		if (!screenIds.isEmpty()) {
+			event = new FluxEvent(currentFluxId, screenIds);
 		}
-		else {
-			diffuserId = triggerDataMap.getInt("diffuserId");
-		}
-
 	}
 
 	@Override
@@ -50,11 +42,8 @@ public class SendEventJob implements EventJob {
 		return source.equals("schedule");
 	}
 
+	@Override
 	public int getScheduleId() {
 		return scheduleId;
-	}
-
-	public int getDiffuserId() {
-		return diffuserId;
 	}
 }

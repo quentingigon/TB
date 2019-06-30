@@ -1,31 +1,37 @@
 package services;
 
-import controllers.EventSourceController;
 import models.FluxEvent;
 import models.db.Flux;
-import models.db.RunningDiffuser;
-import models.db.Screen;
+import models.db.FluxLoop;
+import models.db.FluxTrigger;
+import models.db.Schedule;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Observable;
+
+import static controllers.CronUtils.mustFluxLoopBeStarted;
 
 public class SendEventJobsListener extends Observable implements JobListener {
 
-	private EventSourceController eventController;
+	private EventManager eventManager;
 	private ServicePicker servicePicker;
 
 	private String name;
-	private FluxEvent lastEvent;
 
 	public SendEventJobsListener(String name,
-								 EventSourceController eventController,
+								 EventManager eventManager,
 								 ServicePicker servicePicker) {
 		this.name = name;
-		this.eventController = eventController;
+		this.eventManager = eventManager;
 		this.servicePicker = servicePicker;
-		lastEvent = null;
 	}
 
 	@Override
@@ -47,172 +53,35 @@ public class SendEventJobsListener extends Observable implements JobListener {
 
 	@Override
 	public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
+		JobDataMap triggerDataMap = context.getTrigger().getJobDataMap();
 		SendEventJob job = (SendEventJob) context.getJobInstance();
 
+		eventManager.handleEvent(job);
+
+		List<FluxTrigger> triggers = servicePicker.getFluxService().getFluxTriggersOfScheduleById(job.getScheduleId());
+		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
+
+		List<FluxLoop> loops = servicePicker.getFluxService().getFluxLoopOfScheduleById(job.getScheduleId());
+		loops.sort(Comparator.comparing(FluxLoop::getStartTime));
+
 		FluxEvent event = job.getEvent();
+		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getScheduleId());
 
-		sendFluxEventAsGeneralOrLocated(event);
-	}
+		Flux currentFlux = servicePicker.getFluxService().getFluxById(event.getFluxId());
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+		LocalTime timeAfterExecution = formatter.parseLocalTime(triggerDataMap.getString("time"))
+			.plusMinutes(currentFlux.getTotalDuration());
 
-	private void sendFluxEventAsGeneralOrLocated(FluxEvent fluxEvent) {
-		FluxService fluxService = servicePicker.getFluxService();
-		Flux currentFlux = fluxService.getFluxById(fluxEvent.getFluxId());
-
-		// current flux is a located one
-		if (fluxService.getLocatedFluxByFluxId(currentFlux.getId()) != null) {
-			int siteId = fluxService.getLocatedFluxByFluxId(currentFlux.getId()).getSiteId();
-
-			// lists of screens to send the flux to
-			List<String> screenIdsWithSameSiteId = new ArrayList<>(Collections.singletonList(fluxEvent.getScreenIds()));
-			List<String> screenIdsWithDifferentSiteId = new ArrayList<>();
-
-			List<Screen> screens = getScreenList(fluxEvent.getScreenIds());
-
-			for (Screen s : screens) {
-				// if flux and screen are not restricted to the same site
-				if (siteId != s.getSiteId()) {
-					screenIdsWithDifferentSiteId.add(String.valueOf(s.getId()));
-					screenIdsWithSameSiteId.remove(String.valueOf(s.getId()));
-				}
-			}
-
-			// all screens are related to the same site as the flux
-			if (screenIdsWithDifferentSiteId.isEmpty()) {
-				// send event to observer
-				sendFluxEvent(fluxEvent);
-			}
-			else {
-				StringBuilder screenIdsWithSameSiteIdBis = new StringBuilder();
-				for (String s : screenIdsWithSameSiteId)
-				{
-					screenIdsWithSameSiteIdBis.append(s);
-				}
-				sendFluxEvent(new FluxEvent(fluxEvent.getFluxId(), screenIdsWithSameSiteIdBis.toString()));
-
-				StringBuilder screenIdsWithDifferentSiteIdBis = new StringBuilder();
-				for (String s : screenIdsWithDifferentSiteId)
-				{
-					screenIdsWithDifferentSiteIdBis.append(s);
-				}
-				sendFluxEvent(new FluxEvent(fluxEvent.getFluxId(), screenIdsWithDifferentSiteIdBis.toString()));
-			}
-		}
-		// current flux is a general one
-		else {
-			sendFluxEvent(fluxEvent);
-		}
-	}
-
-	private String sendDiffusedEventToConcernedScreens(FluxEvent event) {
-		StringBuilder screenIdsWithNoDiffuser = new StringBuilder();
-		StringBuilder screenIdsWithDiffuser = new StringBuilder();
-		List<Screen> screens = getScreenList(event.getScreenIds());
-		for (Screen s: screens) {
-			RunningDiffuser rd = getRunningDiffuserIfPresent(s);
-			// TODO check time and duration of Diffuser
-			if (rd != null) {
-				screenIdsWithDiffuser.append(s.getId());
-			}
-			else {
-				screenIdsWithNoDiffuser.append(s.getId());
-			}
-		}
-
-		if (!screenIdsWithDiffuser.toString().isEmpty()) {
-			// send diffused event
-			send(servicePicker.getFluxService().getFluxById(event.getFluxId()),
-				getMacAddresses(screenIdsWithDiffuser.toString()));
-		}
-
-
-		return screenIdsWithNoDiffuser.toString();
-	}
-
-	private void sendFluxEvent(FluxEvent event) {
-		Flux currentFlux = getFlux(event.getFluxId());
-
-		if (currentFlux != null) {
-
-			// send diffused flux to correct screen and returns the ids of the other screens
-			String screenIdsWithNoActiveDiffuser = sendDiffusedEventToConcernedScreens(event);
-
-			if (!screenIdsWithNoActiveDiffuser.isEmpty()) {
-				List<String> macAddresses = getMacAddresses(screenIdsWithNoActiveDiffuser);
-
-				send(currentFlux, macAddresses);
-				lastEvent = event;
+		for (FluxLoop loop: loops) {
+			// if a FluxLoop is programmed for this time
+			if (mustFluxLoopBeStarted(formatter.print(timeAfterExecution), loop, triggers)) {
+				LoopJobCreator loopJobCreator = new LoopJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
+				loopJobCreator.createFromFluxLoop(loop);
 			}
 		}
 	}
 
-	private void send(Flux currentFlux, List<String> macAddresses) {
-		ScreenService screenService = servicePicker.getScreenService();
-		System.out.println("Sending event : " + currentFlux.getType().toLowerCase() + "?" + currentFlux.getUrl() + "|" + String.join(",", macAddresses));
-		eventController.send(
-			currentFlux.getType().toLowerCase() +
-				"?" +
-				currentFlux.getUrl() +
-				"|" +
-				String.join(",", macAddresses)
-		);
-
-		// updating concerned screens
-		for (String screenMac: macAddresses) {
-			Screen screen = screenService.getScreenByMacAddress(screenMac);
-			screen.setCurrentFluxName(currentFlux.getName());
-			screenService.update(screen);
-		}
-	}
-
-	private RunningDiffuser getRunningDiffuserIfPresent(Screen s) {
-		DiffuserService diffuserService = servicePicker.getDiffuserService();
-
-		Integer runningDiffuserId = diffuserService.getRunningDiffuserIdByScreenId(s.getId());
-
-		if (runningDiffuserId != null) {
-			return  diffuserService.getRunningDiffuserById(runningDiffuserId);
-		}
-		else {
-			return null;
-		}
-	}
-
-	public void resendLastEvent() {
-		if (lastEvent != null) {
-			System.out.println("FORCE SEND");
-			sendFluxEvent(lastEvent);
-		}
-	}
-
-	private List<String> getMacAddresses(String screenIds) {
-		List<String> macs = new ArrayList<>();
-
-		for(Screen s: getScreenList(screenIds)) {
-			macs.add(s.getMacAddress());
-		}
-		return macs;
-	}
-
-	private List<Screen> getScreenList(String screenIds) {
-		ScreenService screenService = servicePicker.getScreenService();
-		List<Screen> output = new ArrayList<>();
-		String[] list = screenIds.split("\\s*,\\s*");
-		for (String id: list) {
-			if (screenService.getScreenById(Integer.valueOf(id)) != null) {
-				output.add(screenService.getScreenById(Integer.valueOf(id)));
-			}
-		}
-		return output;
-	}
-
-	private Flux getFlux(int id) {
-		FluxService fluxService = servicePicker.getFluxService();
-
-		if (fluxService.getFluxById(id) != null) {
-			return fluxService.getFluxById(id);
-		}
-		else {
-			return null;
-		}
+	public EventManager getEventManager() {
+		return eventManager;
 	}
 }

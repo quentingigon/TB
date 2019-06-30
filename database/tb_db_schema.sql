@@ -30,13 +30,6 @@ CREATE TABLE team
   (
     team_id SERIAL PRIMARY KEY,
     name VARCHAR(20),
-    screens INTEGER[],
-    screen_groups INTEGER[],
-    schedules INTEGER[],
-    diffusers INTEGER[],
-    fluxes INTEGER[],
-    members INTEGER[],
-    admins INTEGER[],
     admin INTEGER
   );
 
@@ -154,6 +147,14 @@ CREATE TABLE schedule_fluxes
     PRIMARY KEY (schedule_schedule_id, fluxes)
   );
 
+DROP TABLE IF EXISTS schedule_fluxloops CASCADE;
+CREATE TABLE schedule_fluxloops
+  (
+    schedule_schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
+    fluxloops INTEGER NOT NULL REFERENCES fluxloop (id),
+    PRIMARY KEY (schedule_schedule_id, fluxloops)
+  );
+
 
 DROP TABLE IF EXISTS schedule_fallbacks CASCADE;
 CREATE TABLE schedule_fallbacks
@@ -187,6 +188,7 @@ CREATE TABLE diffuser
   (
     diffuser_id SERIAL PRIMARY KEY,
     name VARCHAR(20),
+    time VARCHAR(20),
     days VARCHAR(100),
     cron_cmd VARCHAR(100),
     flux_id INTEGER NOT NULL REFERENCES flux(flux_id)
@@ -197,8 +199,7 @@ DROP TABLE IF EXISTS runningdiffuser CASCADE;
 CREATE TABLE runningdiffuser
   (
     runningdiffuser_id SERIAL PRIMARY KEY,
-    diffuser_id INTEGER NOT NULL REFERENCES diffuser (diffuser_id),
-    screens INTEGER[]
+    diffuser_id INTEGER NOT NULL REFERENCES diffuser (diffuser_id)
   );
 
 DROP TABLE IF EXISTS runningdiffuser_screens CASCADE;
@@ -303,6 +304,23 @@ CREATE TABLE fluxtrigger
     repeat BOOLEAN
   );
 
+DROP TABLE IF EXISTS fluxloop CASCADE;
+CREATE TABLE fluxloop
+  (
+    id SERIAL PRIMARY KEY,
+    schedule_id INTEGER NOT NULL REFERENCES schedule(schedule_id),
+    type varchar(20),
+    start_time VARCHAR(20)
+  );
+
+DROP TABLE IF EXISTS fluxloop_fluxes CASCADE;
+CREATE TABLE fluxloop_fluxes
+  (
+    fluxloop_id INTEGER NOT NULL REFERENCES fluxloop(id),
+    fluxes INTEGER NOT NULL REFERENCES flux(flux_id),
+    PRIMARY KEY (fluxloop_id, fluxes)
+  );
+
 
 -- Functions
 
@@ -401,6 +419,12 @@ BEGIN
 
     DELETE FROM schedule_fluxtriggers
     WHERE schedule_schedule_id = OLD.schedule_id;
+
+    DELETE FROM schedule_fluxloops
+    WHERE schedule_schedule_id = OLD.schedule_id;
+
+    DELETE FROM fluxloop
+    WHERE schedule_id = OLD.schedule_id;
 RETURN OLD;
 END;
 $$
@@ -440,6 +464,18 @@ END;
 $$
 LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS delete_fluxes_of_fluxloop();
+CREATE FUNCTION delete_fluxes_of_fluxloop()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    DELETE FROM fluxloop_fluxes
+    WHERE fluxloop_id = OLD.id;
+RETURN OLD;
+END;
+$$
+LANGUAGE plpgsql;
+
 
 -- Triggers --
 
@@ -467,6 +503,10 @@ CREATE TRIGGER on_flux_delete BEFORE DELETE
 CREATE TRIGGER on_user_delete BEFORE DELETE
    ON users
    FOR EACH ROW EXECUTE PROCEDURE delete_teammember_or_admin();
+
+CREATE TRIGGER on_fluxloop_delete BEFORE DELETE
+   ON fluxloop
+   FOR EACH ROW EXECUTE PROCEDURE delete_fluxes_of_fluxloop();
 
 
 -- Inserts

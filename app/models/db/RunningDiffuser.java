@@ -19,9 +19,6 @@ public class RunningDiffuser {
 	@Column(name="diffuser_id")
 	private Integer diffuserId;
 
-	@Column(name="flux_id")
-	private Integer fluxId;
-
 	@ElementCollection
 	private List<Integer> screens;
 
@@ -59,13 +56,5 @@ public class RunningDiffuser {
 
 	public void setDiffuserId(Integer diffuserId) {
 		this.diffuserId = diffuserId;
-	}
-
-	public Integer getFluxId() {
-		return fluxId;
-	}
-
-	public void setFluxId(Integer fluxId) {
-		this.fluxId = fluxId;
 	}
 }

@@ -39,15 +39,18 @@ public class DiffuserController extends Controller {
 	private final EventSourceController eventSourceController;
 	private Form<DiffuserData> form;
 	private final ServicePicker servicePicker;
+	private final EventManager eventManager;
 
 	@Inject
 	public DiffuserController(FormFactory formFactory,
 							  ServicePicker servicePicker,
-							  EventSourceController eventSourceController) {
+							  EventSourceController eventSourceController,
+							  EventManager eventManager) {
 
 		this.eventSourceController = eventSourceController;
 		this.servicePicker = servicePicker;
 		this.form = formFactory.form(DiffuserData.class);
+		this.eventManager = eventManager;
 	}
 
 	@With(UserAuthentificationAction.class)
@@ -138,7 +141,7 @@ public class DiffuserController extends Controller {
 		else {
 
 			Set<Integer> screenIds = new HashSet<>();
-			StringBuilder screenIdsString = new StringBuilder();
+			List<Screen> screens = new ArrayList<>();
 
 			for (String mac: data.getScreens()) {
 				Screen screen = screenService.getScreenByMacAddress(mac);
@@ -147,40 +150,54 @@ public class DiffuserController extends Controller {
 				}
 
 				screenIds.add(screen.getId());
-
-				screenIdsString.append(screen.getId());
+				screens.add(screen);
 			}
 
 			Flux diffusedFlux = fluxService.getFluxById(diffuser.getFlux());
 
-			// create new runningDiffuser
+			// createFromFluxLoop new runningDiffuser
 			RunningDiffuser rd = new RunningDiffuser(diffuser);
 			rd.setDiffuserId(diffuser.getId());
 			rd.setScreens(new ArrayList<>(screenIds));
-			rd.setFluxId(diffusedFlux.getId());
 
 			diffuserService.create(rd);
 
-			SchedulerFactory sf = new StdSchedulerFactory();
-			Scheduler scheduler = sf.getScheduler();
+			List<Screen> screensWithNoRunningSchedule = new ArrayList<>();
 
-			JobDetail job = newJob(SendEventJob.class)
-				.withIdentity("sendEventJob#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
-				.build();
+			for (Screen screen: screens) {
+				Integer runningScheduleId = scheduleService.getRunningScheduleOfScreenById(screen.getId());
 
-			CronTrigger trigger = newTrigger()
-				.withIdentity("trigger#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
-				.usingJobData("screenIds", screenIdsString.toString())
-				.usingJobData("fluxId", diffusedFlux.getId())
-				.withSchedule(cronSchedule(diffuser.getCronCmd()))
-				.build();
-			scheduler.scheduleJob(job, trigger);
+				// if no RunningSchedule exists for this screen
+				if (runningScheduleId == null) {
+					screensWithNoRunningSchedule.add(screen);
+				}
+			}
 
-			SendEventJobsListener listener = new SendEventJobsListener(
-				diffuser.getName(),
-				eventSourceController,
-				servicePicker);
-			scheduler.getListenerManager().addJobListener(listener, allJobs());
+			// creates job, trigger and listener for all screens that are not associated to a running schedule
+			if (!screensWithNoRunningSchedule.isEmpty()) {
+				SchedulerFactory sf = new StdSchedulerFactory();
+				Scheduler scheduler = sf.getScheduler();
+
+				JobDetail job = newJob(SendEventJob.class)
+					.withIdentity("sendEventJob#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
+					.build();
+
+				CronTrigger trigger = newTrigger()
+					.withIdentity("trigger#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
+					.usingJobData("screenIds", getScreenIds(screensWithNoRunningSchedule))
+					.usingJobData("fluxId", diffusedFlux.getId())
+					.usingJobData("source", "diffuser")
+					.usingJobData("diffuserId", diffuser.getId())
+					.withSchedule(cronSchedule(diffuser.getCronCmd()))
+					.build();
+				scheduler.scheduleJob(job, trigger);
+
+				SendEventJobsListener listener = new SendEventJobsListener(
+					diffuser.getName(),
+					eventManager,
+					servicePicker);
+				scheduler.getListenerManager().addJobListener(listener, allJobs());
+			}
 
 			return index(request);
 		}
@@ -236,7 +253,7 @@ public class DiffuserController extends Controller {
 			return createViewWithErrorMessage(request, "Name is already taken");
 		}
 		else {
-			Result error = checkDataIntegrity(data, "create", request);
+			Result error = checkDataIntegrity(data, "createFromFluxLoop", request);
 			if (error != null) {
 				return error;
 			}
@@ -249,7 +266,7 @@ public class DiffuserController extends Controller {
 			}
 			days.deleteCharAt(days.length() - 1);
 			diffuser.setDays(days.toString());
-
+			diffuser.setTime(data.getStartTime());
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
 
@@ -320,7 +337,7 @@ public class DiffuserController extends Controller {
 
 		if (data.getFluxName() != null) {
 			if (fluxService.getFluxByName(data.getFluxName()) ==  null) {
-				if (action.equals("create"))
+				if (action.equals("createFromFluxLoop"))
 					error = createViewWithErrorMessage(request, "Flux does not exists");
 				else if (action.equals("update"))
 					error = updateViewWithErrorMessage(request, data.getName(), "Flux does not exists");
@@ -331,7 +348,7 @@ public class DiffuserController extends Controller {
 		}
 
 		if (data.getStartTime() == null) {
-			if (action.equals("create"))
+			if (action.equals("createFromFluxLoop"))
 				error = createViewWithErrorMessage(request, "You must enter a start time");
 			else if (action.equals("update"))
 				error = updateViewWithErrorMessage(request, data.getName(), "You must enter a start time");
@@ -340,7 +357,7 @@ public class DiffuserController extends Controller {
 		if (data.getScreens() != null) {
 			for (String screenMAC: data.getScreens()) {
 				if (screenService.getScreenByMacAddress(screenMAC) == null) {
-					if (action.equals("create"))
+					if (action.equals("createFromFluxLoop"))
 						error = createViewWithErrorMessage(request, "Screen MAC address does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(request, data.getName(), "Screen MAC address does not exists");
@@ -353,4 +370,15 @@ public class DiffuserController extends Controller {
 
 		return error;
 	}
+
+	private String getScreenIds(List<Screen> screens) {
+		StringBuilder output = new StringBuilder();
+
+		for (Screen screen: screens) {
+			output.append(screen.getId()).append(",");
+		}
+		output.deleteCharAt(output.length() - 1);
+		return output.toString();
+	}
+
 }

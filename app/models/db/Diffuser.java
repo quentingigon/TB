@@ -26,6 +26,9 @@ public class Diffuser {
 	@Column(name="days")
 	private String days;
 
+	@Column(name="time")
+	private String time;
+
 	public Diffuser() {
 	}
 
@@ -73,5 +76,13 @@ public class Diffuser {
 
 	public void setDays(String days) {
 		this.days = days;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
 	}
 }

@@ -24,8 +24,6 @@ import views.html.screen.screen_update;
 import javax.inject.Inject;
 import java.util.*;
 
-import static services.RunningScheduleUtils.NO_SCHEDULE;
-
 /**
  * This class implements a controller for the Screens.
  * It gives CRUD operation and offer means to deactivate an active Screen.
@@ -173,7 +171,7 @@ public class ScreenController extends Controller {
 				(SendEventJobsListener) scheduler.getListenerManager().getJobListener(jobListenerName);
 
 			if (listener != null)
-				listener.resendLastEvent();
+				listener.getEventManager().resendLastEvent();
 
 		} catch (SchedulerException e) {
 			e.printStackTrace();

@@ -58,6 +58,8 @@ public class AutomatedScheduleStarter {
                     if (screen != null)
                         screens.add(screen);
                 }
+
+                // TODO
             }
         }
     }

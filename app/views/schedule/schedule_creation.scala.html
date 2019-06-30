@@ -244,6 +244,15 @@
             </div>
 
             <div class="form-group col-md-4">
+                <label for="inputUnscheduled">Fluxes Loop</label>
+                <select name="unscheduledFluxes[]" id="inputUnscheduled" class="form-control" multiple>
+                @for(flux <- fluxes) {
+                    <option>@flux.getName</option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group col-md-4">
                 <label for="inputFallbacks">Fallback fluxes</label>
                 <select name="fallbackFluxes[]" id="inputFallbacks" class="form-control" multiple>
                 @for(flux <- fallbacks) {

@@ -3,8 +3,12 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.ScheduleData;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.matchers.GroupMatcher;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -18,14 +22,14 @@ import views.html.schedule.schedule_page;
 import views.html.schedule.schedule_update;
 
 import javax.inject.Inject;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.*;
 
-import static controllers.CronUtils.getCronCmdSchedule;
+import static controllers.CronUtils.*;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
-import static services.BlockUtils.*;
 
 /**
  * This class implements a controller for the Schedules.
@@ -36,14 +40,17 @@ public class ScheduleController extends Controller {
 	private final EventSourceController eventSourceController;
 	private Form<ScheduleData> form;
 	private final ServicePicker servicePicker;
+	private final EventManager eventManager;
 
 	@Inject
 	public ScheduleController(FormFactory formFactory,
 							  ServicePicker servicePicker,
-							  EventSourceController eventSourceController) {
+							  EventSourceController eventSourceController,
+							  EventManager eventManager) {
 		this.form = formFactory.form(ScheduleData.class);
 		this.servicePicker = servicePicker;
 		this.eventSourceController = eventSourceController;
+		this.eventManager = eventManager;
 
 		SchedulerFactory sf = new StdSchedulerFactory();
 		Scheduler scheduler;
@@ -139,7 +146,7 @@ public class ScheduleController extends Controller {
 		}
 		else {
 
-			// create runningSchedule
+			// createFromFluxLoop runningSchedule
 			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
 			if (scheduleService.getRunningScheduleByScheduleId(scheduleToActivate.getId()) != null) {
 				return indexWithErrorMessage(request, "This schedule is already activated");
@@ -158,7 +165,7 @@ public class ScheduleController extends Controller {
 					RunningSchedule rs2 = scheduleService.getRunningScheduleById(runningScheduleId);
 					Schedule existingSchedule = scheduleService.getScheduleById(rs2.getScheduleId());
 
-					// check if the schedule to activate overlaps with an other one
+					// checkIfFluxLoopMustBeStarted if the schedule to activate overlaps with an other one
 					if (existingSchedule == null || checkIfSchedulesOverlap(existingSchedule, scheduleToActivate)) {
 						return indexWithErrorMessage(request, "Screen: " + screen.getName() +
 							" already has an active schedule for the days chosen");
@@ -332,34 +339,94 @@ public class ScheduleController extends Controller {
 			scheduler = sf.getScheduler();
 
 			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
+			triggers.sort(Comparator.comparing(FluxTrigger::getTime));
+
+			// start correct FluxLoop if needed
+			FluxLoop loop = getFluxLoopThatMustBeStarted(triggers, schedule);
+			if (loop != null) {
+				createAndScheduleLoopJob(schedule, screens, loop);
+			}
 
 			// run through triggers in DB and schedule job accordingly
 			for (FluxTrigger ft: triggers) {
-				Flux flux = fluxService.getFluxById(ft.getFluxId());
-
-				JobDetail job = newJob(SendEventJob.class)
-					.withIdentity("sendEventJob#" + flux.getName() + "#" + ft.getCronCmd(), schedule.getName())
-					.build();
-
-				CronTrigger trigger = newTrigger()
-					.withIdentity("trigger#" + flux.getName() + "#" + ft.getCronCmd(), schedule.getName())
-					.usingJobData("screenIds", getScreenIds(screens))
-					.usingJobData("fluxId", flux.getId())
-					.withSchedule(cronSchedule(ft.getCronCmd()))
-					.build();
-				scheduler.scheduleJob(job, trigger);
+				createAndScheduleJobFromFluxTrigger(schedule, ft, scheduler, screens);
 			}
 
-			SendEventJobsListener listener = new SendEventJobsListener(
-				schedule.getName(),
-				eventSourceController,
-				servicePicker);
-			scheduler.getListenerManager().addJobListener(listener, allJobs());
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
+	}
 
+	private FluxLoop getFluxLoopThatMustBeStarted(List<FluxTrigger> triggers, Schedule schedule) {
 
+		String currentTime = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
+
+		List<FluxLoop> loopFluxes = servicePicker.getFluxService().getFluxLoopOfScheduleById(schedule.getId());
+
+		for (FluxLoop loop: loopFluxes) {
+			// if there is a FluxLoop fot the current time or
+			// if current time is between a FluxLoop and a FluxTrigger or
+			// if there are no FluxTrigger from the current time
+			if (mustFluxLoopBeStarted(currentTime, loop, triggers)) {
+				DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+				LocalTime timeOfExecution = formatter.parseLocalTime(currentTime)
+					.plusMinutes(1);
+				loop.setStartTime(formatter.print(timeOfExecution));
+				servicePicker.getFluxService().update(loop);
+				return loop;
+			}
+		}
+		return null;
+	}
+
+	private void createAndScheduleLoopJob(Schedule schedule,
+										  List<Screen> screens,
+										  FluxLoop loop) {
+		LoopJobCreator loopJobCreator = new LoopJobCreator(schedule,
+			getScreenIds(screens),
+			servicePicker,
+			eventManager);
+		loopJobCreator.createFromFluxLoop(loop);
+	}
+
+	private void createAndScheduleJobFromFluxTrigger(Schedule schedule,
+													 FluxTrigger fluxTrigger,
+													 Scheduler scheduler,
+													 List<Screen> screens) {
+		FluxService fluxService = servicePicker.getFluxService();
+		Flux flux = fluxService.getFluxById(fluxTrigger.getFluxId());
+
+		JobDetail job = newJob(SendEventJob.class)
+			.withIdentity(JOB_NAME_TRIGGER + flux.getName() + "#" + fluxTrigger.getCronCmd(),
+				SEND_EVENT_GROUP + "." + schedule.getName())
+			.build();
+
+		CronTrigger trigger = newTrigger()
+			.withIdentity(TRIGGER_NAME + flux.getName() + "#" + fluxTrigger.getCronCmd(),
+				SEND_EVENT_GROUP + "." + schedule.getName())
+			.usingJobData("screenIds", getScreenIds(screens))
+			.usingJobData("fluxId", flux.getId())
+			.usingJobData("source", "schedule")
+			.usingJobData("time", fluxTrigger.getTime())
+			.usingJobData("scheduleId", schedule.getId())
+			.withSchedule(cronSchedule(fluxTrigger.getCronCmd()))
+			.build();
+
+		try {
+			scheduler.scheduleJob(job, trigger);
+
+			if (scheduler.getListenerManager().getJobListener(SCHEDULE_JOBS_LISTENER) == null) {
+				SendEventJobsListener listener = new SendEventJobsListener(
+					SCHEDULE_JOBS_LISTENER,
+					eventManager,
+					servicePicker);
+
+				scheduler.getListenerManager().addJobListener(listener,
+					GroupMatcher.jobGroupContains(SEND_EVENT_GROUP));
+			}
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void deleteJobsOfSchedule(Schedule schedule) {
@@ -370,15 +437,22 @@ public class ScheduleController extends Controller {
 
 		try {
 			scheduler = sf.getScheduler();
-			scheduler.getListenerManager().removeJobListener(schedule.getName());
 
 			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
 
+			// flux triggers
 			for (FluxTrigger ft: triggers) {
 				Flux flux = fluxService.getFluxById(ft.getFluxId());
-				String jobName = "sendEventJob#" + flux.getName() + "#" + ft.getCronCmd();
-				scheduler.deleteJob(new JobKey(jobName, schedule.getName()));
+				String jobName = JOB_NAME_TRIGGER + flux.getName() + "#" + ft.getCronCmd();
+				scheduler.deleteJob(new JobKey(jobName, SEND_EVENT_GROUP + "." + schedule.getName()));
 			}
+
+			// flux loop
+			if (scheduler.checkExists(new JobKey(JOB_NAME_LOOP+schedule.getName(), SEND_LOOP_EVENT_GROUP))) {
+				scheduler.deleteJob(new JobKey(JOB_NAME_LOOP+schedule.getName(), SEND_LOOP_EVENT_GROUP));
+			}
+
+
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
@@ -397,7 +471,7 @@ public class ScheduleController extends Controller {
 					error = createViewWithErrorMessage(request, "Flux name does not exists");
 				}
 
-				// we must create a FluxTrigger for this entry
+				// we must createFromFluxLoop a FluxTrigger for this entry
 				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
 					String fluxTime = fluxDatas[1];
 					int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
@@ -411,12 +485,20 @@ public class ScheduleController extends Controller {
 
 	private void createFluxTriggers(ScheduleData data, Schedule schedule) {
 		List<FluxTrigger> triggers = getFluxTriggersFromData(data, schedule);
+		List<FluxLoop> loops = getFluxLoopsFromData(data);
 		triggers = setCronCmdForTriggers(triggers);
 
-		// create flux triggers for database
+		// createFromFluxLoop flux triggers for database
 		for (FluxTrigger ft: triggers) {
+			ft.setScheduleId(schedule.getId());
 			ft = servicePicker.getFluxService().createFluxTrigger(ft);
 			schedule.addToFluxtriggers(ft.getId());
+		}
+
+		for (FluxLoop loop: loops) {
+			loop.setScheduleId(schedule.getId());
+			loop = servicePicker.getFluxService().createFluxLoop(loop);
+			schedule.addToFluxloops(loop.getId());
 		}
 		servicePicker.getScheduleService().update(schedule);
 	}
@@ -433,11 +515,63 @@ public class ScheduleController extends Controller {
 
 				Flux flux = servicePicker.getFluxService().getFluxByName(fluxName);
 
-				// create trigger without cron command
-				fluxTriggers.add(new FluxTrigger(fluxTime, flux.getId(), schedule.getId(), repeat.equals("true")));
+				// if a time was chosen
+				if (!fluxTime.equals("")) {
+					// createFromFluxLoop trigger without cron command
+					fluxTriggers.add(new FluxTrigger(fluxTime, flux.getId(), schedule.getId(), repeat.equals("true")));
+				}
 			}
 		}
 		return fluxTriggers;
+	}
+
+	private List<FluxLoop> getFluxLoopsFromData(ScheduleData data) {
+		List<FluxLoop> loops = new ArrayList<>();
+
+		if (data.getFluxes() != null) {
+			boolean grouped = false;
+			Set<Integer> fluxIds = new HashSet<>();
+			String startTime = CronUtils.startTime;
+
+			for (String fluxData: data.getFluxes()) {
+
+				String fluxName = fluxData.split("#")[0];
+				String fluxTime = fluxData.split("#")[1];
+
+				Flux flux = servicePicker.getFluxService().getFluxByName(fluxName);
+
+				if (fluxTime.equals("")) {
+					fluxIds.add(flux.getId());
+					grouped = true;
+
+					if (data.getFluxes().size() == fluxIds.size()) {
+						FluxLoop loop = new FluxLoop();
+						loop.setFluxes(fluxIds);
+						loop.setStartTime(startTime);
+						loops.add(loop);
+					}
+				}
+				// if we ran through a trigger or all entries have been handled and there are no triggers
+				else if (grouped) {
+					FluxLoop loop = new FluxLoop();
+					loop.setFluxes(fluxIds);
+					loop.setStartTime(startTime);
+					loops.add(loop);
+					DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+					LocalTime actualTime = formatter.parseLocalTime(fluxTime)
+						.plusMinutes(flux.getTotalDuration());
+					startTime = formatter.print(actualTime) ;
+					grouped = false;
+				}
+				else {
+					DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+					LocalTime actualTime = formatter.parseLocalTime(fluxTime)
+						.plusMinutes(flux.getTotalDuration());
+					startTime = formatter.print(actualTime) ;
+				}
+			}
+		}
+		return loops;
 	}
 
 	private List<FluxTrigger> setCronCmdForTriggers(List<FluxTrigger> triggers) {
@@ -481,13 +615,20 @@ public class ScheduleController extends Controller {
 		return fallbacksIds;
 	}
 
-	private String getScreenIds(List<Screen> screens) {
-		StringBuilder output = new StringBuilder();
+	private List<Integer> getUnscheduledFluxes(ScheduleData data) {
 
-		for (Screen screen: screens) {
-			output.append(screen.getId());
+		List<Integer> unscheduledIds = new ArrayList<>();
+
+		if (data.getUnscheduledFluxes() != null) {
+			for (String fluxData : data.getUnscheduledFluxes()) {
+				String[] fluxDatas = fluxData.split("#");
+				String fluxName = fluxDatas[0];
+
+				unscheduledIds.add(servicePicker.getFluxService().getFluxByName(fluxName).getId());
+			}
 		}
-		return output.toString();
+
+		return unscheduledIds;
 	}
 
 	private boolean checkIfSchedulesOverlap(Schedule existingSchedule, Schedule scheduleToActivate) {

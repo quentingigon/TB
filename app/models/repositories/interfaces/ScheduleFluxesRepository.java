@@ -4,8 +4,6 @@ import com.google.inject.ImplementedBy;
 import models.db.ScheduledFlux;
 import models.repositories.JPAScheduleFluxesRepository;
 
-import java.util.List;
-
 /**
  * This interface defines the functions for ScheduledFlux database operations.
  */
@@ -13,6 +11,4 @@ import java.util.List;
 public interface ScheduleFluxesRepository {
 
 	ScheduledFlux getById(Integer id);
-
-	List<Integer> getFluxesIdsByScheduleId(Integer id);
 }
