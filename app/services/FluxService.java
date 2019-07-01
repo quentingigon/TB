@@ -3,9 +3,16 @@ package services;
 import models.db.*;
 import models.entities.FluxData;
 import models.repositories.interfaces.FluxRepository;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
+import static controllers.CronUtils.mustFluxLoopBeStarted;
 
 /**
  * This class represents the service used to make operations on the database for Fluxes.
@@ -109,7 +116,27 @@ public class FluxService {
 		return data;
 	}
 
+	public FluxLoop getFluxLoopThatMustBeStarted(List<FluxTrigger> triggers, Schedule schedule) {
 
+		String currentTime = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
+
+		List<FluxLoop> loopFluxes = getFluxLoopOfScheduleById(schedule.getId());
+
+		for (FluxLoop loop: loopFluxes) {
+			// if there is a FluxLoop fot the current time or
+			// if current time is between a FluxLoop and a FluxTrigger or
+			// if there are no FluxTrigger from the current time
+			if (mustFluxLoopBeStarted(currentTime, loop, triggers)) {
+				DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+				LocalTime timeOfExecution = formatter.parseLocalTime(currentTime)
+					.plusMinutes(1);
+				loop.setStartTime(formatter.print(timeOfExecution));
+				// update(loop);
+				return loop;
+			}
+		}
+		return null;
+	}
 
 	public List<FluxData> getAllFluxesOfScheduleById(int scheduleId) {
 		List<FluxData> output = getScheduledFluxesOfScheduleById(scheduleId);

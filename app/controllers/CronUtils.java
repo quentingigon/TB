@@ -2,6 +2,7 @@ package controllers;
 
 import models.db.*;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -103,5 +104,30 @@ public class CronUtils {
 		else {
 			return false;
 		}
+	}
+
+	public static boolean checkIfScheduleAndDiffuserDaysOverlap(Schedule schedule, Diffuser diffuser) {
+		String[] existingDays = schedule.getDays().split(",");
+		String[] newDays = diffuser.getDays().split(",");
+
+		return checkIfDaysOverlap(existingDays, newDays);
+	}
+
+	public static boolean checkIfSchedulesOverlap(Schedule existingSchedule, Schedule scheduleToActivate) {
+		String[] existingDays = existingSchedule.getDays().split(",");
+		String[] newDays = scheduleToActivate.getDays().split(",");
+
+		return checkIfDaysOverlap(existingDays, newDays);
+	}
+
+	private static boolean checkIfDaysOverlap(String[] existingDays, String[] newDays) {
+		boolean output = false;
+
+		for (String day: newDays) {
+			if (Arrays.asList(existingDays).contains(day)) {
+				output = true;
+			}
+		}
+		return output;
 	}
 }

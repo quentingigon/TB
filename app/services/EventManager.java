@@ -10,6 +10,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static controllers.CronUtils.*;
+
+
 @Singleton
 public class EventManager {
 
@@ -278,19 +281,5 @@ public class EventManager {
 		else {
 			return null;
 		}
-	}
-
-	private boolean checkIfScheduleAndDiffuserDaysOverlap(Schedule schedule, Diffuser diffuser) {
-		String[] existingDays = schedule.getDays().split(",");
-		String[] newDays = diffuser.getDays().split(",");
-
-		boolean output = false;
-
-		for (String day: newDays) {
-			if (Arrays.asList(existingDays).contains(day)) {
-				output = true;
-			}
-		}
-		return output;
 	}
 }

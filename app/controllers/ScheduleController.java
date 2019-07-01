@@ -342,41 +342,19 @@ public class ScheduleController extends Controller {
 			triggers.sort(Comparator.comparing(FluxTrigger::getTime));
 
 			// start correct FluxLoop if needed
-			FluxLoop loop = getFluxLoopThatMustBeStarted(triggers, schedule);
+			FluxLoop loop = fluxService.getFluxLoopThatMustBeStarted(triggers, schedule);
 			if (loop != null) {
 				createAndScheduleLoopJob(schedule, screens, loop);
 			}
 
 			// run through triggers in DB and schedule job accordingly
 			for (FluxTrigger ft: triggers) {
-				createAndScheduleJobFromFluxTrigger(schedule, ft, scheduler, screens);
+				createAndScheduleJobFromFluxTrigger(schedule, ft, screens);
 			}
 
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private FluxLoop getFluxLoopThatMustBeStarted(List<FluxTrigger> triggers, Schedule schedule) {
-
-		String currentTime = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
-
-		List<FluxLoop> loopFluxes = servicePicker.getFluxService().getFluxLoopOfScheduleById(schedule.getId());
-
-		for (FluxLoop loop: loopFluxes) {
-			// if there is a FluxLoop fot the current time or
-			// if current time is between a FluxLoop and a FluxTrigger or
-			// if there are no FluxTrigger from the current time
-			if (mustFluxLoopBeStarted(currentTime, loop, triggers)) {
-				DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
-				LocalTime timeOfExecution = formatter.parseLocalTime(currentTime)
-					.plusMinutes(1);
-				loop.setStartTime(formatter.print(timeOfExecution));
-				servicePicker.getFluxService().update(loop);
-				return loop;
-			}
-		}
-		return null;
 	}
 
 	private void createAndScheduleLoopJob(Schedule schedule,
@@ -391,42 +369,11 @@ public class ScheduleController extends Controller {
 
 	private void createAndScheduleJobFromFluxTrigger(Schedule schedule,
 													 FluxTrigger fluxTrigger,
-													 Scheduler scheduler,
 													 List<Screen> screens) {
-		FluxService fluxService = servicePicker.getFluxService();
-		Flux flux = fluxService.getFluxById(fluxTrigger.getFluxId());
-
-		JobDetail job = newJob(SendEventJob.class)
-			.withIdentity(JOB_NAME_TRIGGER + flux.getName() + "#" + fluxTrigger.getCronCmd(),
-				SEND_EVENT_GROUP + "." + schedule.getName())
-			.build();
-
-		CronTrigger trigger = newTrigger()
-			.withIdentity(TRIGGER_NAME + flux.getName() + "#" + fluxTrigger.getCronCmd(),
-				SEND_EVENT_GROUP + "." + schedule.getName())
-			.usingJobData("screenIds", getScreenIds(screens))
-			.usingJobData("fluxId", flux.getId())
-			.usingJobData("source", "schedule")
-			.usingJobData("time", fluxTrigger.getTime())
-			.usingJobData("scheduleId", schedule.getId())
-			.withSchedule(cronSchedule(fluxTrigger.getCronCmd()))
-			.build();
-
-		try {
-			scheduler.scheduleJob(job, trigger);
-
-			if (scheduler.getListenerManager().getJobListener(SCHEDULE_JOBS_LISTENER) == null) {
-				SendEventJobsListener listener = new SendEventJobsListener(
-					SCHEDULE_JOBS_LISTENER,
-					eventManager,
-					servicePicker);
-
-				scheduler.getListenerManager().addJobListener(listener,
-					GroupMatcher.jobGroupContains(SEND_EVENT_GROUP));
-			}
-		} catch (SchedulerException e) {
-			e.printStackTrace();
-		}
+		SendEventJobCreator jobCreator = new SendEventJobCreator(schedule,
+			servicePicker,
+			eventManager);
+		jobCreator.createJob(fluxTrigger, screens);
 	}
 
 	private void deleteJobsOfSchedule(Schedule schedule) {
@@ -533,7 +480,11 @@ public class ScheduleController extends Controller {
 			Set<Integer> fluxIds = new HashSet<>();
 			String startTime = CronUtils.startTime;
 
+			int index = 0;
+
 			for (String fluxData: data.getFluxes()) {
+
+				index++;
 
 				String fluxName = fluxData.split("#")[0];
 				String fluxTime = fluxData.split("#")[1];
@@ -544,7 +495,7 @@ public class ScheduleController extends Controller {
 					fluxIds.add(flux.getId());
 					grouped = true;
 
-					if (data.getFluxes().size() == fluxIds.size()) {
+					if (data.getFluxes().size() == index) {
 						FluxLoop loop = new FluxLoop();
 						loop.setFluxes(fluxIds);
 						loop.setStartTime(startTime);
@@ -631,17 +582,5 @@ public class ScheduleController extends Controller {
 		return unscheduledIds;
 	}
 
-	private boolean checkIfSchedulesOverlap(Schedule existingSchedule, Schedule scheduleToActivate) {
-		String[] existingDays = existingSchedule.getDays().split(",");
-		String[] newDays = scheduleToActivate.getDays().split(",");
 
-		boolean output = false;
-
-		for (String day: newDays) {
-			if (Arrays.asList(existingDays).contains(day)) {
-				output = true;
-			}
-		}
-		return output;
-	}
 }
