@@ -10,19 +10,15 @@ import javax.persistence.*;
 public class WaitingScreen {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="waitingscreen_id")
-	private Integer id;
-
-	@Column(name="mac_address")
-	private String macAddress;
+	@Column(name="screen_id")
+	private Integer screenId;
 
 	@Column(name="code")
 	private String code;
 
-	public WaitingScreen(String code, String macAddress) {
+	public WaitingScreen(Integer screenId, String code) {
+		this.screenId = screenId;
 		this.code = code;
-		this.macAddress = macAddress;
 	}
 
 	public WaitingScreen() {
@@ -30,8 +26,13 @@ public class WaitingScreen {
 
 	// Getters and setters
 
-	public Integer getId() {
-		return id;
+
+	public Integer getScreenId() {
+		return screenId;
+	}
+
+	public void setScreenId(Integer screenId) {
+		this.screenId = screenId;
 	}
 
 	public String getCode() {
@@ -40,13 +41,5 @@ public class WaitingScreen {
 
 	public void setCode(String code) {
 		this.code = code;
-	}
-
-	public String getMacAddress() {
-		return macAddress;
-	}
-
-	public void setMacAddress(String macAddress) {
-		this.macAddress = macAddress;
 	}
 }

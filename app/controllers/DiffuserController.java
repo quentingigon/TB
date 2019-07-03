@@ -152,7 +152,7 @@ public class DiffuserController extends Controller {
 
 			Flux diffusedFlux = fluxService.getFluxById(diffuser.getFlux());
 
-			// createFromFluxLoop new runningDiffuser
+			// create new runningDiffuser
 			RunningDiffuser rd = new RunningDiffuser(diffuser);
 			rd.setDiffuserId(diffuser.getId());
 			rd.setScreens(new ArrayList<>(screenIds));
@@ -232,7 +232,7 @@ public class DiffuserController extends Controller {
 			return createViewWithErrorMessage(request, "Name is already taken");
 		}
 		else {
-			Result error = checkDataIntegrity(data, "createFromFluxLoop", request);
+			Result error = checkDataIntegrity(data, "create", request);
 			if (error != null) {
 				return error;
 			}
@@ -320,7 +320,7 @@ public class DiffuserController extends Controller {
 
 		if (data.getFluxName() != null) {
 			if (fluxService.getFluxByName(data.getFluxName()) ==  null) {
-				if (action.equals("createFromFluxLoop"))
+				if (action.equals("create"))
 					error = createViewWithErrorMessage(request, "Flux does not exists");
 				else if (action.equals("update"))
 					error = updateViewWithErrorMessage(request, data.getName(), "Flux does not exists");
@@ -331,7 +331,7 @@ public class DiffuserController extends Controller {
 		}
 
 		if (data.getStartTime() == null) {
-			if (action.equals("createFromFluxLoop"))
+			if (action.equals("create"))
 				error = createViewWithErrorMessage(request, "You must enter a start time");
 			else if (action.equals("update"))
 				error = updateViewWithErrorMessage(request, data.getName(), "You must enter a start time");
@@ -340,7 +340,7 @@ public class DiffuserController extends Controller {
 		if (data.getScreens() != null) {
 			for (String screenMAC: data.getScreens()) {
 				if (screenService.getScreenByMacAddress(screenMAC) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage(request, "Screen MAC address does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(request, data.getName(), "Screen MAC address does not exists");

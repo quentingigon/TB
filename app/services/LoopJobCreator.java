@@ -38,7 +38,7 @@ public class LoopJobCreator {
 	}
 
 	public void createFromJob(JobDataMap triggerDataMap) {
-		// createFromFluxLoop next trigger here
+		// create next trigger here
 		SchedulerFactory sf = new StdSchedulerFactory();
 		try {
 			Scheduler scheduler = sf.getScheduler();

@@ -136,12 +136,19 @@ public class JPAScreenRepository implements ScreenRepository {
 	@Override
 	public WaitingScreen getByMac(String mac) {
 		return jpaApi.withTransaction(entityManager -> {
-			String macAdr = "'" + mac + "'";
-			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM waitingscreen WHERE mac_address = " + macAdr, WaitingScreen.class);
-			try {
-				return (WaitingScreen) query.getSingleResult();
-			} catch (NoResultException e) {
+			Screen screen = getByMacAddress(mac);
+
+			if (screen != null) {
+				String screenId = "'" + screen.getId() + "'";
+				Query query = entityManager.createNativeQuery(
+					"SELECT * FROM waitingscreen WHERE screen_id = " + screenId, WaitingScreen.class);
+				try {
+					return (WaitingScreen) query.getSingleResult();
+				} catch (NoResultException e) {
+					return null;
+				}
+			}
+			else {
 				return null;
 			}
 		});

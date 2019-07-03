@@ -43,8 +43,10 @@ public class ScreenService {
 		return screenRepository.getByMac(mac);
 	}
 
-	public WaitingScreen createWS(WaitingScreen screen) {
-		return screenRepository.add(screen);
+	public WaitingScreen createWS(Screen screen, String code) {
+		screen = create(screen);
+		WaitingScreen ws = new WaitingScreen(screen.getId(), code);
+		return screenRepository.add(ws);
 	}
 
 	public void delete(WaitingScreen ws) {

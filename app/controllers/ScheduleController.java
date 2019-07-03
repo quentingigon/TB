@@ -142,7 +142,7 @@ public class ScheduleController extends Controller {
 		}
 		else {
 
-			// createFromFluxLoop runningSchedule
+			// create runningSchedule
 			RunningSchedule rs = new RunningSchedule(scheduleToActivate);
 			if (scheduleService.getRunningScheduleByScheduleId(scheduleToActivate.getId()) != null) {
 				return indexWithErrorMessage(request, "This schedule is already activated");
@@ -420,7 +420,7 @@ public class ScheduleController extends Controller {
 												List<FluxTrigger> triggers, List<FluxLoop> loops) {
 		triggers = setCronCmdForTriggers(triggers);
 
-		// createFromFluxLoop flux triggers for database
+		// create flux triggers for database
 		for (FluxTrigger ft: triggers) {
 			ft.setScheduleId(schedule.getId());
 			ft = servicePicker.getFluxService().createFluxTrigger(ft);
@@ -467,7 +467,7 @@ public class ScheduleController extends Controller {
 
 				// if a time was chosen
 				if (!fluxTime.equals("")) {
-					// createFromFluxLoop trigger without cron command
+					// create trigger without cron command
 					fluxTriggers.add(new FluxTrigger(fluxTime, flux.getId(), schedule.getId(), repeat.equals("true")));
 				}
 			}

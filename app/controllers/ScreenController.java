@@ -97,7 +97,7 @@ public class ScreenController extends Controller {
 		Screen screen = screenService.getScreenByMacAddress(macAdr);
 
 		// screen not registered
-		if (screen == null) {
+		if (screen == null || screenService.getWSByMacAddress(macAdr) != null) {
 
 			// if screen already asked for a code
 			if (screenService.getWSByMacAddress(macAdr) != null) {
@@ -106,7 +106,7 @@ public class ScreenController extends Controller {
 
 			String code = screenRegisterCodeGenerator();
 
-			screenService.createWS(new WaitingScreen(code, macAdr));
+			screenService.createWS(new Screen(macAdr), code);
 
 			// send code
 			return ok(screen_code.render(code));
@@ -189,7 +189,7 @@ public class ScreenController extends Controller {
 		String macAdr = data.getMac();
 
 		// screen is already known
-		if (screenService.getScreenByMacAddress(macAdr) != null) {
+		if (screenService.getScreenByMacAddress(macAdr) != null && screenService.getWSByMacAddress(macAdr) == null) {
 			return createViewWithErrorMessage("Screen already exists");
 		}
 		else if (data.getCode() == null) {
@@ -204,25 +204,25 @@ public class ScreenController extends Controller {
 					"You must first get a registration code by going to this address: /auth?mac=<YourMacAddress>");
 			}
 
-			// if macs are the same and code is correct  -> add screen to DB
-			if (ws.getMacAddress().equals(data.getMac()) && ws.getCode().equals(code)) {
+			Screen screen = screenService.getScreenById(ws.getScreenId());
 
-				Screen newScreen = new Screen(macAdr);
+			// if macs are the same and code is correct  -> add screen to DB
+			if (screen.getMacAddress().equals(data.getMac()) && ws.getCode().equals(code)) {
 
 				if (siteRepository.getByName(data.getSite().toLowerCase()) == null) {
 					return createViewWithErrorMessage("Bad site name");
 				}
-				newScreen.setSiteId(siteRepository.getByName(data.getSite().toLowerCase()).getId());
-				newScreen.setResolution(data.getResolution());
-				newScreen.setLogged(false);
-				newScreen.setName(data.getName());
+				screen.setSiteId(siteRepository.getByName(data.getSite().toLowerCase()).getId());
+				screen.setResolution(data.getResolution());
+				screen.setLogged(false);
+				screen.setName(data.getName());
 
-				screenService.create(newScreen);
+				screenService.update(screen);
 				screenService.delete(ws);
 
 				// add new schedule to current user's team
 				Team team = teamService.getTeamById(teamId);
-				team.addScreen(newScreen.getId());
+				team.addScreen(screen.getId());
 				teamService.update(team);
 
 				return index(request);

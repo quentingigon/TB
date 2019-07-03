@@ -119,7 +119,7 @@ public class TeamController extends Controller {
 		else {
 			Team team = new Team(data.getName());
 
-			Result error = checkDataIntegrity(data, "createFromFluxLoop");
+			Result error = checkDataIntegrity(data, "create");
 			if (error != null) {
 				return error;
 			}
@@ -208,7 +208,7 @@ public class TeamController extends Controller {
 		if (data.getFluxes() != null) {
 			for (String fluxName: data.getFluxes()) {
 				if (servicePicker.getFluxService().getFluxByName(fluxName) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage("Flux name does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(data.getName(), "Flux name does not exists");
@@ -222,7 +222,7 @@ public class TeamController extends Controller {
 		if (data.getMembers() != null) {
 			for (String email: data.getMembers()) {
 				if (servicePicker.getUserService().getMemberByUserEmail(email) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage("User email address does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(data.getName(), "User email address does not exists");
@@ -236,7 +236,7 @@ public class TeamController extends Controller {
 		if (data.getAdmins() != null) {
 			for (String email: data.getAdmins()) {
 				if (servicePicker.getUserService().getMemberByUserEmail(email) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage("Admin email does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(data.getName(), "Admin email does not exists");
@@ -250,7 +250,7 @@ public class TeamController extends Controller {
 		if (data.getSchedules() != null) {
 			for (String scheduleName: data.getSchedules()) {
 				if (servicePicker.getScheduleService().getScheduleByName(scheduleName) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage("Schedule name does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(data.getName(), "Schedule name does not exists");
@@ -264,7 +264,7 @@ public class TeamController extends Controller {
 		if (data.getDiffusers() != null) {
 			for (String diffuserName: data.getDiffusers()) {
 				if (servicePicker.getDiffuserService().getDiffuserByName(diffuserName) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage("Diffuser name does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(data.getName(), "Diffuser name does not exists");
@@ -278,7 +278,7 @@ public class TeamController extends Controller {
 		if (data.getScreens() != null) {
 			for (String screenMAC: data.getScreens()) {
 				if (servicePicker.getScreenService().getScreenByMacAddress(screenMAC) == null) {
-					if (action.equals("createFromFluxLoop"))
+					if (action.equals("create"))
 						error = createViewWithErrorMessage("Screen MAC address does not exists");
 					else if (action.equals("update"))
 						error = updateViewWithErrorMessage(data.getName(), "Screen MAC address does not exists");
