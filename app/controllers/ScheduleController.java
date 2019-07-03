@@ -427,9 +427,19 @@ public class ScheduleController extends Controller {
 			schedule.addToFluxtriggers(ft.getId());
 		}
 
+		// TODO it's working but maybe a row is needed in the DB (fluxloop_fluxes)
 		for (FluxLoop loop: loops) {
 			loop.setScheduleId(schedule.getId());
 			loop = servicePicker.getFluxService().createFluxLoop(loop);
+
+			/*
+			List<Integer> fluxIds = new ArrayList<>(loop.getFluxes());
+			// loop.setFluxes(new HashSet<>());
+			int order = 1;
+			for (Integer fluxId: fluxIds) {
+				servicePicker.getFluxService().addFluxToFluxLoop(loop.getId(), fluxId, order++);
+			}*/
+
 			schedule.addToFluxloops(loop.getId());
 		}
 		servicePicker.getScheduleService().update(schedule);
@@ -480,7 +490,7 @@ public class ScheduleController extends Controller {
 
 		if (data.getFluxes() != null) {
 			boolean grouped = false;
-			Set<Integer> fluxIds = new HashSet<>();
+			List<Integer> fluxIds = new ArrayList<>();
 			String startTime = data.getStartTime();
 
 			int index = 0;
@@ -500,23 +510,29 @@ public class ScheduleController extends Controller {
 
 					if (data.getFluxes().size() == index) {
 						FluxLoop loop = new FluxLoop();
-						loop.setFluxes(fluxIds);
+
+						Set<Integer> fluxes = getFluxIdsInOrderFromList(fluxIds);
+						loop.setFluxes(fluxes);
+
 						loop.setStartTime(startTime);
 						loops.add(loop);
-						fluxIds = new HashSet<>();
+						fluxIds = new ArrayList<>();
 					}
 				}
 				// if we ran through a trigger or all entries have been handled and there are no triggers
 				else if (grouped) {
 					FluxLoop loop = new FluxLoop();
-					loop.setFluxes(fluxIds);
 					loop.setStartTime(startTime);
+
+					Set<Integer> fluxes = getFluxIdsInOrderFromList(fluxIds);
+					loop.setFluxes(fluxes);
+
 					loops.add(loop);
 					DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
 					LocalTime actualTime = formatter.parseLocalTime(fluxTime)
 						.plusMinutes(flux.getTotalDuration());
 					startTime = formatter.print(actualTime);
-					fluxIds = new HashSet<>();
+					fluxIds = new ArrayList<>();
 					grouped = false;
 				}
 				else {
@@ -528,6 +544,15 @@ public class ScheduleController extends Controller {
 			}
 		}
 		return loops;
+	}
+
+	private Set<Integer> getFluxIdsInOrderFromList(List<Integer> fluxIds) {
+		Set<Integer> output = new LinkedHashSet<>();
+
+		for (Integer fluxId: fluxIds) {
+			output.add(fluxId);
+		}
+		return output;
 	}
 
 	private List<FluxTrigger> setCronCmdForTriggers(List<FluxTrigger> triggers) {

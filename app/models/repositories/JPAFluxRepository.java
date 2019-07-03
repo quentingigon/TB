@@ -67,6 +67,19 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
+	public void addFluxToFluxLoopWithOrder(Integer loopId, Integer fluxId, Integer order) {
+		jpaApi.withTransaction(entityManager -> {
+			String loop_id = "'" + loopId + "'";
+			String fl_id = "'" + fluxId + "'";
+			String ord = "'" + order + "'";
+
+			Query query = entityManager.createNativeQuery(
+				"INSERT INTO fluxloop_fluxes(fluxloop_id, fluxes, loop_order) VALUES (:loop_id, :fl_id, :ord)");
+			query.executeUpdate();
+		});
+	}
+
+	@Override
 	public Flux getByName(String name) {
 		return jpaApi.withTransaction(entityManager -> {
 			String fluxName = "'" + name + "'";

@@ -18,6 +18,7 @@ public interface FluxRepository {
 	ScheduledFlux addScheduledFlux(ScheduledFlux flux);
 	FluxTrigger addFluxTrigger(FluxTrigger flux);
 	FluxLoop addFluxLoop(FluxLoop flux);
+	void addFluxToFluxLoopWithOrder(Integer loopId, Integer fluxId, Integer order);
 
 	Flux getByName(String name);
 	Flux getById(Integer id);

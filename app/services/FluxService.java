@@ -69,6 +69,10 @@ public class FluxService {
 		return fluxRepository.addFluxLoop(fl);
 	}
 
+	public void addFluxToFluxLoop(Integer loopId, Integer fluxId, Integer order) {
+		fluxRepository.addFluxToFluxLoopWithOrder(loopId, fluxId, order);
+	}
+
 	public List<FluxTrigger> getFluxTriggersOfScheduleById(Integer id) {
 		return fluxRepository.getAllFluxTriggerOfSchedule(id);
 	}

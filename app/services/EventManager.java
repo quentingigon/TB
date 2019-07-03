@@ -83,6 +83,7 @@ public class EventManager {
 					screenIdsWithDifferentSiteIdAsString.append(s);
 				}
 
+				// bad random
 				Random rand = new Random();
 				List<Integer> fallbackIds = fluxService
 					.getFallBackIdsOfScheduleById(scheduleId);
