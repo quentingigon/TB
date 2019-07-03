@@ -6,17 +6,15 @@ import javax.persistence.*;
  * This class is the DM model for TeamMember.
  */
 @Entity
+@IdClass(TeamMemberId.class)
 @Table(name="teammember", schema="public")
 public class TeamMember {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="member_id")
-	private Integer id;
-
 	@Column(name="user_id")
 	private Integer userId;
 
+	@Id
 	@Column(name = "team_id")
 	private Integer teamId;
 
@@ -32,9 +30,6 @@ public class TeamMember {
 
 	// Getters and setters
 
-	public Integer getId() {
-		return id;
-	}
 
 	public Integer getTeamId() {
 		return teamId;

@@ -7,5 +7,5 @@ public interface EventJob extends Job {
 
 	FluxEvent getEvent();
 	boolean isJobFromSchedule();
-	int getScheduleId();
+	int getEntityId();
 }

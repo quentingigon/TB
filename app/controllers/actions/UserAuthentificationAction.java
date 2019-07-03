@@ -45,7 +45,7 @@ public class UserAuthentificationAction extends play.mvc.Action.Simple {
 			Integer teamId = userService.getTeamIdOfUserByEmail(req.cookie("email").value());
 			TeamMember member = userService.getMemberByUserEmail(req.cookie("email").value());
 			// if member of team or teamadmin or admin
-			if ((member != null && servicePicker.getTeamService().getTeamById(teamId).getMembers().contains(member.getId())) ||
+			if ((member != null && servicePicker.getTeamService().getTeamById(teamId).getMembers().contains(member.getUserId())) ||
 				userService.getAdminByUserEmail(req.cookie("email").value()) != null) {
 				return delegate.call(req);
 			}

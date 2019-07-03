@@ -1,16 +1,15 @@
 package services;
 
 import models.FluxEvent;
-import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public class SendLoopEventJob implements Job, EventJob {
+public class SendLoopEventJob implements EventJob {
 
 	private FluxEvent event;
 	private String source;
-	private int scheduleId;
+	private int entityId;
 
 	public SendLoopEventJob() {
 
@@ -25,7 +24,7 @@ public class SendLoopEventJob implements Job, EventJob {
 		int currentFluxId = triggerDataMap.getInt("currentFluxId");
 
 		source = triggerDataMap.getString("source");
-		scheduleId = triggerDataMap.getInt("scheduleId");
+		entityId = triggerDataMap.getInt("entityId");
 
 		if (!screenIds.isEmpty()) {
 			event = new FluxEvent(currentFluxId, screenIds);
@@ -43,7 +42,7 @@ public class SendLoopEventJob implements Job, EventJob {
 	}
 
 	@Override
-	public int getScheduleId() {
-		return scheduleId;
+	public int getEntityId() {
+		return entityId;
 	}
 }

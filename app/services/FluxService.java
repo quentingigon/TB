@@ -98,7 +98,6 @@ public class FluxService {
 		for (ScheduledFlux sf: fluxRepository.getAllScheduledFluxByScheduleId(scheduleId)) {
 			if (fluxRepository.getById(sf.getFluxId()) != null) {
 				FluxData fluxData = new FluxData(fluxRepository.getById(sf.getFluxId()));
-				fluxData.setStartTime(BlockUtils.getTimeOfBlockNumber(sf.getStartBlock()));
 				data.add(fluxData);
 			}
 		}

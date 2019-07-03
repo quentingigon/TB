@@ -16,6 +16,7 @@ public class ScheduleData {
 	private List<String> fallbackFluxes;
 	private List<String> screens;
 	private List<String> days;
+	private String startTime;
 
 	private boolean activated;
 
@@ -88,5 +89,13 @@ public class ScheduleData {
 
 	public void setDays(List<String> days) {
 		this.days = days;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
 }

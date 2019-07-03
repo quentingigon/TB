@@ -58,14 +58,14 @@ public class SendEventJobsListener extends Observable implements JobListener {
 
 		eventManager.handleEvent(job);
 
-		List<FluxTrigger> triggers = servicePicker.getFluxService().getFluxTriggersOfScheduleById(job.getScheduleId());
+		List<FluxTrigger> triggers = servicePicker.getFluxService().getFluxTriggersOfScheduleById(job.getEntityId());
 		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
 
-		List<FluxLoop> loops = servicePicker.getFluxService().getFluxLoopOfScheduleById(job.getScheduleId());
+		List<FluxLoop> loops = servicePicker.getFluxService().getFluxLoopOfScheduleById(job.getEntityId());
 		loops.sort(Comparator.comparing(FluxLoop::getStartTime));
 
 		FluxEvent event = job.getEvent();
-		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getScheduleId());
+		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getEntityId());
 
 		Flux currentFlux = servicePicker.getFluxService().getFluxById(event.getFluxId());
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");

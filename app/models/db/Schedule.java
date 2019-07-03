@@ -24,6 +24,9 @@ public class Schedule {
 	@Column(name="days")
 	private String days;
 
+	@Column(name="start_time")
+	private String startTime;
+
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fluxtriggers;
 
@@ -146,5 +149,13 @@ public class Schedule {
 			this.fluxloops = new HashSet<>();
 		}
 		this.fluxloops.add(flId);
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
 }

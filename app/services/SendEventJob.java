@@ -8,8 +8,7 @@ import org.quartz.JobExecutionException;
 public class SendEventJob implements EventJob {
 
 	private FluxEvent event;
-	private int scheduleId;
-	private int diffuserId;
+	private int entityId;
 	private String source;
 
 	public SendEventJob() {
@@ -32,10 +31,10 @@ public class SendEventJob implements EventJob {
 		source = triggerDataMap.getString("source");
 
 		if (source.equals("schedule")) {
-			scheduleId = triggerDataMap.getInt("scheduleId");
+			entityId = triggerDataMap.getInt("entityId");
 		}
 		else {
-			diffuserId = triggerDataMap.getInt("diffuserId");
+			entityId = triggerDataMap.getInt("entityId");
 		}
 
 	}
@@ -50,11 +49,7 @@ public class SendEventJob implements EventJob {
 		return source.equals("schedule");
 	}
 
-	public int getScheduleId() {
-		return scheduleId;
-	}
-
-	public int getDiffuserId() {
-		return diffuserId;
+	public int getEntityId() {
+		return entityId;
 	}
 }

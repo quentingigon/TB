@@ -180,11 +180,11 @@ public class TeamController extends Controller {
 		}
 
 		for (String email: data.getMembers()) {
-			team.addMember(servicePicker.getUserService().getMemberByUserEmail(email).getId());
+			team.addMember(servicePicker.getUserService().getMemberByUserEmail(email).getUserId());
 		}
 
 		for (String email: data.getAdmins()) {
-			team.addAdmin(servicePicker.getUserService().getMemberByUserEmail(email).getId());
+			team.addAdmin(servicePicker.getUserService().getMemberByUserEmail(email).getUserId());
 		}
 
 		for (String scheduleName: data.getSchedules()) {

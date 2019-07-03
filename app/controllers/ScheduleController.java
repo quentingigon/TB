@@ -8,7 +8,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.matchers.GroupMatcher;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -22,14 +21,11 @@ import views.html.schedule.schedule_page;
 import views.html.schedule.schedule_update;
 
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.*;
 
 import static controllers.CronUtils.*;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * This class implements a controller for the Schedules.
@@ -251,6 +247,7 @@ public class ScheduleController extends Controller {
 			}
 			days.deleteCharAt(days.length() - 1);
 			schedule.setDays(days.toString());
+			schedule.setStartTime(data.getStartTime());
 
 			// get fallbacks
 			for (Integer fluxId: getFallbackFluxIds(data)) {
@@ -259,7 +256,12 @@ public class ScheduleController extends Controller {
 
 			schedule = scheduleService.create(schedule);
 
-			createFluxTriggers(data, schedule);
+			// get boundaries (FluxTrigger) and loops
+			List<FluxTrigger> triggers = getFluxTriggersFromData(data, schedule);
+			List<FluxLoop> loops = getFluxLoopsFromData(data);
+			loops = getUniqueLoops(loops);
+
+			createFluxTriggersAndFluxLoops(data, schedule, triggers, loops);
 
 			// add new schedule to current user's team
 			Team team = teamService.getTeamById(teamId);
@@ -296,6 +298,7 @@ public class ScheduleController extends Controller {
 			}
 			days.deleteCharAt(days.length() - 1);
 			schedule.setDays(days.toString());
+			schedule.setStartTime(data.getStartTime());
 
 			Result error = checkFluxesIntegrity(data, request);
 			if (error != null) {
@@ -306,7 +309,9 @@ public class ScheduleController extends Controller {
 				schedule.addToFallbacks(fluxId);
 			}
 
-			createFluxTriggers(data, schedule);
+			List<FluxTrigger> triggers = getFluxTriggersFromData(data, schedule);
+			List<FluxLoop> loops = getFluxLoopsFromData(data);
+			createFluxTriggersAndFluxLoops(data, schedule, triggers, loops);
 
 			return index(request);
 		}
@@ -333,27 +338,18 @@ public class ScheduleController extends Controller {
 	private void createJobsForSchedule(Schedule schedule, List<Screen> screens) {
 		FluxService fluxService = servicePicker.getFluxService();
 
-		SchedulerFactory sf = new StdSchedulerFactory();
-		Scheduler scheduler;
-		try {
-			scheduler = sf.getScheduler();
+		List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
+		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
 
-			List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
-			triggers.sort(Comparator.comparing(FluxTrigger::getTime));
+		// start correct FluxLoop if needed
+		FluxLoop loop = fluxService.getFluxLoopThatMustBeStarted(triggers, schedule);
+		if (loop != null) {
+			createAndScheduleLoopJob(schedule, screens, loop);
+		}
 
-			// start correct FluxLoop if needed
-			FluxLoop loop = fluxService.getFluxLoopThatMustBeStarted(triggers, schedule);
-			if (loop != null) {
-				createAndScheduleLoopJob(schedule, screens, loop);
-			}
-
-			// run through triggers in DB and schedule job accordingly
-			for (FluxTrigger ft: triggers) {
-				createAndScheduleJobFromFluxTrigger(schedule, ft, screens);
-			}
-
-		} catch (SchedulerException e) {
-			e.printStackTrace();
+		// run through triggers in DB and schedule job accordingly
+		for (FluxTrigger ft: triggers) {
+			createAndScheduleJobFromFluxTrigger(schedule, ft, screens);
 		}
 	}
 
@@ -370,10 +366,8 @@ public class ScheduleController extends Controller {
 	private void createAndScheduleJobFromFluxTrigger(Schedule schedule,
 													 FluxTrigger fluxTrigger,
 													 List<Screen> screens) {
-		SendEventJobCreator jobCreator = new SendEventJobCreator(schedule,
-			servicePicker,
-			eventManager);
-		jobCreator.createJob(fluxTrigger, screens);
+		SendEventJobCreator jobCreator = new SendEventJobCreator(servicePicker, eventManager);
+		jobCreator.createJobForSchedule(schedule, fluxTrigger, screens);
 	}
 
 	private void deleteJobsOfSchedule(Schedule schedule) {
@@ -417,22 +411,13 @@ public class ScheduleController extends Controller {
 				if (fluxName == null || servicePicker.getFluxService().getFluxByName(fluxName) == null) {
 					error = createViewWithErrorMessage(request, "Flux name does not exists");
 				}
-
-				// we must createFromFluxLoop a FluxTrigger for this entry
-				if (fluxDatas.length == 2 && !fluxDatas[1].equals("")) {
-					String fluxTime = fluxDatas[1];
-					int fluxHour = Integer.parseInt(fluxTime.split((":"))[0]);
-
-					// TODO complete
-				}
 			}
 		}
 		return error;
 	}
 
-	private void createFluxTriggers(ScheduleData data, Schedule schedule) {
-		List<FluxTrigger> triggers = getFluxTriggersFromData(data, schedule);
-		List<FluxLoop> loops = getFluxLoopsFromData(data);
+	private void createFluxTriggersAndFluxLoops(ScheduleData data, Schedule schedule,
+												List<FluxTrigger> triggers, List<FluxLoop> loops) {
 		triggers = setCronCmdForTriggers(triggers);
 
 		// createFromFluxLoop flux triggers for database
@@ -448,6 +433,24 @@ public class ScheduleController extends Controller {
 			schedule.addToFluxloops(loop.getId());
 		}
 		servicePicker.getScheduleService().update(schedule);
+	}
+
+	// remove FluxLoops with same fluxes (even if in different order)
+	private List<FluxLoop> getUniqueLoops(List<FluxLoop> loops) {
+		Set<FluxLoop> output = new HashSet<>(loops);
+
+		for (int i = 0; i < loops.size() - 1; i++) {
+			FluxLoop loop1 = loops.get(i);
+
+			for (int j = i + 1; j < loops.size(); j++) {
+				FluxLoop loop2 = loops.get(j);
+
+				if (loop1.getFluxes().equals(loop2.getFluxes())) {
+					output.remove(loop2);
+				}
+			}
+		}
+		return new ArrayList<>(output);
 	}
 
 	private List<FluxTrigger> getFluxTriggersFromData(ScheduleData data, Schedule schedule) {
@@ -478,7 +481,7 @@ public class ScheduleController extends Controller {
 		if (data.getFluxes() != null) {
 			boolean grouped = false;
 			Set<Integer> fluxIds = new HashSet<>();
-			String startTime = CronUtils.startTime;
+			String startTime = data.getStartTime();
 
 			int index = 0;
 
@@ -500,6 +503,7 @@ public class ScheduleController extends Controller {
 						loop.setFluxes(fluxIds);
 						loop.setStartTime(startTime);
 						loops.add(loop);
+						fluxIds = new HashSet<>();
 					}
 				}
 				// if we ran through a trigger or all entries have been handled and there are no triggers
@@ -511,7 +515,8 @@ public class ScheduleController extends Controller {
 					DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
 					LocalTime actualTime = formatter.parseLocalTime(fluxTime)
 						.plusMinutes(flux.getTotalDuration());
-					startTime = formatter.print(actualTime) ;
+					startTime = formatter.print(actualTime);
+					fluxIds = new HashSet<>();
 					grouped = false;
 				}
 				else {
@@ -581,6 +586,4 @@ public class ScheduleController extends Controller {
 
 		return unscheduledIds;
 	}
-
-
 }

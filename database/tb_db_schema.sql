@@ -24,6 +24,23 @@ CREATE TABLE users
     password VARCHAR(20)
   );
 
+DROP TABLE IF EXISTS teammember CASCADE;
+CREATE TABLE teammember
+  (
+    user_id INTEGER NOT NULL REFERENCES users (user_id),
+    team_id INTEGER NOT NULL REFERENCES team (team_id),
+    PRIMARY KEY (user_id, team_id),
+    UNIQUE (user_id)
+  );
+
+
+DROP TABLE IF EXISTS admins CASCADE;
+CREATE TABLE admins
+  (
+    user_id INTEGER NOT NULL REFERENCES users (user_id),
+    PRIMARY KEY (user_id)
+  );
+
 
 DROP TABLE IF EXISTS team CASCADE;
 CREATE TABLE team
@@ -34,20 +51,11 @@ CREATE TABLE team
   );
 
 
-DROP TABLE IF EXISTS teaminfo CASCADE;
-CREATE TABLE teaminfo
-  (
-    team_id INTEGER NOT NULL REFERENCES team (team_id),
-    admin_id INTEGER NOT NULL REFERENCES teammember (member_id),
-    PRIMARY KEY (team_id, admin_id)
-  );
-
-
 DROP TABLE IF EXISTS team_admins CASCADE;
 CREATE TABLE team_admins
   (
     team_team_id INTEGER REFERENCES team (team_id),
-    admins INTEGER NOT NULL REFERENCES users (user_id),
+    admins INTEGER NOT NULL REFERENCES admins (user_id),
     PRIMARY KEY (team_team_id, admins)
   );
 
@@ -92,7 +100,7 @@ DROP TABLE IF EXISTS team_members CASCADE;
 CREATE TABLE team_members
   (
     team_team_id INTEGER REFERENCES team (team_id),
-    members INTEGER NOT NULL REFERENCES teammember (member_id),
+    members INTEGER NOT NULL REFERENCES teammember (user_id),
     PRIMARY KEY (team_team_id, members)
   );
 
@@ -106,29 +114,13 @@ CREATE TABLE team_groups
   );
 
 
-DROP TABLE IF EXISTS teammember CASCADE;
-CREATE TABLE teammember
-  (
-    member_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users (user_id),
-    team_id INTEGER NOT NULL REFERENCES team (team_id)
-  );
-
-
-DROP TABLE IF EXISTS admin CASCADE;
-CREATE TABLE admin
-  (
-    admin_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users (user_id)
-  );
-
-
 DROP TABLE IF EXISTS schedule CASCADE;
 CREATE TABLE schedule
   (
     schedule_id SERIAL PRIMARY KEY,
     name VARCHAR(20),
-    days VARCHAR(100)
+    days VARCHAR(100),
+    start_time VARCHAR(20)
   );
 
 DROP TABLE IF EXISTS schedule_fluxtriggers CASCADE;
@@ -318,6 +310,7 @@ CREATE TABLE fluxloop_fluxes
   (
     fluxloop_id INTEGER NOT NULL REFERENCES fluxloop(id),
     fluxes INTEGER NOT NULL REFERENCES flux(flux_id),
+    loop_order INTEGER,
     PRIMARY KEY (fluxloop_id, fluxes)
   );
 
@@ -390,7 +383,7 @@ RETURNS TRIGGER
 AS $$
 BEGIN
     INSERT INTO team_members (team_team_id, members)
-    VALUES (NEW.team_id, NEW.member_id);
+    VALUES (NEW.team_id, NEW.user_id);
 RETURN OLD;
 END;
 $$

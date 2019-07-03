@@ -88,7 +88,7 @@ public class LoopJobCreator {
 					.usingJobData("days", days)
 					.usingJobData("time", formatter.print(timeForNextTrigger))
 					.usingJobData("upperBound", upperTimeBound)
-					.withSchedule(cronSchedule(getCronCmdUnscheduled(days, formatter.print(timeForNextTrigger))))
+					.withSchedule(cronSchedule(getCronCmdLoop(days, formatter.print(timeForNextTrigger))))
 					.build();
 
 				// delete previous job and trigger
@@ -109,6 +109,7 @@ public class LoopJobCreator {
 			.withIdentity(JOB_NAME_LOOP + schedule.getName(), SEND_LOOP_EVENT_GROUP)
 			.build();
 
+		// TODO implement a way to have the loopedflux in correct order
 		List<Integer> loopedFluxIds = new ArrayList<>(loop.getFluxes());
 		loopedFluxIds.add(loopedFluxIds.get(0));
 		Integer currentFluxId = loopedFluxIds.remove(0);
@@ -124,7 +125,7 @@ public class LoopJobCreator {
 			.usingJobData("time", loop.getStartTime())
 			.usingJobData("upperBound", getNextFluxTriggerTimeOfSchedule(
 				servicePicker.getFluxService().getFluxTriggersOfScheduleById(schedule.getId()), timeStamp))
-			.withSchedule(cronSchedule(getCronCmdUnscheduled(schedule.getDays(), loop.getStartTime())))
+			.withSchedule(cronSchedule(getCronCmdLoop(schedule.getDays(), loop.getStartTime())))
 			.build();
 
 		SchedulerFactory sf = new StdSchedulerFactory();

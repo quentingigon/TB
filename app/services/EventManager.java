@@ -3,14 +3,15 @@ package services;
 import controllers.EventSourceController;
 import models.FluxEvent;
 import models.db.*;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static controllers.CronUtils.*;
+import static controllers.CronUtils.checkIfScheduleAndDiffuserDaysOverlap;
 
 
 @Singleton
@@ -34,11 +35,11 @@ public class EventManager {
 
 		// there is an active schedule for the screens concerned by the job
 		if (job.isJobFromSchedule()) {
-			sendFluxEventAsGeneralOrLocated(event, job.getScheduleId());
+			sendFluxEventAsGeneralOrLocated(event, job.getEntityId());
 		}
 		// job is from a diffuser
 		else {
-			sendFluxEvent(event, job.getScheduleId());
+			sendFluxEvent(event, job.getEntityId());
 		}
 	}
 
@@ -126,7 +127,7 @@ public class EventManager {
 		return screenIdsWithDifferentSiteId;
 	}
 
-	private String sendDiffusedEventToConcernedScreens(FluxEvent event, Integer scheduleId) {
+	private String sendDiffusedFluxToConcernedScreens(FluxEvent event, Integer scheduleId) {
 		StringBuilder screenIdsWithNoDiffuser = new StringBuilder();
 		List<Screen> screens = getScreenList(event.getScreenIds());
 		DiffuserService diffuserService = servicePicker.getDiffuserService();
@@ -141,16 +142,17 @@ public class EventManager {
 				if (scheduleId != null) {
 					Schedule schedule = servicePicker.getScheduleService().getScheduleById(scheduleId);
 
-					// TODO add check time overlap
-					if (checkIfScheduleAndDiffuserDaysOverlap(schedule, diffuser)) {
+					if (schedule != null &&
+						(checkIfScheduleAndDiffuserDaysOverlap(schedule, diffuser)
+						&& checkIfScheduleAndDiffuserTimeOverlap(schedule, diffuser))) {
 						send(servicePicker.getFluxService().getFluxById(diffuser.getFlux()),
-							new ArrayList<>(Collections.singletonList(String.valueOf(s.getId()))));
+							getMacAddresses(event.getScreenIds()));
 					}
 				}
 				// no active schedule, just a diffuser
 				else {
 					send(servicePicker.getFluxService().getFluxById(diffuser.getFlux()),
-						new ArrayList<>(Collections.singletonList(String.valueOf(s.getId()))));
+						getMacAddresses(event.getScreenIds()));
 				}
 			}
 			else {
@@ -165,30 +167,20 @@ public class EventManager {
 		List<FluxTrigger> triggers = servicePicker.getFluxService().getFluxTriggersOfScheduleById(schedule.getId());
 		Flux diffusedFlux = servicePicker.getFluxService().getFluxById(diffuser.getFlux());
 
-		// String currentDate = new SimpleDateFormat("yyyy-dd-MM").format(new Date());
-		String diffuserDateString = diffuser.getTime();
-		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-		df.setTimeZone(TimeZone.getTimeZone("UTC"));
-		Date diffuserDate = null;
-		try {
-			diffuserDate = df.parse(diffuserDateString);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		long diffuserTime = diffuserDate.getTime() + (diffusedFlux.getTotalDuration() * 60000);
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+		LocalTime diffuserStartTime = formatter.parseLocalTime(diffuser.getTime());
+		LocalTime diffuserEndTime = diffuserStartTime.plusMinutes(diffusedFlux.getTotalDuration());
+
+		String startTime = formatter.print(diffuserStartTime);
+		String endTime = formatter.print(diffuserEndTime);
 
 		for (FluxTrigger ft: triggers) {
 
-			String fluxTriggerDateString = ft.getTime();
-			Date fluxTriggerDate = null;
-			try {
-				fluxTriggerDate = df.parse(fluxTriggerDateString);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			String fluxTriggerTime = ft.getTime();
 
-			if (diffuserTime - fluxTriggerDate.getTime() > 0 &&
-				diffuserTime - fluxTriggerDate.getTime() < diffusedFlux.getTotalDuration()) {
+			if (fluxTriggerTime.compareTo(startTime) == 0 ||
+				fluxTriggerTime.compareTo(endTime) == 0 ||
+				(fluxTriggerTime.compareTo(startTime) > 0 && fluxTriggerTime.compareTo(endTime) < 0)) {
 				return true;
 			}
 		}
@@ -201,7 +193,7 @@ public class EventManager {
 		if (currentFlux != null) {
 
 			// send diffused flux to correct screen and returns the ids of the other screens
-			String screenIdsWithNoActiveDiffuser = sendDiffusedEventToConcernedScreens(event, scheduleId);
+			String screenIdsWithNoActiveDiffuser = sendDiffusedFluxToConcernedScreens(event, scheduleId);
 
 			if (!screenIdsWithNoActiveDiffuser.isEmpty()) {
 				List<String> macAddresses = getMacAddresses(screenIdsWithNoActiveDiffuser);

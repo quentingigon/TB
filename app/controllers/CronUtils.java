@@ -28,7 +28,7 @@ public class CronUtils {
 
 	private CronUtils() {}
 
-	public static String getCronCmdUnscheduled(String days, String time) {
+	public static String getCronCmdLoop(String days, String time) {
 		return getCronCmd(time, days, 0, "");
 	}
 
@@ -94,16 +94,11 @@ public class CronUtils {
 	}
 
 	public static boolean mustFluxLoopBeStarted(String currentTime, FluxLoop loop, List<FluxTrigger> triggers) {
-		if (loop.getStartTime().compareTo(currentTime) == 0 ||
+		return loop.getStartTime().compareTo(currentTime) == 0 ||
 			(loop.getStartTime().compareTo(currentTime) < 0
 				&& getNextFluxTriggerTimeOfSchedule(triggers, currentTime).equals("")) ||
 			(loop.getStartTime().compareTo(currentTime) < 0
-				&& getNextFluxTriggerTimeOfSchedule(triggers, currentTime).compareTo(currentTime) > 0)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+				&& getNextFluxTriggerTimeOfSchedule(triggers, currentTime).compareTo(currentTime) > 0);
 	}
 
 	public static boolean checkIfScheduleAndDiffuserDaysOverlap(Schedule schedule, Diffuser diffuser) {

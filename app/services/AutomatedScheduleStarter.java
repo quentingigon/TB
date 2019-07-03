@@ -66,13 +66,11 @@ public class AutomatedScheduleStarter {
 
                 List<FluxTrigger> triggers = fluxService.getFluxTriggersOfScheduleById(schedule.getId());
 
-                SendEventJobCreator jobCreator = new SendEventJobCreator(schedule,
-                    servicePicker,
-                    eventManager);
+                SendEventJobCreator jobCreator = new SendEventJobCreator(servicePicker, eventManager);
 
                 // Create CRONs for all FluxTriggers of Schedule
                 for (FluxTrigger ft: triggers) {
-                    jobCreator.createJob(ft, screens);
+                    jobCreator.createJobForSchedule(schedule, ft, screens);
                 }
 
                 LoopJobCreator loopJobCreator = new LoopJobCreator(schedule,

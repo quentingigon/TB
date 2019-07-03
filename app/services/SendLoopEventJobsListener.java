@@ -49,7 +49,7 @@ public class SendLoopEventJobsListener extends Observable implements JobListener
 
 		eventManager.handleEvent(job);
 
-		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getScheduleId());
+		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getEntityId());
 
 		createNextLoopJob(triggerDataMap, schedule);
 	}

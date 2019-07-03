@@ -109,7 +109,7 @@ public class UserController extends Controller {
 				member = userService.createTeamMember(member);
 
 				if (data.getAdmin()) {
-					team.addAdmin(member.getId());
+					team.addAdmin(member.getUserId());
 					teamService.update(team);
 				}
 

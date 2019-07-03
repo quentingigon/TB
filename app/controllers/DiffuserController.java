@@ -3,8 +3,6 @@ package controllers;
 import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.DiffuserData;
-import models.entities.ScheduleData;
-import models.repositories.interfaces.FluxRepository;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import play.data.Form;
@@ -23,7 +21,6 @@ import javax.inject.Inject;
 import java.util.*;
 
 import static controllers.CronUtils.getCronCmdDiffuser;
-import static controllers.CronUtils.getCronCmdSchedule;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -175,28 +172,10 @@ public class DiffuserController extends Controller {
 
 			// creates job, trigger and listener for all screens that are not associated to a running schedule
 			if (!screensWithNoRunningSchedule.isEmpty()) {
-				SchedulerFactory sf = new StdSchedulerFactory();
-				Scheduler scheduler = sf.getScheduler();
 
-				JobDetail job = newJob(SendEventJob.class)
-					.withIdentity("sendEventJob#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
-					.build();
+				SendEventJobCreator jobCreator = new SendEventJobCreator(servicePicker, eventManager);
 
-				CronTrigger trigger = newTrigger()
-					.withIdentity("trigger#" + diffusedFlux.getName() + "#" + diffuser.getCronCmd(), diffuser.getName())
-					.usingJobData("screenIds", getScreenIds(screensWithNoRunningSchedule))
-					.usingJobData("fluxId", diffusedFlux.getId())
-					.usingJobData("source", "diffuser")
-					.usingJobData("diffuserId", diffuser.getId())
-					.withSchedule(cronSchedule(diffuser.getCronCmd()))
-					.build();
-				scheduler.scheduleJob(job, trigger);
-
-				SendEventJobsListener listener = new SendEventJobsListener(
-					diffuser.getName(),
-					eventManager,
-					servicePicker);
-				scheduler.getListenerManager().addJobListener(listener, allJobs());
+				jobCreator.createJobForDiffuser(diffuser, diffusedFlux, screensWithNoRunningSchedule);
 			}
 
 			return index(request);
@@ -261,11 +240,14 @@ public class DiffuserController extends Controller {
 
 			// set active days
 			StringBuilder days = new StringBuilder();
-			for (String day: data.getDays()) {
-				days.append(day).append(",");
+			if (data.getDays() != null) {
+				for (String day: data.getDays()) {
+					days.append(day).append(",");
+				}
+				days.deleteCharAt(days.length() - 1);
+				diffuser.setDays(days.toString());
 			}
-			days.deleteCharAt(days.length() - 1);
-			diffuser.setDays(days.toString());
+
 			diffuser.setTime(data.getStartTime());
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
@@ -302,6 +284,7 @@ public class DiffuserController extends Controller {
 			}
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setName(data.getName());
+			diffuser.setTime(data.getStartTime());
 			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
 
 			diffuserService.update(diffuser);

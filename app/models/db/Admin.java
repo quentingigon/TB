@@ -6,20 +6,15 @@ import javax.persistence.*;
  * This class is the DM model for Admin.
  */
 @Entity
+@IdClass(AdminId.class)
 @Table(name="admin", schema = "public")
 public class Admin {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="admin_id")
-	private Integer id;
-
 	@Column(name="user_id")
 	private Integer userId;
 
-
 	public Admin() {
-
 	}
 
 	public Admin(Integer userId) {
@@ -31,10 +26,6 @@ public class Admin {
 	}
 
 	// Getter and setters
-
-	public Integer getId() {
-		return id;
-	}
 
 	public Integer getUserId() {
 		return userId;
