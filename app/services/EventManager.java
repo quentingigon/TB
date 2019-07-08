@@ -239,13 +239,6 @@ public class EventManager {
 				"|" +
 				String.join(",", macAddresses)
 		);
-
-		// updating concerned screens
-		for (String screenMac: macAddresses) {
-			Screen screen = screenService.getScreenByMacAddress(screenMac);
-			screen.setCurrentFluxName(currentFlux.getName());
-			screenService.update(screen);
-		}
 	}
 
 	private RunningDiffuser getRunningDiffuserIfPresent(Screen s) {

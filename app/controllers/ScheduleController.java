@@ -172,6 +172,7 @@ public class ScheduleController extends Controller {
 			}
 			rs = scheduleService.create(rs);
 
+
 			// set RunningSchedule id for screens concerned
 			for (Screen screen: screens) {
 				screen.setRunningscheduleId(rs.getId());
@@ -382,7 +383,7 @@ public class ScheduleController extends Controller {
 			// flux triggers
 			for (FluxTrigger ft: triggers) {
 				Flux flux = fluxService.getFluxById(ft.getFluxId());
-				String jobName = JOB_NAME_TRIGGER + flux.getName() + "#" + ft.getCronCmd();
+				String jobName = JOB_NAME_TRIGGER + flux.getName() + "#" + getCronCmdSchedule(schedule, ft.getTime());
 				scheduler.deleteJob(new JobKey(jobName, SEND_EVENT_GROUP + "." + schedule.getName()));
 			}
 
@@ -416,7 +417,6 @@ public class ScheduleController extends Controller {
 
 	private void createFluxTriggersAndFluxLoops(Schedule schedule,
 												List<FluxTrigger> triggers, List<FluxLoop> loops) {
-		triggers = setCronCmdForTriggers(triggers);
 
 		// create flux triggers for database
 		for (FluxTrigger ft: triggers) {
@@ -471,14 +471,13 @@ public class ScheduleController extends Controller {
 
 				String fluxName = fluxData.split("#")[0];
 				String fluxTime = fluxData.split("#")[1];
-				String repeat = fluxData.split("#")[2];
 
 				Flux flux = servicePicker.getFluxService().getFluxByName(fluxName);
 
 				// if a time was chosen
 				if (!fluxTime.equals("")) {
 					// create trigger without cron command
-					fluxTriggers.add(new FluxTrigger(fluxTime, flux.getId(), schedule.getId(), repeat.equals("true")));
+					fluxTriggers.add(new FluxTrigger(fluxTime, flux.getId(), schedule.getId()));
 				}
 			}
 		}
@@ -551,31 +550,6 @@ public class ScheduleController extends Controller {
 
 		for (Integer fluxId: fluxIds) {
 			output.add(fluxId);
-		}
-		return output;
-	}
-
-	private List<FluxTrigger> setCronCmdForTriggers(List<FluxTrigger> triggers) {
-		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
-		List<FluxTrigger> output = new ArrayList<>();
-
-		for (int i = 0; i < triggers.size(); i++) {
-			FluxTrigger ft = triggers.get(i);
-			Flux flux = servicePicker.getFluxService().getFluxById(ft.getFluxId());
-			Schedule schedule = servicePicker.getScheduleService().getScheduleById(ft.getScheduleId());
-
-			int repeatDuration = 0;
-			String nextTriggerStartHour = "";
-			if (ft.isRepeat()) {
-				repeatDuration = flux.getTotalDuration();
-
-				if (triggers.size() > (i + 1)) {
-					nextTriggerStartHour = triggers.get(i + 1).getTime().split(":")[0];
-				}
-			}
-
-			ft.setCronCmd(getCronCmdSchedule(schedule, ft.getTime(), repeatDuration, nextTriggerStartHour));
-			output.add(ft);
 		}
 		return output;
 	}

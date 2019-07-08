@@ -34,14 +34,10 @@ public class Schedule {
 	private Set<Integer> fluxloops;
 
 	@ElementCollection(fetch = FetchType.EAGER)
-	private Set<Integer> fluxes;
-
-	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fallbacks;
 
 	public Schedule() {
 		fallbacks = new HashSet<>();
-		fluxes = new HashSet<>();
 	}
 
 	public Schedule(String name) {
@@ -51,7 +47,6 @@ public class Schedule {
 
 	public Schedule(ScheduleData data) {
 		this.name = data.getName();
-		this.fluxes = new HashSet<>();
 		this.fallbacks = new HashSet<>();
 	}
 
@@ -63,29 +58,6 @@ public class Schedule {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	@ElementCollection(fetch = FetchType.EAGER)
-	public Set<Integer> getFluxes() {
-		return fluxes;
-	}
-
-	public void setFluxes(Set<Integer> fluxes) {
-		this.fluxes = fluxes;
-	}
-
-	public void addToFluxes(Integer fluxId) {
-		if (this.fluxes == null) {
-			this.fluxes = new HashSet<>();
-		}
-		this.fluxes.add(fluxId);
-	}
-
-	public void removeFromFluxes(Integer fluxId) {
-		if (this.fluxes == null) {
-			this.fluxes = new HashSet<>();
-		}
-		this.fluxes.remove(fluxId);
 	}
 
 	public String getName() {

@@ -206,7 +206,7 @@ public class DiffuserController extends Controller {
 				scheduler.getListenerManager().removeJobListener(diffuser.getName());
 
 				Flux flux = fluxService.getFluxById(diffuser.getFlux());
-				String jobName = "sendEventJob#" + flux.getName() + "#" + diffuser.getCronCmd();
+				String jobName = "sendEventJob#" + flux.getName() + "#" + getCronCmdDiffuser(diffuser, diffuser.getTime());
 				scheduler.deleteJob(new JobKey(jobName, diffuser.getName()));
 			} catch (SchedulerException e) {
 				e.printStackTrace();
@@ -250,7 +250,6 @@ public class DiffuserController extends Controller {
 
 			diffuser.setTime(data.getStartTime());
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
-			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
 
 			diffuser = diffuserService.create(diffuser);
 
@@ -285,7 +284,6 @@ public class DiffuserController extends Controller {
 			diffuser.setFlux(fluxService.getFluxByName(data.getFluxName()).getId());
 			diffuser.setName(data.getName());
 			diffuser.setTime(data.getStartTime());
-			diffuser.setCronCmd(getCronCmdDiffuser(diffuser, data.getStartTime(), 0, ""));
 
 			diffuserService.update(diffuser);
 

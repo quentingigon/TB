@@ -31,7 +31,6 @@ public class ScreenData {
 		this.resolution = s.getResolution();
 		this.active = s.isActive();
 		this.logged = s.isLogged();
-		this.currentFluxName = s.getCurrentFluxName();
 	}
 
 	// Getters and setters

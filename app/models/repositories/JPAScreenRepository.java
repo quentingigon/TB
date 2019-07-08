@@ -80,22 +80,6 @@ public class JPAScreenRepository implements ScreenRepository {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<Screen> getAllByRunningScheduleId(Integer id) {
-		return jpaApi.withTransaction(entityManager -> {
-			String runningScheduleId = "'" + id + "'";
-			Query query = entityManager.createNativeQuery(
-				"SELECT * FROM screen WHERE runningschedule_id = " + runningScheduleId,
-				Screen.class);
-			try {
-				return (List<Screen>) query.getResultList();
-			} catch (NoResultException e) {
-				return null;
-			}
-		});
-	}
-
-	@Override
 	public Screen add(Screen screen) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(screen);

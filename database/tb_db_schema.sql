@@ -182,7 +182,6 @@ CREATE TABLE diffuser
     name VARCHAR(20),
     time VARCHAR(20),
     days VARCHAR(100),
-    cron_cmd VARCHAR(100),
     flux_id INTEGER NOT NULL REFERENCES flux(flux_id)
   );
 
@@ -214,8 +213,7 @@ CREATE TABLE screen
     mac_address VARCHAR(20),
     resolution VARCHAR(10),
     logged BOOLEAN,
-    active BOOLEAN,
-    current_flux_name VARCHAR(100)
+    active BOOLEAN
   );
 
 
@@ -290,9 +288,7 @@ CREATE TABLE fluxtrigger
     id SERIAL PRIMARY KEY,
     schedule_id INTEGER NOT NULL REFERENCES schedule(schedule_id),
     flux_id INTEGER NOT NULL REFERENCES flux (flux_id),
-    time VARCHAR(20),
-    cron_cmd VARCHAR(100),
-    repeat BOOLEAN
+    time VARCHAR(20)
   );
 
 DROP TABLE IF EXISTS fluxloop CASCADE;
@@ -300,8 +296,7 @@ CREATE TABLE fluxloop
   (
     id SERIAL PRIMARY KEY,
     schedule_id INTEGER NOT NULL REFERENCES schedule(schedule_id),
-    type varchar(20),
-    start_time VARCHAR(20),
+    time VARCHAR(20),
     loop_order INTEGER
   );
 
@@ -311,7 +306,7 @@ CREATE TABLE fluxloop_fluxes
     fluxloop_id INTEGER NOT NULL REFERENCES fluxloop(id),
     fluxes INTEGER NOT NULL REFERENCES flux(flux_id),
     flux_order INTEGER,
-    PRIMARY KEY (fluxloop_id, fluxes, flux_order)
+    PRIMARY KEY (fluxloop_id, fluxes)
   );
 
 

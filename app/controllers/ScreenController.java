@@ -39,13 +39,10 @@ public class ScreenController extends Controller {
 	private Form<ScreenData> form;
 
 	private final ServicePicker servicePicker;
-	private final FluxChecker fluxChecker;
 
 	@Inject
 	public ScreenController(FormFactory formFactory,
-							ServicePicker servicePicker,
-							FluxChecker fluxChecker) {
-		this.fluxChecker = fluxChecker;
+							ServicePicker servicePicker) {
 		this.servicePicker = servicePicker;
 		this.form = formFactory.form(ScreenData.class);
 	}
@@ -127,20 +124,20 @@ public class ScreenController extends Controller {
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
-					if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null) {
-						RunningDiffuser rd = diffuserService.getRunningDiffuserById(
-							diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));
-						Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
+				if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null) {
+					RunningDiffuser rd = diffuserService.getRunningDiffuserById(
+						diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));
+					Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
 
-						resendLastEvent(true);
-					}
-					else if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
-						RunningSchedule rs = scheduleService.getRunningScheduleById(
-							scheduleService.getRunningScheduleOfScreenById(screen.getId()));
-						Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
+					resendLastEvent(true);
+				}
+				else if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
+					RunningSchedule rs = scheduleService.getRunningScheduleById(
+						scheduleService.getRunningScheduleOfScreenById(screen.getId()));
+					Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
 
-						resendLastEvent(false);
-					}
+					resendLastEvent(false);
+				}
 				}
 			};
 			Timer timer = new Timer("Timer");
@@ -315,8 +312,6 @@ public class ScreenController extends Controller {
 				List<Integer> screenIds = scheduleService.getAllScreenIdsOfRunningScheduleById(rs.getId());
 				screenIds.remove(screen.getId());
 				rs.setScreens(screenIds);
-
-
 
 				List<Screen> screenList =new ArrayList<>();
 				for (Integer screenId: screenIds) {

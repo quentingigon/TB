@@ -17,27 +17,19 @@ public class FluxTrigger {
 	@Column(name="flux_id")
 	private Integer fluxId;
 
-	@Column(name="cron_cmd")
-	private String cronCmd;
-
 	@Column(name="time")
 	private String time;
-
-	@Column(name="repeat")
-	private boolean repeat;
 
 	public FluxTrigger() {
 	}
 
-	public FluxTrigger(Integer fluxId, String cronCmd) {
+	public FluxTrigger(Integer fluxId) {
 		this.fluxId = fluxId;
-		this.cronCmd = cronCmd;
 	}
 
-	public FluxTrigger(String time, Integer fluxId, Integer scheduleId, boolean repeat) {
+	public FluxTrigger(String time, Integer fluxId, Integer scheduleId) {
 		this.fluxId = fluxId;
 		this.time = time;
-		this.repeat = repeat;
 		this.scheduleId = scheduleId;
 	}
 
@@ -61,27 +53,11 @@ public class FluxTrigger {
 		this.fluxId = fluxId;
 	}
 
-	public String getCronCmd() {
-		return cronCmd;
-	}
-
-	public void setCronCmd(String cronCmd) {
-		this.cronCmd = cronCmd;
-	}
-
 	public String getTime() {
 		return time;
 	}
 
 	public void setTime(String time) {
 		this.time = time;
-	}
-
-	public boolean isRepeat() {
-		return repeat;
-	}
-
-	public void setRepeat(boolean repeat) {
-		this.repeat = repeat;
 	}
 }

@@ -12,17 +12,11 @@ public class FluxLoop {
 	@Column(name="id")
 	private Integer id;
 
-	@Column(name="type")
-	private String type;
-
 	@Column(name="schedule_id")
 	private Integer scheduleId;
 
-	@Column(name="start_time")
+	@Column(name="time")
 	private String startTime;
-
-	@Column(name="loop_order")
-	private Integer order;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fluxes;
@@ -36,14 +30,6 @@ public class FluxLoop {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -73,13 +59,5 @@ public class FluxLoop {
 
 	public void setScheduleId(Integer scheduleId) {
 		this.scheduleId = scheduleId;
-	}
-
-	public Integer getOrder() {
-		return order;
-	}
-
-	public void setOrder(Integer order) {
-		this.order = order;
 	}
 }

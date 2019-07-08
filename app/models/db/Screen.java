@@ -31,9 +31,6 @@ public class Screen {
 	@Column(name="resolution")
 	private String resolution;
 
-	@Column(name="current_flux_name")
-	private String currentFluxName;
-
 	@Column(name="logged")
 	private boolean logged;
 
@@ -121,13 +118,5 @@ public class Screen {
 
 	public void setActive(boolean active) {
 		this.active = active;
-	}
-
-	public String getCurrentFluxName() {
-		return currentFluxName;
-	}
-
-	public void setCurrentFluxName(String currentFluxName) {
-		this.currentFluxName = currentFluxName;
 	}
 }

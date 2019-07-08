@@ -20,9 +20,6 @@ public class Diffuser {
 	@Column(name="flux_id")
 	private Integer flux;
 
-	@Column(name="cron_cmd")
-	private String cronCmd;
-
 	@Column(name="days")
 	private String days;
 
@@ -60,14 +57,6 @@ public class Diffuser {
 
 	public void setFlux(Integer flux) {
 		this.flux = flux;
-	}
-
-	public String getCronCmd() {
-		return cronCmd;
-	}
-
-	public void setCronCmd(String cronCmd) {
-		this.cronCmd = cronCmd;
 	}
 
 	public String getDays() {
