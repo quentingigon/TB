@@ -11,20 +11,21 @@ import org.joda.time.format.DateTimeFormatter;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.JobListener;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Observable;
 
+import static controllers.CronUtils.checkIfFluxHasSomethingToDisplay;
 import static controllers.CronUtils.mustFluxLoopBeStarted;
 
-public class SendEventJobsListener extends Observable implements JobListener {
+public class SendEventJobsListener implements EventJobListener {
 
 	private EventManager eventManager;
 	private ServicePicker servicePicker;
 
 	private String name;
+
+	private boolean currentFluxHasNothingToDisplay;
 
 	public SendEventJobsListener(String name,
 								 EventManager eventManager,
@@ -32,6 +33,8 @@ public class SendEventJobsListener extends Observable implements JobListener {
 		this.name = name;
 		this.eventManager = eventManager;
 		this.servicePicker = servicePicker;
+
+		currentFluxHasNothingToDisplay = false;
 	}
 
 	@Override
@@ -56,7 +59,10 @@ public class SendEventJobsListener extends Observable implements JobListener {
 		JobDataMap triggerDataMap = context.getTrigger().getJobDataMap();
 		SendEventJob job = (SendEventJob) context.getJobInstance();
 
-		eventManager.handleEvent(job);
+		checkFlux(context.getJobDetail().getKey().toString(), job);
+
+		eventManager.handleEvent(job, currentFluxHasNothingToDisplay);
+
 
 		List<FluxTrigger> triggers = servicePicker.getFluxService().getFluxTriggersOfScheduleById(job.getEntityId());
 		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
@@ -72,15 +78,31 @@ public class SendEventJobsListener extends Observable implements JobListener {
 		LocalTime timeAfterExecution = formatter.parseLocalTime(triggerDataMap.getString("time"))
 			.plusMinutes(currentFlux.getTotalDuration());
 
+		boolean isCurrentTriggerLast = true;
 		for (FluxLoop loop: loops) {
 			// if a FluxLoop is programmed for this time
 			if (mustFluxLoopBeStarted(formatter.print(timeAfterExecution), loop, triggers)) {
 				LoopJobCreator loopJobCreator = new LoopJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
 				loopJobCreator.createFromFluxLoop(loop);
+				isCurrentTriggerLast = false;
 			}
+		}
+
+		// if current trigger is last item in Schedule, start first loop of Schedule
+		if (isCurrentTriggerLast) {
+			LoopJobCreator loopJobCreator = new LoopJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
+			loopJobCreator.createFromFluxLoop(loops.get(0));
 		}
 	}
 
+	private void checkFlux(String jobName, SendEventJob job) {
+		System.out.println("Checking job: " + jobName);
+		currentFluxHasNothingToDisplay = !checkIfFluxHasSomethingToDisplay(eventManager,
+			servicePicker.getFluxService().getFluxById(job.getEvent().getFluxId()));
+		System.out.println("Job : " + jobName + " has nothing to display ? -> " + currentFluxHasNothingToDisplay);
+	}
+
+	@Override
 	public EventManager getEventManager() {
 		return eventManager;
 	}

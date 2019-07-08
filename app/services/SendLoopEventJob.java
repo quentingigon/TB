@@ -9,7 +9,7 @@ public class SendLoopEventJob implements EventJob {
 
 	private FluxEvent event;
 	private String source;
-	private int entityId;
+	private Integer entityId;
 
 	public SendLoopEventJob() {
 

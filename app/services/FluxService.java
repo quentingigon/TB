@@ -81,6 +81,10 @@ public class FluxService {
 		return fluxRepository.getAllFluxLoopOfSchedule(id);
 	}
 
+	public List<LoopedFlux> getFluxesOfFluxLoopById(Integer id) {
+		return fluxRepository.getAllLoopedFluxesOfFluxLoop(id);
+	}
+
 	public FluxLoop update(FluxLoop loop) {
 		return fluxRepository.update(loop);
 	}

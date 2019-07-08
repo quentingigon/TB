@@ -222,8 +222,7 @@ CREATE TABLE screen
 DROP TABLE IF EXISTS waitingscreen CASCADE;
 CREATE TABLE waitingscreen
   (
-    waitingscreen_id SERIAL PRIMARY KEY,
-    mac_address VARCHAR(20),
+    screen_id SERIAL REFERENCES screen(screen_id) PRIMARY KEY,
     code VARCHAR(10) NOT NULL
   );
 
@@ -302,7 +301,8 @@ CREATE TABLE fluxloop
     id SERIAL PRIMARY KEY,
     schedule_id INTEGER NOT NULL REFERENCES schedule(schedule_id),
     type varchar(20),
-    start_time VARCHAR(20)
+    start_time VARCHAR(20),
+    loop_order INTEGER
   );
 
 DROP TABLE IF EXISTS fluxloop_fluxes CASCADE;
@@ -310,8 +310,8 @@ CREATE TABLE fluxloop_fluxes
   (
     fluxloop_id INTEGER NOT NULL REFERENCES fluxloop(id),
     fluxes INTEGER NOT NULL REFERENCES flux(flux_id),
-    loop_order INTEGER,
-    PRIMARY KEY (fluxloop_id, fluxes)
+    flux_order INTEGER,
+    PRIMARY KEY (fluxloop_id, fluxes, flux_order)
   );
 
 

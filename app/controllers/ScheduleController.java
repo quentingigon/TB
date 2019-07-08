@@ -24,8 +24,6 @@ import javax.inject.Inject;
 import java.util.*;
 
 import static controllers.CronUtils.*;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.JobBuilder.newJob;
 
 /**
  * This class implements a controller for the Schedules.
@@ -259,9 +257,9 @@ public class ScheduleController extends Controller {
 			// get boundaries (FluxTrigger) and loops
 			List<FluxTrigger> triggers = getFluxTriggersFromData(data, schedule);
 			List<FluxLoop> loops = getFluxLoopsFromData(data);
-			loops = getUniqueLoops(loops);
+			// loops = getUniqueLoops(loops);
 
-			createFluxTriggersAndFluxLoops(data, schedule, triggers, loops);
+			createFluxTriggersAndFluxLoops(schedule, triggers, loops);
 
 			// add new schedule to current user's team
 			Team team = teamService.getTeamById(teamId);
@@ -311,7 +309,7 @@ public class ScheduleController extends Controller {
 
 			List<FluxTrigger> triggers = getFluxTriggersFromData(data, schedule);
 			List<FluxLoop> loops = getFluxLoopsFromData(data);
-			createFluxTriggersAndFluxLoops(data, schedule, triggers, loops);
+			createFluxTriggersAndFluxLoops(schedule, triggers, loops);
 
 			return index(request);
 		}
@@ -416,7 +414,7 @@ public class ScheduleController extends Controller {
 		return error;
 	}
 
-	private void createFluxTriggersAndFluxLoops(ScheduleData data, Schedule schedule,
+	private void createFluxTriggersAndFluxLoops(Schedule schedule,
 												List<FluxTrigger> triggers, List<FluxLoop> loops) {
 		triggers = setCronCmdForTriggers(triggers);
 
@@ -427,18 +425,20 @@ public class ScheduleController extends Controller {
 			schedule.addToFluxtriggers(ft.getId());
 		}
 
-		// TODO it's working but maybe a row is needed in the DB (fluxloop_fluxes)
 		for (FluxLoop loop: loops) {
 			loop.setScheduleId(schedule.getId());
+
+			// get flux ids (they are still in the correct order)
+			List<Integer> fluxIds = new ArrayList<>(loop.getFluxes());
+			loop.setFluxes(new HashSet<>());
+
 			loop = servicePicker.getFluxService().createFluxLoop(loop);
 
-			/*
-			List<Integer> fluxIds = new ArrayList<>(loop.getFluxes());
-			// loop.setFluxes(new HashSet<>());
 			int order = 1;
+			// creates a entry in looped_flux table with correct order
 			for (Integer fluxId: fluxIds) {
 				servicePicker.getFluxService().addFluxToFluxLoop(loop.getId(), fluxId, order++);
-			}*/
+			}
 
 			schedule.addToFluxloops(loop.getId());
 		}
@@ -594,21 +594,5 @@ public class ScheduleController extends Controller {
 		}
 
 		return fallbacksIds;
-	}
-
-	private List<Integer> getUnscheduledFluxes(ScheduleData data) {
-
-		List<Integer> unscheduledIds = new ArrayList<>();
-
-		if (data.getUnscheduledFluxes() != null) {
-			for (String fluxData : data.getUnscheduledFluxes()) {
-				String[] fluxDatas = fluxData.split("#");
-				String fluxName = fluxDatas[0];
-
-				unscheduledIds.add(servicePicker.getFluxService().getFluxByName(fluxName).getId());
-			}
-		}
-
-		return unscheduledIds;
 	}
 }

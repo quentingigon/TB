@@ -73,6 +73,12 @@ public class SendEventJobCreator {
 		SchedulerFactory sf = new StdSchedulerFactory();
 		try {
 			Scheduler scheduler = sf.getScheduler();
+
+			// delete previous job and trigger
+			if (scheduler.checkExists(new JobKey(JOB_NAME_LOOP + name, SEND_LOOP_EVENT_GROUP))) {
+				scheduler.deleteJob(new JobKey(JOB_NAME_LOOP + name, SEND_LOOP_EVENT_GROUP));
+			}
+
 			scheduler.scheduleJob(job, trigger);
 
 			if (scheduler.getListenerManager().getJobListener(jobListenerName) == null) {

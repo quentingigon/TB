@@ -21,6 +21,9 @@ public class FluxLoop {
 	@Column(name="start_time")
 	private String startTime;
 
+	@Column(name="loop_order")
+	private Integer order;
+
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<Integer> fluxes;
 
@@ -70,5 +73,13 @@ public class FluxLoop {
 
 	public void setScheduleId(Integer scheduleId) {
 		this.scheduleId = scheduleId;
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 }

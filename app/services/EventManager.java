@@ -19,26 +19,38 @@ public class EventManager {
 
 	private final EventSourceController eventController;
 	private final ServicePicker servicePicker;
+	private final FluxChecker fluxChecker;
 
 	private FluxEvent lastEvent;
 
 	@Inject
 	public EventManager(EventSourceController eventSourceController,
-						ServicePicker servicePicker) {
+						ServicePicker servicePicker,
+						FluxChecker fluxChecker) {
 		this.eventController = eventSourceController;
 		this.servicePicker = servicePicker;
+		this.fluxChecker = fluxChecker;
 		lastEvent = null;
 	}
 
-	public void handleEvent (EventJob job) {
+	public void handleEvent (EventJob job, boolean fluxHasNothingToDisplay) {
 		FluxEvent event = job.getEvent();
+
+		// if system detects that this flux has nothing to display,
+		// replace it by one of the fallbacks
+		if (fluxHasNothingToDisplay && job.isJobFromSchedule()) {
+			Flux fallback = getRandomFallBackFlux(job.getEntityId());
+			if (fallback != null) {
+				event = new FluxEvent(fallback.getId(), event.getScreenIds());
+			}
+		}
 
 		// there is an active schedule for the screens concerned by the job
 		if (job.isJobFromSchedule()) {
 			sendFluxEventAsGeneralOrLocated(event, job.getEntityId());
 		}
 		// job is from a diffuser
-		else {
+		else if (!fluxHasNothingToDisplay) {
 			sendFluxEvent(event, job.getEntityId());
 		}
 	}
@@ -83,23 +95,35 @@ public class EventManager {
 					screenIdsWithDifferentSiteIdAsString.append(s);
 				}
 
-				// bad random
-				Random rand = new Random();
-				List<Integer> fallbackIds = fluxService
-					.getFallBackIdsOfScheduleById(scheduleId);
-
-				// send a fallback flux if wrong location
-				if (!fallbackIds.isEmpty()) {
-					Flux fallback = fluxService
-						.getFluxById(fallbackIds
-							.get(rand.nextInt(fallbackIds.size())));
+				Flux fallback = getRandomFallBackFlux(scheduleId);
+				if (fallback != null) {
 					sendFluxEvent(new FluxEvent(fallback.getId(), screenIdsWithDifferentSiteIdAsString.toString()), scheduleId);
 				}
+
 			}
 		}
 		// current flux is a general one
 		else {
 			sendFluxEvent(fluxEvent, scheduleId);
+		}
+	}
+
+	private Flux getRandomFallBackFlux(int scheduleId) {
+		FluxService fluxService = servicePicker.getFluxService();
+		// bad random
+		Random rand = new Random();
+		List<Integer> fallbackIds = fluxService
+			.getFallBackIdsOfScheduleById(scheduleId);
+
+		// send a fallback flux if wrong location
+		if (!fallbackIds.isEmpty()) {
+			 return fluxService
+				.getFluxById(fallbackIds
+					.get(rand.nextInt(fallbackIds.size())));
+
+		}
+		else {
+			return null;
 		}
 	}
 
@@ -274,5 +298,9 @@ public class EventManager {
 		else {
 			return null;
 		}
+	}
+
+	public FluxChecker getFluxChecker() {
+		return fluxChecker;
 	}
 }

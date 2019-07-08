@@ -2,6 +2,7 @@ package services;
 
 import models.db.Flux;
 import models.db.FluxLoop;
+import models.db.LoopedFlux;
 import models.db.Schedule;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
@@ -11,9 +12,8 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Calendar;
-import java.util.List;
 
 import static controllers.CronUtils.*;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
@@ -83,7 +83,7 @@ public class LoopJobCreator {
 					.usingJobData("screenIds", screenIds)
 					.usingJobData("fluxIds", newFluxIds.toString())
 					.usingJobData("currentFluxId", currentFluxId)
-					.usingJobData("scheduleId", schedule.getId())
+					.usingJobData("entityId", schedule.getId())
 					.usingJobData("source", "schedule")
 					.usingJobData("days", days)
 					.usingJobData("time", formatter.print(timeForNextTrigger))
@@ -103,29 +103,38 @@ public class LoopJobCreator {
 	}
 
 	public void createFromFluxLoop(FluxLoop loop) {
-		String timeStamp = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
 
 		JobDetail job = newJob(SendLoopEventJob.class)
 			.withIdentity(JOB_NAME_LOOP + schedule.getName(), SEND_LOOP_EVENT_GROUP)
 			.build();
 
-		// TODO implement a way to have the loopedflux in correct order
-		List<Integer> loopedFluxIds = new ArrayList<>(loop.getFluxes());
+		List<LoopedFlux> loopedFluxes = servicePicker.getFluxService().getFluxesOfFluxLoopById(loop.getId());
+		loopedFluxes.sort(Comparator.comparing(LoopedFlux::getOrder));
+		List<Integer> loopedFluxIds = new ArrayList<>();
+		for (LoopedFlux lf: loopedFluxes) {
+			loopedFluxIds.add(lf.getFluxId());
+		}
 		loopedFluxIds.add(loopedFluxIds.get(0));
 		Integer currentFluxId = loopedFluxIds.remove(0);
+
+		String currentTime = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
+		LocalTime timeOfExecution = formatter.parseLocalTime(currentTime)
+			.plusMinutes(1);
+		loop.setStartTime(formatter.print(timeOfExecution));
 
 		CronTrigger trigger = newTrigger()
 			.withIdentity(TRIGGER_NAME_LOOP + schedule.getName(), SEND_LOOP_EVENT_GROUP)
 			.usingJobData("screenIds", screenIds)
 			.usingJobData("fluxIds", getFluxIds(loopedFluxIds))
 			.usingJobData("currentFluxId", currentFluxId)
-			.usingJobData("scheduleId", schedule.getId())
+			.usingJobData("entityId", schedule.getId())
 			.usingJobData("source", "schedule")
 			.usingJobData("days", schedule.getDays())
 			.usingJobData("time", loop.getStartTime())
 			.usingJobData("upperBound", getNextFluxTriggerTimeOfSchedule(
-				servicePicker.getFluxService().getFluxTriggersOfScheduleById(schedule.getId()), timeStamp))
-			.withSchedule(cronSchedule(getCronCmdLoop(schedule.getDays(), loop.getStartTime())))
+				servicePicker.getFluxService().getFluxTriggersOfScheduleById(schedule.getId()), currentTime))
+			.withSchedule(cronSchedule(getCronCmdLoop(schedule.getDays(), formatter.print(timeOfExecution))))
 			.build();
 
 		SchedulerFactory sf = new StdSchedulerFactory();
@@ -138,6 +147,7 @@ public class LoopJobCreator {
 			}
 			scheduler.scheduleJob(job, trigger);
 
+			// creates listener if it doesnt exist
 			if (scheduler.getListenerManager().getJobListener(SCHEDULE_LOOP_JOBS_LISTENER) == null) {
 				SendLoopEventJobsListener listener = new SendLoopEventJobsListener(
 					SCHEDULE_LOOP_JOBS_LISTENER,

@@ -28,6 +28,7 @@ public interface FluxRepository {
 	List<FluxLoop> getAllFluxLoopOfSchedule(Integer id);
 	List<ScheduledFlux> getAllScheduledFluxByScheduleId(Integer id);
 	List<Flux> getAllUnscheduledFluxByScheduleId(Integer id);
+	List<LoopedFlux> getAllLoopedFluxesOfFluxLoop(Integer id);
 
 	List<Flux> getAll();
 	List<Integer> getAllFluxIdsOfTeam(Integer id);

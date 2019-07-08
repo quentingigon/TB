@@ -69,13 +69,15 @@ public class JPAFluxRepository implements FluxRepository {
 	@Override
 	public void addFluxToFluxLoopWithOrder(Integer loopId, Integer fluxId, Integer order) {
 		jpaApi.withTransaction(entityManager -> {
-			String loop_id = "'" + loopId + "'";
-			String fl_id = "'" + fluxId + "'";
-			String ord = "'" + order + "'";
+			String fluxloopId = "'" + loopId + "'";
+			String fluxes = "'" + fluxId + "'";
+			String fluxOrder = "'" + order + "'";
 
-			Query query = entityManager.createNativeQuery(
-				"INSERT INTO fluxloop_fluxes(fluxloop_id, fluxes, loop_order) VALUES (:loop_id, :fl_id, :ord)");
-			query.executeUpdate();
+			entityManager.createNativeQuery("INSERT INTO fluxloop_fluxes(fluxloop_id, fluxes, flux_order) VALUES (?,?,?)")
+      			.setParameter(1, loopId)
+      			.setParameter(2, fluxId)
+      			.setParameter(3, order)
+      			.executeUpdate();
 		});
 	}
 
@@ -179,6 +181,22 @@ public class JPAFluxRepository implements FluxRepository {
 				Flux.class);
 			try {
 				return (List<Flux>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<LoopedFlux> getAllLoopedFluxesOfFluxLoop(Integer id) {
+		return jpaApi.withTransaction(entityManager -> {
+			String fluxLoopId = "'" + id + "'";
+			Query query = entityManager.createNativeQuery(
+				"SELECT * FROM fluxloop_fluxes WHERE fluxloop_id = " + fluxLoopId,
+				LoopedFlux.class);
+			try {
+				return (List<LoopedFlux>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
 			}

@@ -4,6 +4,7 @@ import controllers.actions.UserAuthentificationAction;
 import models.db.*;
 import models.entities.ScreenData;
 import models.repositories.interfaces.*;
+import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
@@ -23,6 +24,8 @@ import views.html.screen.screen_update;
 
 import javax.inject.Inject;
 import java.util.*;
+
+import static controllers.CronUtils.*;
 
 /**
  * This class implements a controller for the Screens.
@@ -124,20 +127,19 @@ public class ScreenController extends Controller {
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
-					// TODO event is never sent to screen but should be
 					if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null) {
 						RunningDiffuser rd = diffuserService.getRunningDiffuserById(
 							diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));
 						Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
 
-						resendLastEvent(diffuser.getName());
+						resendLastEvent(true);
 					}
 					else if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
 						RunningSchedule rs = scheduleService.getRunningScheduleById(
 							scheduleService.getRunningScheduleOfScreenById(screen.getId()));
 						Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
 
-						resendLastEvent(schedule.getName());
+						resendLastEvent(false);
 					}
 				}
 			};
@@ -161,14 +163,26 @@ public class ScreenController extends Controller {
 		}
 	}
 
-	private void resendLastEvent(String jobListenerName) {
+	private void resendLastEvent(boolean isFromDiffuser) {
 		SchedulerFactory sf = new StdSchedulerFactory();
 		Scheduler scheduler;
 
+
 		try {
 			scheduler = sf.getScheduler();
-			SendEventJobsListener listener =
-				(SendEventJobsListener) scheduler.getListenerManager().getJobListener(jobListenerName);
+			EventJobListener listener;
+			// if diffuser is active -> priority
+			if (isFromDiffuser) {
+				listener = (SendEventJobsListener) scheduler.getListenerManager().getJobListener(DIFFUSER_JOBS_LISTENER);
+			}
+			else {
+				listener = (SendLoopEventJobsListener) scheduler.getListenerManager().getJobListener(SCHEDULE_LOOP_JOBS_LISTENER);
+
+				// no active loop
+				if (listener == null) {
+					listener = (SendLoopEventJobsListener) scheduler.getListenerManager().getJobListener(SCHEDULE_JOBS_LISTENER);
+				}
+			}
 
 			if (listener != null)
 				listener.getEventManager().resendLastEvent();

@@ -4,16 +4,19 @@ import models.db.Schedule;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.JobListener;
 
 import java.util.Observable;
 
-public class SendLoopEventJobsListener extends Observable implements JobListener {
+import static controllers.CronUtils.checkIfFluxHasSomethingToDisplay;
+
+public class SendLoopEventJobsListener extends Observable implements EventJobListener {
 
 	private EventManager eventManager;
 	private ServicePicker servicePicker;
 
 	private String name;
+
+	private boolean currentFluxHasNothingToDisplay;
 
 	public SendLoopEventJobsListener(String name,
 									 EventManager eventManager,
@@ -21,6 +24,8 @@ public class SendLoopEventJobsListener extends Observable implements JobListener
 		this.name = name;
 		this.eventManager = eventManager;
 		this.servicePicker = servicePicker;
+
+		currentFluxHasNothingToDisplay = false;
 	}
 
 	@Override
@@ -31,7 +36,7 @@ public class SendLoopEventJobsListener extends Observable implements JobListener
 	@Override
 	public void jobToBeExecuted(JobExecutionContext context) {
 		String jobName = context.getJobDetail().getKey().toString();
-		System.out.println("jobToBeExecuted");
+		System.out.println("jobToBeExecuted : loop");
 		System.out.println("Job : " + jobName + " is going to start...");
 	}
 
@@ -47,11 +52,20 @@ public class SendLoopEventJobsListener extends Observable implements JobListener
 
 		SendLoopEventJob job = (SendLoopEventJob) context.getJobInstance();
 
-		eventManager.handleEvent(job);
+		checkFlux(context.getJobDetail().getKey().toString(), job);
+
+		eventManager.handleEvent(job, currentFluxHasNothingToDisplay);
 
 		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getEntityId());
 
 		createNextLoopJob(triggerDataMap, schedule);
+	}
+
+	private void checkFlux(String jobName, SendLoopEventJob job) {
+		System.out.println("Checking job: " + jobName);
+		currentFluxHasNothingToDisplay = !checkIfFluxHasSomethingToDisplay(eventManager,
+			servicePicker.getFluxService().getFluxById(job.getEvent().getFluxId()));
+		System.out.println("Job : " + jobName + " has nothing to display ? -> " + currentFluxHasNothingToDisplay);
 	}
 
 	private void createNextLoopJob(JobDataMap triggerDataMap, Schedule schedule) {
@@ -62,5 +76,10 @@ public class SendLoopEventJobsListener extends Observable implements JobListener
 			eventManager);
 
 		loopJobCreator.createFromJob(triggerDataMap);
+	}
+
+	@Override
+	public EventManager getEventManager() {
+		return eventManager;
 	}
 }

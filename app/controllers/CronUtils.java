@@ -1,6 +1,8 @@
 package controllers;
 
 import models.db.*;
+import services.EventManager;
+import services.FluxChecker;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -123,6 +125,17 @@ public class CronUtils {
 				output = true;
 			}
 		}
+		return output;
+	}
+
+	// return always true for now
+	public static boolean checkIfFluxHasSomethingToDisplay(EventManager eventManager, Flux flux) {
+
+		boolean output = true;
+		FluxChecker fluxChecker = eventManager.getFluxChecker();
+
+		// output = !fluxChecker.checkIfFluxHasSomethingToDisplayByDateTime(flux);
+
 		return output;
 	}
 }
