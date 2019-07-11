@@ -31,7 +31,6 @@ import static controllers.CronUtils.*;
  */
 public class ScheduleController extends Controller {
 
-	private final EventSourceController eventSourceController;
 	private Form<ScheduleData> form;
 	private final ServicePicker servicePicker;
 	private final EventManager eventManager;
@@ -39,11 +38,9 @@ public class ScheduleController extends Controller {
 	@Inject
 	public ScheduleController(FormFactory formFactory,
 							  ServicePicker servicePicker,
-							  EventSourceController eventSourceController,
 							  EventManager eventManager) {
 		this.form = formFactory.form(ScheduleData.class);
 		this.servicePicker = servicePicker;
-		this.eventSourceController = eventSourceController;
 		this.eventManager = eventManager;
 
 		SchedulerFactory sf = new StdSchedulerFactory();
@@ -355,7 +352,7 @@ public class ScheduleController extends Controller {
 	private void createAndScheduleLoopJob(Schedule schedule,
 										  List<Screen> screens,
 										  FluxLoop loop) {
-		LoopJobCreator loopJobCreator = new LoopJobCreator(schedule,
+		LoopEventJobCreator loopJobCreator = new LoopEventJobCreator(schedule,
 			getScreenIds(screens),
 			servicePicker,
 			eventManager);
@@ -391,7 +388,6 @@ public class ScheduleController extends Controller {
 			if (scheduler.checkExists(new JobKey(JOB_NAME_LOOP+schedule.getName(), SEND_LOOP_EVENT_GROUP))) {
 				scheduler.deleteJob(new JobKey(JOB_NAME_LOOP+schedule.getName(), SEND_LOOP_EVENT_GROUP));
 			}
-
 
 		} catch (SchedulerException e) {
 			e.printStackTrace();

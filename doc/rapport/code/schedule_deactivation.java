@@ -7,8 +7,8 @@ public Result deactivate(String name, Http.Request request) {
 	// supprimme de la BD
 	scheduleService.delete(rs);
 
-	// stop le thread correspondant
-	threadManager.removeRunningSchedule(schedule.getId());
+	// supprime les jobs associes a ce schedule (par nom)
+	deleteJobsOfSchedule(schedule);
 
 	return index(request);	
 }

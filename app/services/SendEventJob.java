@@ -29,14 +29,7 @@ public class SendEventJob implements EventJob {
 		}
 
 		source = triggerDataMap.getString("source");
-
-		if (source.equals("schedule")) {
-			entityId = triggerDataMap.getInt("entityId");
-		}
-		else {
-			entityId = triggerDataMap.getInt("entityId");
-		}
-
+		entityId = triggerDataMap.getInt("entityId");
 	}
 
 	@Override

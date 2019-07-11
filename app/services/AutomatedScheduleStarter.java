@@ -29,8 +29,6 @@ public class AutomatedScheduleStarter {
     private final FluxChecker fluxChecker;
     private final ServicePicker servicePicker;
 
-    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("application");
-
     @Inject
     public AutomatedScheduleStarter(EventManager eventManager,
                                     ScreenRepository screenRepository,
@@ -73,7 +71,7 @@ public class AutomatedScheduleStarter {
                     jobCreator.createJobForSchedule(schedule, ft, screens);
                 }
 
-                LoopJobCreator loopJobCreator = new LoopJobCreator(schedule,
+                LoopEventJobCreator loopJobCreator = new LoopEventJobCreator(schedule,
                     getScreenIds(screens),
                     servicePicker,
                     eventManager);

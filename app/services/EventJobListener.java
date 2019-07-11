@@ -4,5 +4,5 @@ import org.quartz.JobListener;
 
 public interface EventJobListener extends JobListener {
 
-	EventManager getEventManager();
+	void resendLastEvent();
 }

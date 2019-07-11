@@ -15,8 +15,10 @@ public class SendLoopEventJobsListener extends Observable implements EventJobLis
 	private ServicePicker servicePicker;
 
 	private String name;
+	private SendLoopEventJob lastJob;
 
 	private boolean currentFluxHasNothingToDisplay;
+	private boolean lastFluxHadNothingToDisplay;
 
 	public SendLoopEventJobsListener(String name,
 									 EventManager eventManager,
@@ -54,6 +56,9 @@ public class SendLoopEventJobsListener extends Observable implements EventJobLis
 
 		checkFlux(context.getJobDetail().getKey().toString(), job);
 
+		lastJob = job;
+		lastFluxHadNothingToDisplay = currentFluxHasNothingToDisplay;
+
 		eventManager.handleEvent(job, currentFluxHasNothingToDisplay);
 
 		Schedule schedule = servicePicker.getScheduleService().getScheduleById(job.getEntityId());
@@ -70,7 +75,7 @@ public class SendLoopEventJobsListener extends Observable implements EventJobLis
 
 	private void createNextLoopJob(JobDataMap triggerDataMap, Schedule schedule) {
 
-		LoopJobCreator loopJobCreator = new LoopJobCreator(schedule,
+		LoopEventJobCreator loopJobCreator = new LoopEventJobCreator(schedule,
 			triggerDataMap.getString("screenIds"),
 			servicePicker,
 			eventManager);
@@ -79,7 +84,7 @@ public class SendLoopEventJobsListener extends Observable implements EventJobLis
 	}
 
 	@Override
-	public EventManager getEventManager() {
-		return eventManager;
+	public void resendLastEvent() {
+		eventManager.handleEvent(lastJob, lastFluxHadNothingToDisplay);
 	}
 }

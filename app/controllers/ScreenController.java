@@ -1,10 +1,10 @@
 package controllers;
 
 import controllers.actions.UserAuthentificationAction;
+import models.FluxEvent;
 import models.db.*;
 import models.entities.ScreenData;
-import models.repositories.interfaces.*;
-import org.quartz.JobListener;
+import models.repositories.interfaces.SiteRepository;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
@@ -129,14 +129,14 @@ public class ScreenController extends Controller {
 						diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));
 					Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
 
-					resendLastEvent(true);
+					resendLastEvent();
 				}
 				else if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
 					RunningSchedule rs = scheduleService.getRunningScheduleById(
 						scheduleService.getRunningScheduleOfScreenById(screen.getId()));
 					Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
 
-					resendLastEvent(false);
+					resendLastEvent();
 				}
 				}
 			};
@@ -160,30 +160,22 @@ public class ScreenController extends Controller {
 		}
 	}
 
-	private void resendLastEvent(boolean isFromDiffuser) {
+	private void resendLastEvent() {
 		SchedulerFactory sf = new StdSchedulerFactory();
 		Scheduler scheduler;
-
 
 		try {
 			scheduler = sf.getScheduler();
 			EventJobListener listener;
-			// if diffuser is active -> priority
-			if (isFromDiffuser) {
-				listener = (SendEventJobsListener) scheduler.getListenerManager().getJobListener(DIFFUSER_JOBS_LISTENER);
-			}
-			else {
-				listener = (SendLoopEventJobsListener) scheduler.getListenerManager().getJobListener(SCHEDULE_LOOP_JOBS_LISTENER);
 
-				// no active loop
-				if (listener == null) {
-					listener = (SendLoopEventJobsListener) scheduler.getListenerManager().getJobListener(SCHEDULE_JOBS_LISTENER);
-				}
+			listener = (SendEventJobsListener) scheduler.getListenerManager().getJobListener(JOBS_LISTENER);
+			if (listener == null) {
+				listener = (SendLoopEventJobsListener) scheduler.getListenerManager().getJobListener(LOOP_JOBS_LISTENER);
 			}
 
-			if (listener != null)
-				listener.getEventManager().resendLastEvent();
-
+			if (listener != null) {
+				listener.resendLastEvent();
+			}
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}

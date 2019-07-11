@@ -24,8 +24,10 @@ public class SendEventJobsListener implements EventJobListener {
 	private ServicePicker servicePicker;
 
 	private String name;
+	private SendEventJob lastJob;
 
 	private boolean currentFluxHasNothingToDisplay;
+	private boolean lastFluxHadNothingToDisplay;
 
 	public SendEventJobsListener(String name,
 								 EventManager eventManager,
@@ -61,8 +63,9 @@ public class SendEventJobsListener implements EventJobListener {
 
 		checkFlux(context.getJobDetail().getKey().toString(), job);
 
+		lastJob = job;
+		lastFluxHadNothingToDisplay = currentFluxHasNothingToDisplay;
 		eventManager.handleEvent(job, currentFluxHasNothingToDisplay);
-
 
 		List<FluxTrigger> triggers = servicePicker.getFluxService().getFluxTriggersOfScheduleById(job.getEntityId());
 		triggers.sort(Comparator.comparing(FluxTrigger::getTime));
@@ -82,17 +85,28 @@ public class SendEventJobsListener implements EventJobListener {
 		for (FluxLoop loop: loops) {
 			// if a FluxLoop is programmed for this time
 			if (mustFluxLoopBeStarted(formatter.print(timeAfterExecution), loop, triggers)) {
-				LoopJobCreator loopJobCreator = new LoopJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
+				LoopEventJobCreator loopJobCreator = new LoopEventJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
 				loopJobCreator.createFromFluxLoop(loop);
 				isCurrentTriggerLast = false;
 			}
 		}
 
 		// if current trigger is last item in Schedule, start first loop of Schedule
-		if (isCurrentTriggerLast) {
-			LoopJobCreator loopJobCreator = new LoopJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
-			loopJobCreator.createFromFluxLoop(loops.get(0));
+		if (isCurrentTriggerLast && !isThereFluxTriggersAfterTime(formatter.print(timeAfterExecution), triggers)) {
+			if (!loops.isEmpty()) {
+				LoopEventJobCreator loopJobCreator = new LoopEventJobCreator(schedule, event.getScreenIds(), servicePicker, eventManager);
+				loopJobCreator.createFromFluxLoop(loops.get(0));
+			}
 		}
+	}
+
+	private boolean isThereFluxTriggersAfterTime(String time, List<FluxTrigger> triggers) {
+		for (FluxTrigger ft: triggers) {
+			if (ft.getTime().compareTo(time) > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void checkFlux(String jobName, SendEventJob job) {
@@ -103,7 +117,7 @@ public class SendEventJobsListener implements EventJobListener {
 	}
 
 	@Override
-	public EventManager getEventManager() {
-		return eventManager;
+	public void resendLastEvent() {
+		eventManager.handleEvent(lastJob, lastFluxHadNothingToDisplay);
 	}
 }

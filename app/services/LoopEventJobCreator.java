@@ -20,17 +20,17 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-public class LoopJobCreator {
+public class LoopEventJobCreator {
 
 	private ServicePicker servicePicker;
 	private EventManager eventManager;
 	private String screenIds;
 	private Schedule schedule;
 
-	public LoopJobCreator(Schedule schedule,
-						  String screenIds,
-						  ServicePicker servicePicker,
-						  EventManager eventManager) {
+	public LoopEventJobCreator(Schedule schedule,
+							   String screenIds,
+							   ServicePicker servicePicker,
+							   EventManager eventManager) {
 		this.schedule = schedule;
 		this.screenIds = screenIds;
 		this.servicePicker = servicePicker;
@@ -148,9 +148,9 @@ public class LoopJobCreator {
 			scheduler.scheduleJob(job, trigger);
 
 			// creates listener if it doesnt exist
-			if (scheduler.getListenerManager().getJobListener(SCHEDULE_LOOP_JOBS_LISTENER) == null) {
+			if (scheduler.getListenerManager().getJobListener(LOOP_JOBS_LISTENER) == null) {
 				SendLoopEventJobsListener listener = new SendLoopEventJobsListener(
-					SCHEDULE_LOOP_JOBS_LISTENER,
+					LOOP_JOBS_LISTENER,
 					eventManager,
 					servicePicker);
 

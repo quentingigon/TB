@@ -21,20 +21,8 @@ public Result activate(Http.Request request) {
 	}
 	scheduleService.update(rs);
 
-	// creation du thread et ajout du FluxManager comme observateur
-	RunningScheduleThread service2 = new RunningScheduleThread(
-		rs,
-		screens,
-		new ArrayList<>(schedule.getFluxes()),
-		timeTableUtils.getTimeTable(schedule),
-		fluxRepository,
-		fluxChecker,
-		schedule.isKeepOrder());
-
-	service2.addObserver(fluxManager);
-
-	// activation du thread
-	threadManager.addRunningSchedule(schedule.getId(), service2);
+	// creation des jobs et triggers necessaires
+	createJobsForSchedule(scheduleToActivate, screens);
 
 	return index(request);
 }

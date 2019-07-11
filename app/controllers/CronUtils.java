@@ -10,9 +10,8 @@ import java.util.List;
 
 public class CronUtils {
 
-	public static final String SCHEDULE_JOBS_LISTENER = "schedulesListener";
-	public static final String DIFFUSER_JOBS_LISTENER = "diffusersListener";
-	public static final String SCHEDULE_LOOP_JOBS_LISTENER = "schedulesLoopListener";
+	public static final String JOBS_LISTENER = "jobsListener";
+	public static final String LOOP_JOBS_LISTENER = "loopJobsListener";
 
 	public static final String SEND_EVENT_GROUP = "sendEventGroup";
 	public static final String SEND_LOOP_EVENT_GROUP = "sendLoopEventGroup";

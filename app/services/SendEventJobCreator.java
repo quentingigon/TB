@@ -33,7 +33,7 @@ public class SendEventJobCreator {
 			diffuser.getTime(),
 			diffusedFlux.getId(),
 			screens,
-			DIFFUSER_JOBS_LISTENER);
+			JOBS_LISTENER);
 	}
 
 	public void createJobForSchedule(Schedule schedule,
@@ -46,7 +46,7 @@ public class SendEventJobCreator {
 			fluxTrigger.getTime(),
 			fluxTrigger.getFluxId(),
 			screens,
-			SCHEDULE_JOBS_LISTENER);
+			JOBS_LISTENER);
 	}
 
 	private void createJob(String source, String name, Integer entityId, String cronCmd,
@@ -75,8 +75,8 @@ public class SendEventJobCreator {
 			Scheduler scheduler = sf.getScheduler();
 
 			// delete previous job and trigger
-			if (scheduler.checkExists(new JobKey(JOB_NAME_LOOP + name, SEND_LOOP_EVENT_GROUP))) {
-				scheduler.deleteJob(new JobKey(JOB_NAME_LOOP + name, SEND_LOOP_EVENT_GROUP));
+			if (scheduler.checkExists(new JobKey(JOB_NAME_TRIGGER + name, SEND_EVENT_GROUP))) {
+				scheduler.deleteJob(new JobKey(JOB_NAME_TRIGGER + name, SEND_EVENT_GROUP));
 			}
 
 			scheduler.scheduleJob(job, trigger);

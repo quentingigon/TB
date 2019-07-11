@@ -1,23 +1,14 @@
-private void sendFluxEvent(Flux flux, List<Screen> screenList) {
-	// verifie si un Diffuser est actif pour un des ecran de la liste
-	// si oui, envoie le flux diffuse et enleve l'ecran de la liste
-	for (Screen screen: screenList) {
-		Integer rdId = diffuserService.getRunningDiffuserIdByScreenId(screen.getId());
+private void sendFluxEvent(FluxEvent event, Integer scheduleId) {
+	Flux currentFlux = getFlux(event.getFluxId());
 
-		if (rdId != null) {
-			RunningDiffuser rd = diffuserService.getRunningDiffuserById(rdId);
-			List<Screen> screens = new ArrayList<>();
-			screens.add(screen);
-			screenList.remove(screen);
-			FluxEvent diffusedEvent = new FluxEvent(fluxService.getFluxById(rd.getFluxId()), screens);
-			setChanged();
-			notifyObservers(diffusedEvent);
+	if (currentFlux != null) {
+		// envoie le flux diffuse aux ecrans concernes et retourne les ids des autres ecrans
+		String screenIdsWithNoActiveDiffuser = sendDiffusedFluxToConcernedScreens(event, scheduleId);
+
+		if (!screenIdsWithNoActiveDiffuser.isEmpty()) {
+			List<String> macAddresses = getMacAddresses(screenIdsWithNoActiveDiffuser);
+			// envoie l'event prevu aux ecrans restants
+			send(currentFlux, macAddresses);
 		}
 	}
-
-	// envoie l'event prevu aux ecrans restants
-	FluxEvent event = new FluxEvent(flux, screenList);
-	lastFluxEvent = event;
-	setChanged();
-	notifyObservers(event);
 }

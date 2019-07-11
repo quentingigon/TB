@@ -21,7 +21,6 @@ public class EventManager {
 	private final ServicePicker servicePicker;
 	private final FluxChecker fluxChecker;
 
-	private FluxEvent lastEvent;
 
 	@Inject
 	public EventManager(EventSourceController eventSourceController,
@@ -30,7 +29,6 @@ public class EventManager {
 		this.eventController = eventSourceController;
 		this.servicePicker = servicePicker;
 		this.fluxChecker = fluxChecker;
-		lastEvent = null;
 	}
 
 	public void handleEvent (EventJob job, boolean fluxHasNothingToDisplay) {
@@ -224,13 +222,11 @@ public class EventManager {
 				List<String> macAddresses = getMacAddresses(screenIdsWithNoActiveDiffuser);
 
 				send(currentFlux, macAddresses);
-				lastEvent = event;
 			}
 		}
 	}
 
 	private void send(Flux currentFlux, List<String> macAddresses) {
-		ScreenService screenService = servicePicker.getScreenService();
 		System.out.println("Sending event : " + currentFlux.getType().toLowerCase() + "?" + currentFlux.getUrl() + "|" + String.join(",", macAddresses));
 		eventController.send(
 			currentFlux.getType().toLowerCase() +
@@ -251,13 +247,6 @@ public class EventManager {
 		}
 		else {
 			return null;
-		}
-	}
-
-	public void resendLastEvent() {
-		if (lastEvent != null) {
-			System.out.println("FORCE SEND");
-			sendFluxEvent(lastEvent, null);
 		}
 	}
 
