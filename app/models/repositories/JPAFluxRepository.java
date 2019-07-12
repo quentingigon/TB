@@ -43,14 +43,6 @@ public class JPAFluxRepository implements FluxRepository {
 	}
 
 	@Override
-	public ScheduledFlux addScheduledFlux(ScheduledFlux flux) {
-		jpaApi.withTransaction(entityManager -> {
-			entityManager.persist(flux);
-		});
-		return flux;
-	}
-
-	@Override
 	public FluxTrigger addFluxTrigger(FluxTrigger flux) {
 		jpaApi.withTransaction(entityManager -> {
 			entityManager.persist(flux);

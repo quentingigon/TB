@@ -83,7 +83,7 @@ public class SendEventJobCreator {
 
 		JobDetail job = newJob(SendEventJob.class)
 			.withIdentity(JOB_NAME_TRIGGER + flux.getName() + "#" + cronCmd,
-				SEND_EVENT_GROUP + "." + source + "." + name)
+				SEND_EVENT_GROUP)
 			.build();
 
 		CronTrigger trigger = newTrigger()
@@ -115,7 +115,7 @@ public class SendEventJobCreator {
 					servicePicker);
 
 				scheduler.getListenerManager().addJobListener(listener,
-					GroupMatcher.jobGroupContains(SEND_EVENT_GROUP + "." + source));
+					GroupMatcher.jobGroupContains(SEND_EVENT_GROUP));
 			}
 		} catch (SchedulerException e) {
 			e.printStackTrace();

@@ -15,7 +15,6 @@ public interface FluxRepository {
 	Flux addFlux(Flux flux);
 	LocatedFlux addLocatedFlux(LocatedFlux flux);
 	GeneralFlux addGeneralFlux(GeneralFlux flux);
-	ScheduledFlux addScheduledFlux(ScheduledFlux flux);
 	FluxTrigger addFluxTrigger(FluxTrigger flux);
 	FluxLoop addFluxLoop(FluxLoop flux);
 	void addFluxToFluxLoopWithOrder(Integer loopId, Integer fluxId, Integer order);

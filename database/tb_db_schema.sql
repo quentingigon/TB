@@ -131,13 +131,6 @@ CREATE TABLE schedule_fluxtriggers
     PRIMARY KEY (schedule_schedule_id, fluxtriggers)
   );
 
-DROP TABLE IF EXISTS schedule_fluxes CASCADE;
-CREATE TABLE schedule_fluxes
-  (
-    schedule_schedule_id INTEGER NOT NULL REFERENCES schedule (schedule_id),
-    fluxes INTEGER NOT NULL REFERENCES scheduled_flux (scheduled_flux_id),
-    PRIMARY KEY (schedule_schedule_id, fluxes)
-  );
 
 DROP TABLE IF EXISTS schedule_fluxloops CASCADE;
 CREATE TABLE schedule_fluxloops
@@ -296,8 +289,7 @@ CREATE TABLE fluxloop
   (
     id SERIAL PRIMARY KEY,
     schedule_id INTEGER NOT NULL REFERENCES schedule(schedule_id),
-    time VARCHAR(20),
-    loop_order INTEGER
+    time VARCHAR(20)
   );
 
 DROP TABLE IF EXISTS fluxloop_fluxes CASCADE;
@@ -390,9 +382,6 @@ CREATE FUNCTION delete_fluxes_of_schedule()
 RETURNS TRIGGER
 AS $$
 BEGIN
-    DELETE FROM schedule_fluxes
-    WHERE schedule_schedule_id = OLD.schedule_id;
-
     DELETE FROM schedule_fallbacks
     WHERE schedule_schedule_id = OLD.schedule_id;
 

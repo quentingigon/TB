@@ -1,7 +1,6 @@
 import models.db.Flux;
 import models.db.GeneralFlux;
 import models.db.LocatedFlux;
-import models.db.ScheduledFlux;
 import models.entities.FluxData;
 import models.repositories.interfaces.FluxRepository;
 import org.junit.Before;
@@ -68,17 +67,6 @@ public class FluxUnitTest {
 		GeneralFlux newFlux = new GeneralFlux(1);
 
 		assertEquals(fluxToReturn.getFluxId(), service.createGeneral(newFlux).getFluxId());
-	}
-
-	@Test
-	public void testCreateScheduledFlux() {
-		ScheduledFlux fluxToReturn = new ScheduledFlux(1, 1, 1);
-		when(mockFluxRepository.addScheduledFlux(any(ScheduledFlux.class))).thenReturn(fluxToReturn);
-		FluxService service = new FluxService(mockFluxRepository);
-
-		ScheduledFlux newFlux = new ScheduledFlux(1, 1, 1);
-
-		assertEquals(fluxToReturn.getFluxId(), service.createScheduled(newFlux).getFluxId());
 	}
 
 	@Test

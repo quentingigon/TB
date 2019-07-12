@@ -112,8 +112,11 @@
 	%------------------------------------------------
 	
 	\textcolor{Red}{ % Red font color
-		{\Huge TB}\\[0.5\baselineskip] % Title line 1
+		{\Huge Travail de Bachelor}\\[0.5\baselineskip] % Title line 1
 	}
+
+	\textsc{\LARGE Diffusion de flux d'information sur les écrans de la HEIG-VD}\\[1.5cm] % Publisher
+
 	
 	\vspace{0.025\textheight} % Whitespace between the title and short horizontal rule
 	
@@ -125,7 +128,21 @@
 	%	Author
 	%------------------------------------------------
 	
-	{\Large \textsc{Quentin Gigon}} % Author name
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Quentin \textsc{Gigon} % Your name
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+Pr. Pier \textsc{Donini}\\
+Mr. Jérôme \textsc{Varani}
+% Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
 	
 	\vfill % Whitespace between the author name and publisher
 	
@@ -133,7 +150,9 @@
 	%	Publisher
 	%------------------------------------------------
 	
-	{\large\textsc{HEIG-VD}} % Publisher
+	\textsc{\LARGE Haute Ecole d'Ingénierie et de Gestion du Canton de Vaud}\\[1.5cm] % Publisher
+	\textsc{\large Département des Technologies d'Information et de Communication}\\[0.5cm] % Minor heading such as course title
+
 	
 	\vspace{0.1\textheight} % Whitespace under the publisher text
 	
@@ -174,7 +193,7 @@ Certains termes informatiques n'ayant pas de réelle traduction mot-à-mot peuve
 
 \section{Introduction au projet}
 
-La HEIG-VD dispose de nombreux écrans pour la diffusion d'informations, réparti sur ses différents sites. A l'heure actuelle, un système existe déjà pour permettre une certaine organisation du contenu diffusé mais il s'agit plutôt d'une solution temporaire. Il ne fournit en effet que des fonctionnalités de diffusions pures, ne propose pas de système d'utilisateurs ou d'équipes et ne propose pas de modèle générique pour l'ajout de flux au sein de l'application. \newline
+La HEIG-VD dispose de nombreux écrans pour la diffusion d'informations, répartis sur ses différents sites. A l'heure actuelle, un système existe déjà pour permettre une certaine organisation du contenu diffusé mais il s'agit plutôt d'une solution temporaire. Il ne fournit en effet que des fonctionnalités de diffusions pures, ne propose pas de système d'utilisateurs ou d'équipes et ne propose pas de modèle générique pour l'ajout de flux au sein de l'application. \newline
 Le but de ce travail de Bachelor est donc de centraliser la gestion des écrans et de l'affichage de flux à travers une application Web, et de fournir un programme répondant le plus possible aux exigences fournies. Si ces dernières sont explicitées dans le cahier des charges (voir Annexe A), en voici une courte liste non-exhaustive:
 \begin{itemize}
 	\item Gérer les droits des utilisateurs
@@ -191,8 +210,7 @@ Un élément très important dans la direction qu'a prise le projet est la diff�
 \section{Présentation des technologies utilisées}
 
 \subsection{Framework Play!}
-Play! est un framework web open-source qui suit le modèle MVC et qui permet d'écrire rapidement des application web en Java (ou en Scala). A la différence d'autre frameworks Java, Play! est \textit{stateless}, ce qui veut dire qu'il n'y a pas de session créée à chaque connexion. 
-Il fourni aussi à ses utilisateurs des frameworks de tests unitaires et fonctionnels.
+Play! est un framework web open-source qui suit le modèle MVC et qui permet d'écrire rapidement des applications web en Java (ou en Scala). A la différence d'autre frameworks Java, Play! est \textit{stateless}, ce qui veut dire qu'il n'y a pas de session créée à chaque connexion. 
 
 
 \subsection{EventSource}
@@ -208,6 +226,9 @@ JPA définit aussi le Java Persistence Query Language (JPQL), qui est utilisé p
 
 \subsection{HTML5}
 HTML5 est la dernière version majeure du HTML (octobre 2014). Elle vient avec plein de nouveaux éléments, comme la balise \textit{video}, qui permet d'insérer un contenu vidéo en streaming dans un fichier HTML, ou encore \textit{footer}, qui lui permet de facilement afficher du texte en bas de page.
+
+\subsection{Quartz}
+Quartz est un framework open-source offrant des moyens de "scheduling" pouvant être intégré à n'importe quel projet Java. Il permet de créer des "schedules" pouvant effectuer jusqu'à des milliers de jobs. Ces jobs sont des composants Java standards et peuvent donc effectuer à peu prêt n'importe quelle tâche. Il est utilisé dans le cadre du projet pour construire des horaires de flux et générer des événements.
 
 \newpage
 \section{Analyse et Architecture}
@@ -230,7 +251,7 @@ Un flux dans ce programme représente un contenu à afficher sur un écran. Pend
 
 J'avais également proposé de fournir un template RSS permettant un ajout facile de nouveau flux RSS, mais cette fonctionnalité à été abandonnée par manque de temps.
 
-En ce qui concerne leur diffusion, il fallait proposer un moyen d'organiser un horaire de flux ainsi que la possibilité d'envoyer immédiatement un flux sur un écran. Deux types d'objets ont ainsi été créés : des Schedules, qui représentent l'horaire des flux pour une journée et des Diffusers, qui eux permettent d'envoyer un flux aux écrans sans passer par un Schedule. Ils sont explicités dans les sections suivantes.
+En ce qui concerne leur diffusion, il fallait proposer un moyen d'organiser un horaire de flux ainsi que la possibilité d'envoyer immédiatement un flux sur un écran. Deux types d'objets ont ainsi été créés : des Schedules, qui représentent l'horaire des flux pour une journée et des Diffusers, qui eux permettent d'envoyer un flux aux écrans sans forcement passer par un Schedule. Ils sont explicités dans les sections suivantes.
 
 \subsubsection{Flux}
 
@@ -243,7 +264,7 @@ Ils sont regroupés en quatre types:
 	\item Image
 	\item Texte
 \end{itemize}
-Le traitement de ces flux par le système et la manière par-laquelle ils sont affichés sur les écrans changent selon leur type. Par exemple, un flux 'Image' sera rendu dans une balise <img>, tandis qu'un flux 'URL' le sera dans une \textit{iframe}.
+Le traitement de ces flux par le système et la manière par laquelle ils sont affichés sur les écrans changent selon leur type. Par exemple, un flux 'Image' sera rendu dans une balise <img>, tandis qu'un flux 'URL' le sera dans une \textit{iframe}.
 
 De plus, il y a trois sortes de flux: des flux généraux, des flux localisés et des flux de fallback. Ils sont comme des sous-populations de flux: ils possèdent une référence vers un flux existant. \newline
 Comme son nom l'indique, un flux général peut être diffusé partout. Par opposition, un flux localisé est lui uniquement affichable sur le Site correspondant.
@@ -262,28 +283,30 @@ Un Schedule représente un horaire de flux. Un Schedule n'est pas assigné à de
 La première version de cet horaire modélisait un cycle, où les flux choisis par l'utilisateur bouclaient à l'infini. Ce système a été utilisé avec succès pour de la recherche et des tests sur la faisabilité du programme mais fut vite obsolète quand il s'agissait d'avoir plus de contrôle sur l'horaire, par exemple définir une heure de début pour un flux donné. \newline
 Il a donc fallu inventer un système permettant à la fois de créer un horaire à respecter pour les Schedules et de modifier cet horaire à la volée pour les Diffusers, tout en garantissant la cohérence du programme. 
 	\newline
-J'ai choisi de représenter une journée complète d'affichage par des blocs de 1 minute chacun. Cette plage d'affichage est bornée par une heure de départ (inclusive) et une heure de fin (exclusive) qui sont fixes, mais modifiables si besoin. A titre d'exemple, en prenant les valeurs que j'ai défini, soit de 8h à 22h, on obtient une plage horaire de 15h, ce qui est équivalent à 900 blocs. \newline
+Ma première idée fût de représenter une journée complète d'affichage par des blocs de 1 minute chacun. Cette version n'était pas satisfaisante car trop compliquée pour un résultat très moyen. \newline
+La modélisation définitive des horaires est donc la suivante: \newline
+Un horaire peut être composé de deux éléments différents: une boucle de flux (FluxLoop) et un flux programmé (FluxTrigger). Une boucle envoie ses flux les uns après les autres jusqu'à ce que ce soit à un flux programmé d'être envoyé. Ces éléments sont utilisés en coopération avec le framework Quartz afin de créer des CRON qui serviront de déclencheur pour l'envoi de Flux. 
 
 Si on regarde maintenant la procédure de création puis d'activation d'un Schedule:
 Quand un utilisateur crée un Schedule, il peut lui spécifier plusieurs choses:
 \begin{itemize}
 	\item Un nom (unique)
-	\item Des flux avec heure de début (ScheduledFlux)
-	\item Des flux sans heure de début 
+	\item Des flux avec heure de début (FluxTriggers)
+	\item Des flux sans heure de début (FluxLoop)
 	\item Des flux de fallback
-	\item Garder l'ordre des flux ou non
 \end{itemize}
 
-Pour chaque flux avec une heure de début associée, une "entrée de calendrier", ou ScheduledFlux, est créée et ajoutée dans la base de données. Cette "entrée" contient des références vers le Flux et le Schedule concerné, ainsi que le numéro de son bloc de départ.\newline
-Chaque flux sans heure de début est simplement ajouté au Schedule, pareil pour les flux de fallback. L'option de garder l'ordre des flux permet de garantir que les flux sans heure fixe seront affichés dans l'ordre dans lequel l'utilisateur les a rentré. \newline
+Pour chaque flux avec une heure de début associée, une "entrée de calendrier", ou FluxTrigger, est créée et ajoutée dans la base de données. Cette "entrée" contient des références vers le Flux et le Schedule concernés, ainsi que son heure de départ (en heures:minutes).\newline
+Chaque flux sans heure de début est regroupé avec les autres flux sans heure de début faisant partie du même ensemble (ces ensembles sont délimité par les flux possédant une heure de début) pour créer des FluxLoop et les ajouter à la base de données. Ces boucles contiennent des références vers le Schedule et les Flux concernés ainsi que leur heure de départ. Lors de discussions avec mon mentor, il avait été demandé que les FluxLoop n'aient pas d'heure de départ mais que celle-ci soit calculée sur le moment. Cela devait aussi permettre de réduire le nombre d'entrées de la table FluxLoop car on pouvait alors ne pas dupliquer des boucles référençant les mêmes flux mais dans un ordre différent. J'ai essayé de modifier le programme de cette manière mais je suis tombé face à un problème auquel je n'ai pas trouvé de solution efficace : comment savoir quel FluxLoop devait être démarré à quel moment. Les solutions que j'ai envisagé ne me convenait pas car elles scindaient la logique du programme en deux ou nécessitaient elles aussi des modifications de la table FluxLoop. \newline
+Les flux de fallback sont ajoutés tels quels au Schedule.\newline
 
 A l'activation d'un Schedule, on peut choisir parmi les écrans auxquels on a accès ceux qui seront concernés. Un objet RunningSchedule est créé, une entité temporaire qui existe uniquement tant que le Schedule reste actif. 
-Cette entité est ensuite utilisée pour créer un "bloc-horaire", qui associe avec chaque bloc le flux correspondant (en regardant parmi les ScheduledFlux) ou une absence de flux. Un Runnable (RunningScheduleThread) est ensuite lancé avec cet horaire. La manière dont il choisit le prochain flux est détaillée dans le chapitre \textbf{Réalisation}.\newline 
-Ce système permet de répondre à une autre demande du projet, la reprise de l'exécution des Schedules actifs lors du redémarrage du serveur ou après une maintenance. En donnant un moyen de faire correspondre une heure donnée avec un numéro de bloc, on peut très facilement reprendre l'exécution la où elle s'était arrêtée.
+Ensuite, les objets créés précédemment (soit les FluxLoop et FluxTrigger) sont utilisés pour créer les CRON représentant les entrées du Schedule. La manière dont ces CRON sont créés est détaillée dans le chapitre \textbf{Réalisation}.\newline 
+Ce système permet de répondre à une autre demande du projet, la reprise de l'exécution des Schedules actifs lors du redémarrage du serveur ou après une maintenance. On peut en effet facilement recréer tous les CRON d'un Schedule et reprendre l'exécution depuis l'heure courante.
 
 
 \subsubsection{Diffuser}
-Les Diffusers sont utilisés pour diffuser directement du contenu sur les écrans, sans devoir passer par un Schedule. Ils ont été rajoutés car mon application manquait d'un moyen d'envoyer rapidement un flux, p.ex. pour un message d'alerte. Ils doivent également permettre de choisir une période de validité pendant laquelle le Diffuser sera actif. \newline
+Les Diffusers sont utilisés pour diffuser directement du contenu sur les écrans, sans devoir passer par un Schedule. Ils ont été rajoutés car mon application manquait d'un moyen d'envoyer rapidement un flux, p.ex. pour un message d'alerte. \newline
 A sa création, l'utilisateur doit spécifier les attributs suivants:
 \begin{itemize}
 	\item Un nom (unique)
@@ -291,23 +314,26 @@ A sa création, l'utilisateur doit spécifier les attributs suivants:
 	\item Une heure de début
 \end{itemize}
 
-Le comportement d'un Diffuser est le suivant: il remplace l'exécution d'un potentiel Schedule actif pour les écrans auxquels il est associé tant qu'il est actif. \newline
-Comme pour les Schedules, un Diffuser actif est un RunningDiffuser, lui aussi une entité temporaire qui reste active selon la validité spécifiée à sa création ou jusqu'à sa désactivation/destruction. Une fois que le RunningDiffuser est arrivé en fin de vie, les écrans auxquels il diffusait un flux peuvent reprendre leur Schedule.
+Le comportement d'un Diffuser est le suivant: il remplace l'exécution d'un potentiel Schedule actif pour les écrans auxquels il est associé tant qu'il est actif. Si un Diffuser est activé pour un écran n'ayant pas de Schedule actif, un CRON est créé pour pouvoir quand même envoyer le flux diffusé aux écrans. \newline
+Comme pour les Schedules, un Diffuser actif est un RunningDiffuser, lui aussi une entité temporaire qui reste active selon la validité spécifiée à sa création ou jusqu'à sa désactivation/destruction. Une fois que le RunningDiffuser est arrivé en fin de vie, les écrans auxquels il diffusait un flux peuvent reprendre leur Schedule. 
 
-
+\newpage
 \subsection{Ecrans}
 
 Lors de mes discussions avec mon mentor, il a été assez vite recommandé et conseillé que j'utilise des Eventsources (voir doc) pour envoyer les ordres d'affichages aux écrans. Les sections suivantes résument et décrivent leur utilisation dans ce programme.
 
 \subsubsection{Affichage}
-Pour l'affichage des flux sur les écrans, les technologies autorisées étaient le HTML5, CSS3 et Javascript pur (sans frameworks). La demande initiale était de pouvoir afficher le contenu associé à une URL grâce aux iframes. Il fallait donc un moyen pour les écrans de recevoir une URL sous forme texte. En partant de ce constat, j'ai remarqué que si un Event contenait une URL en texte, il pouvait contenir d'autres données. J'ai donc proposé d'implémenter des flux de type image et texte. \newline
+Pour l'affichage des flux sur les écrans, les technologies autorisées étaient le HTML5, CSS3 et Javascript pur (sans frameworks). La demande initiale était de pouvoir afficher le contenu associé à une URL grâce aux iframes. Il fallait donc un moyen pour les écrans de recevoir une URL sous forme texte. En partant de ce constat, j'ai remarqué que si un événement contenait une URL en texte, il pouvait contenir d'autres données. J'ai donc proposé d'implémenter des flux de types image et texte. \newline
 Les écrans sont capable de déterminer le type du flux reçu et de l'afficher de la manière adéquate. Les différents moyens utilisés l'affichage en question sont décrits dans la section Réalisation.
 
-\subsubsection{Events}
-Un des problèmes à résoudre était la question d'envoyer les bons Events aux bons écrans.
- Il y avait deux manières principales de faire, soit envoyer tous les Events à tous les écrans avec la liste des écrans concernés, soit générer dynamiquement des endpoints pour chaque Schedule. Pour des raisons de simplicité et parce que le nombre d'écrans restera raisonnable, la première possibilité a été choisie. \newline
-Les Events générés par les Schedules sont donc envoyés à tous les écrans s'étant connectés auprès du serveur. Chaque Event contient les adresses MAC des écrans concernés et c'est à l'écran de vérifier s'il est concerné par l'Event qu'il vient de recevoir.\newline
-Un Event est construit de la manière suivante: il contient son type, ses "données" (url ou texte) et les écrans concernés. Ci-dessous un exemple pour chaque type:\newline
+\subsubsection{Evénements}
+Un des problèmes à résoudre était la question d'envoyer les bons événements aux bons écrans.
+ Il y avait deux manières principales de faire, soit envoyer tous les événements à tous les écrans avec la liste des écrans concernés, soit générer dynamiquement des endpoints pour chaque Schedule. Pour des raisons de simplicité et parce que le nombre d'écrans restera raisonnable, la première possibilité a été choisie. \newline
+Les événements générés par les Schedules sont donc envoyés à tous les écrans s'étant connectés auprès du serveur. Chaque événement contient les adresses MAC des écrans concernés et c'est à l'écran de vérifier s'il est concerné par l'événement qu'il vient de recevoir.\newline
+Un événement est construit de la manière suivante: il contient son type, ses "données" (url ou texte) et les écrans concernés. \newline
+Ci-dessous un exemple pour chaque type:\newline
+
+
 \begin{itemize}
 	\item URL:\begin{verbatim}
 					url?https://heig-vd.ch|mac_address1,mac_address2
@@ -325,9 +351,10 @@ Un Event est construit de la manière suivante: il contient son type, ses "donn�
 
 
 \subsubsection{Authentification}
-Un écran ne peut recevoir d'Event qu'une fois authentifié, pour des raisons évidentes de sécurité. Il fallait donc trouver un moyen d'identifier de manière unique chaque écran. La première piste envisagée fut d'utiliser les hostnames des écrans car cette information était facilement récupérable en Java, et spécialement avec Play. Mais en raison de l'architecture réseau de la HEIG et de la volonté d'intégrer le protocole WakeOnLan au programme, il a été décidé d'utiliser les adresses MAC à la place. WakeOnLan est un standard Ethernet qui permet d'allumer un ordinateur à distance en utilisant son adresse MAC.\newline 
+Un écran ne peut recevoir d'événements qu'une fois authentifié, pour des raisons évidentes de sécurité. Il fallait donc trouver un moyen d'identifier de manière unique chaque écran. La première piste envisagée fut d'utiliser les hostnames des écrans car cette information était facilement récupérable en Java, et spécialement avec Play. Mais en raison de l'architecture réseau de la HEIG et de la volonté d'intégrer le protocole WakeOnLan au programme, il a été décidé d'utiliser les adresses MAC à la place. WakeOnLan est un standard Ethernet qui permet d'allumer un ordinateur à distance en utilisant son adresse MAC.\newline 
 La difficulté inhérente à ceci était de récupérer ces adresses depuis Java. Pour remédier à ce problème et en même temps fournir une couche de sécurité au niveau des écrans, il a été choisi que lors de l'ajout d'un écran au système et de son authentification, son adresse MAC devrait être précisée. \newline
 
+\newpage
 Le protocole de connexion des écrans au serveur est donc le suivant:
 
 	\begin{figure}[h]
@@ -379,10 +406,17 @@ Dans les premières directives du projet figurait le besoin d'avoir des flux loc
 
 \subsection{Schedule}
 
-Pendant la réalisation du projet, j'ai du trouver une solution pour stocker en base de données les Schedules créés et surtout l'horaire choisi par l'utilisateur pour ses différents flux. Comme expliqué dans le chapitre \textbf{Analyse et Architecture} (section Schedule), j'ai mis au point une représentation d'une plage de diffusion en blocs d'une minute. Je ne voulais pas stocker l'entièreté de l'horaire mais plutôt enregistrer les flux avec une heure de début définie. J'ai donc trouvé cette solution: créer une table mettant en relation un Schedule et un Flux tout en spécifiant le numéro de son "bloc de départ" (qui correspond à son heure de début). Cette table s'appelle \textbf{ScheduledFlux} et ne représente pas vraiment un flux mais plutôt une entrée de calendrier. \newline
-Un Schedule doit également référencer ses flux sans heure de départ attribuée et ses flux de fallback afin d'être complet. Pour ce faire, des tables intermédiaires existent entre Schedule et Flux ainsi que Schedule et FallbackFlux.\newline
+Pendant la réalisation du projet, j'ai du trouver une solution pour stocker en base de données les Schedules créés et surtout l'horaire choisi par l'utilisateur pour ses différents flux. Comme expliqué dans le chapitre \textbf{Analyse et Architecture} (section Schedule), j'ai d'abord mis au point une représentation d'une plage de diffusion en blocs d'une minute. Cette représentation n'étant pas satisfaisante, j'ai dû changer de méthode et ai donc ajouté trois entités de base de données : 
+\begin{itemize}
+	\item \textbf{FluxTrigger}: Signifie qu'un flux doit être envoyé à une certaine heure et sert de borne pour le Schedule.
+	\item \textbf{FluxLoop} : Signifie qu'à partir d'une certaine heure, et jusqu'à la prochaine borne, les flux contenus dans la \textit{loop} seront bouclés indéfiniment. 
+	\item \textbf{LoopedFlux} : Représente un flux faisant partie d'un \textit{FluxLoop}. Contient également une colonne supplémentaire servant à représenter l'ordre des flux dans la \textit{loop}.\newline
+\end{itemize}   
+Un Schedule doit également référencer ses flux de fallback afin d'être complet.\newline
 
-Un Schedule doit pouvoir être activé et cette information doit être visible en base de données. Comme précisé dans le chapitre précédent, cette activation est représentée par la création d'une entité temporaire RunningSchedule, qui existe tant que le Schedule reste activé. Un Schedule ne possédant aucune référence vers des écrans, c'est le RunningSchedule qui contient ces informations. Outre cela, il ne contient qu'une référence vers son Schedule associé. 
+Un Schedule doit pouvoir être activé et cette information doit être visible en base de données. Comme précisé dans le chapitre précédent, cette activation est représentée par la création d'une entité temporaire RunningSchedule, qui existe tant que le Schedule reste activé. Un Schedule ne possédant aucune référence vers des écrans, c'est le RunningSchedule qui contient ces informations. Outre cela, il ne contient qu'une référence vers son Schedule associé. \newline
+
+Les Schedules contiennent également une String représentant les jours pour lesquels ils sont actifs (séparés par une virgule). 
     
 \begin{landscape}
 \begin{figure}[!h]
@@ -397,91 +431,170 @@ Un Schedule doit pouvoir être activé et cette information doit être visible e
 
 En termes de base de données, les Diffusers sont très similaires aux Schedules. Comme on doit également pouvoir activer un Diffuser, la même technique est utilisée, avec un RunningDiffuser créé à l'activation qui contient une référence vers les écrans concernés ainsi que le flux diffusé. Ils ont par contre quelques attributs en plus qui détermine leur comportement:
 \begin{itemize}
-	\item \textbf{Startblock}, qui contient l'indice du bloc de départ du Diffuser
-	\item \textbf{Validity}, un entier représentant la plage de validité du Diffuser. 
+	\item \textbf{Time}, qui contient l'heure de départ du Diffuser.
+	\item \textbf{Days}, une String contenant les jours pour lesquels le Diffuser est actif (séparés par une virgule). \newline
 \end{itemize}
 
-Dans le cadre du projet, l'attribut Validity est implémenté en base de données et dans les modèles mais il n'est pas utilisé. Comme expliqué dans le chapitre \textbf{Réalisation}, le fonctionnement des Diffusers a changé en cours de route et l'implémentation d'une durée de validité n'a pas été faite dans la nouvelle architecture. L'implémentation pensée se mariait bien avec le système de blocs, \textit{validity} devait définir un nombre de bloc pendant lequel le Diffuser était actif.
+Contrairement aux Schedules, les Diffusers contiennent directement ces informations car ils n'utilisent pas de \textit{FluxTrigger} ou de \textit{FluxLoop}.
 
 \subsection{Ecrans}
 Pour les écrans, la base de données est assez simple. Chaque entrée de la table représente un écran physique et donc contient des informations sur son lieu, son matériel et son état.  \newline
 Une des demandes explicitées pendant les discussions avec mon mentor était d'avoir la possibilité de spécifier un voisin pour nos écrans (certains écrans de la HEIG-VD étant côte-à-côte). Ceci afin de ne pas afficher deux fois le même flux mais deux différents. Si cette information est modélisée en base de données, elle n'est pas utilisée dans le cadre de l'application.\newline
 Il existe également la table WaitingScreen, qui représente un écran en attente d'enregistrement. Comme précisé dans le chapitre précédent, les nouveaux écrans inconnus du système qui essaient de d'authentifier reçoivent un code à fournir lors de leur ajout au système (en passant par l'interface). Entre le moment où le code est fourni et celui ou l'écran a été ajouté, une entrée de cette table fait le lien entre l'adresse MAC du nouvel écran et le code fourni par le serveur.
 
+\newpage
+\section{Architecture Logicielle}
+
+\subsection{Architecture de Quartz}
+
+En quelques mots, le concept primaire de Quartz est d'avoir un \textit{Scheduler} qui contient une liste de \textit{Jobs} qui sont activé à un certain moment par un \textit{Trigger}. Il est également possible d'enregistrer des \textit{Listeners} pour les \textit{Jobs} ou les \textit{Triggers} qui permettent d'effectuer des opérations avant ou après l'exécution d'un \textit{Job}. On peut voir les relations entre les différentes entités dans le schéma ci-dessous :
+
+\begin{figure}[h]
+	\centering	
+	\includegraphics[width=0.8\linewidth]{schemas/quartz_arch.png}%
+	\caption{Architecture de Quartz}
+\end{figure}
+
+\subsection{Utilisation de Quartz et Gestion des événements}
+Dans le cadre du programme, l'envoi d'un événement à un écran est représenté par un \textit{Job}, qui s'occupera de traiter des données, un \textit{Trigger} qui s'occupera d'activer le \textit{Job} et qui contient diverses informations nécessaires à son exécution (les IDs des écrans concernés ou encore l'ID du flux à envoyer, etc) ainsi qu'un \textit{Listener} qui transmettra l'événement à l'EventManager. \newline
+
+On peut observer dans le schéma de la page suivante l'architecture logicielle des différentes classes servant au traitement d'événements. Ce schéma sert de référence pour cette section.\newline
+
+On peut observer ici plusieurs choses mais commençons par les \textit{Jobs}. Ils héritent de l'interface \textit{EventJob}, qui elle-même hérite de l'interface \textit{Job} de Quartz. Cette interface sert à forcer les \textit{Jobs} à implémenter quelques fonctions. Les deux types présents, soit \textit{SendEventJob} et \textit{SendLoopEventJob}, représentent respectivement un événement associé à un FluxTrigger et à un FluxLoop. Il est donc possible d'imaginer créer de nouveaux \textit{Jobs} associés à de nouvelles fonctionnalités. \newline
+Concrètement, un \textit{Job} va récupérer les valeurs contenues dans le \textit{Trigger} l'ayant déclenché pour construire un FluxEvent représentant l'événement devant être envoyé aux écrans (un FluxEvent est composé d'un flux et de la liste des adresses MAC des écrans concernés par cet événement.). Il va également regarder quelle entité l'a déclenché (Schedule ou Diffuser). \newline
+
+Maintenant que l'événement à été créé, il faut le transmettre aux écrans et c'est là que les \textit{Listeners} rentrent en action. De la même manière que pour les \textit{Jobs}, ils héritent de l'interface \textit{EventJobListener}, qui elle-même hérite de l'interface \textit{JobListener} de Quartz. A nouveau, cette interface sert à forcer les \textit{Listeners} à implémenter une fonction nécessaire. J'ai fait le choix d'avoir un type de \textit{Listener} par type de \textit{Job} car leur comportement n'est pas tout à fait le même selon le type d'événement traité. \newline
+Cependant, tous les \textit{Listeners} effectuent les actions suivantes une fois qu'un \textit{Job} aie été exécuté:
+ses informations sont récupérées, une vérification est effectuée pour savoir si le flux a du contenu à afficher et la suite du traitement est déléguée à l'EventManager. Leur comportement diffère quant au reste de leur exécution. Par exemple, un \textit{SendEventJobListener} va vérifier, après avoir envoyé l'événement à l'EventManager, quelle est la prochaine entrée du Schedule et si un FluxLoop est prévu, il va créer le \textit{Job} associé. Ces différences de fonctionnement seront explicitées dans le chapitre \textbf{Réalisation}. \newline
+
+Le reste du traitement est effectué par l'EventManager (un singleton) qui reçoit tout les événements générés par le programme et les traite de manière accordée (détection de Diffuser actif, remplacement du flux prévu par un flux de fallback, etc). L'événement final est ensuite envoyé aux écrans par le biais de l'EventSourceController.
+
+\newpage
+\begin{figure}[h]
+	\centering	
+	\includegraphics[width=0.9\linewidth]{schemas/event_handling.png}%
+	\caption{Gestion des événements}
+\end{figure}
+
+Il convient de se demander pourquoi les \textit{Listeners} sont-ils utilisés et pourquoi les \textit{Jobs} ne pourraient-ils pas directement envoyer leur résultat à l'EventManager. Le problème vient de la structure de Play, en particulier l'obtention d'instances de classe par injection de dépendance. En effet, il est impossible pour les \textit{Job} d'utiliser l'injection de dépendance et il est également impossible de leur fournir des objets à leur création. Afin de palier à ce problème, j'ai donc utilisé les \textit{Listeners}. Je pense que c'est quand même une bonne chose car cela permet de plus facilement apporter des modifications ou nouvelles fonctionnalités.
+
+\newpage
+\subsection{Création de job}
+En avançant dans la réalisation du programme, j'ai eu besoin de pouvoir créer ces \textit{Jobs} depuis différents endroit dans le code et avec des paramètres également différents selon l'entité les produisant (Schedule ou Diffuser). Pour répondre à ce besoin, j'ai mis au point des classes \textit{JobCreator}. On peut voir dans les deux schémas suivants les liens entre les différentes classes devant générer des \textit{Jobs} : \newline
+
+\begin{figure}[h]
+	\centering	
+	\includegraphics[width=0.7\linewidth]{schemas/job_creation.png}%
+	\caption{Création de \textit{SendEventJob}}
+\end{figure}
+
+Les \textit{SendEventJob} peuvent être créés soit par un Schedule, soit par un Diffuser. La classe \textit{SendEventJobCreator} offre donc deux méthodes publiques, une pour les Schedules et une pour les Diffusers. un \textit{Job} est ensuite créé avec les bon paramètres.
+
+
+\begin{figure}[h]
+	\centering	
+	\includegraphics[width=0.7\linewidth]{schemas/loop_job_creation.png}%
+	\caption{Création de \textit{SendLoopEventJob}}
+\end{figure}
+
+Le comportement du \textit{LoopEventJobCreator} est un peu différent du précédent car il ne peut être utilisé que dans le cadre d'un Schedule. Il offre deux méthodes publiques, \textit{createFromFluxLoop()} pour initier une nouvelle boucle et \textit{createFromJob()} pour continuer une boucle existante. \newline
+
+\newpage
+\subsection{DAO}
+Voici un schéma simple décrivant l'architecture utilisée pour mes classes d'accès aux données :
+
+\begin{figure}[h]
+	\centering	
+	\includegraphics[width=0.8\linewidth]{schemas/dao_schema.png}%
+	\caption{Schéma des services d'accès aux données}
+\end{figure}
+
+Dans cette figure, l'objet \textit{ObjectService} représente le service utilisé pour effectuer des opérations de base de données. Utiliser cette structure pour les DAO est recommandée par Play car elle regroupe la logique des fonctions d'accès aux données au même endroit et elle facilite grandement la mise en place de tests à base de mocks. 
+
+\subsection{FluxChecker}
+
+Voici un schéma décrivant mon idée d'implémentation pour vérifier si un flux a du contenu à afficher :
+
+\begin{figure}[h]
+	\centering	
+	\includegraphics[width=0.5\linewidth]{schemas/fluxchecker.png}%
+	\caption{Utilisation du FluxChecker}
+\end{figure}
+
+Dans l'exemple ci-dessus, le FluxChecker ne possède qu'une fonction, mais il est tout à fait envisageable d'en proposer plusieurs (une par type de validation). Il serait utilisé par les \textit{Listeners} pour vérifier le flux courant juste avant de l'envoyer à l'EventManager.
+
 \newpage	
 \section{Réalisation}
 
 \subsection{Organisation des flux}
 
-Cette section se concentre sur la manière dont la diffusion de flux est gérée par le système, de l'analyse des Schedules à l'envoi d'Events aux écrans. Ce traitement se fait principalement à l'aide de trois objets, dont voici un schéma: 
 
-\begin{figure}[h]
-	\centering	
-	\includegraphics[width=0.8\linewidth]{schemas/flux_organisation.png}%
-	\caption{Organisation des flux}
-\end{figure}
+\subsubsection{Jobs et Listeners}
 
-En élément central, nous avons les RunningSchedulesThreads. Comme leur nom l'indique, c'est eux qui représentent l'exécution d'un Schedule actif. Ils sont gérés par un manager, qui permet de les activer, désactiver et de les récupérer. Ils génèrent des événements selon les flux de leur Schedule et les transmettent au FluxManager via le patron de conception \textbf{Observer}. \newline
-Le FluxManager est un Singleton dont les seules tâches sont de récupérer les Events générés par les différents RunningSchedulesThreads, construire les messages à envoyer (donc le type, l'url, les écrans concernés, etc) et les transmettre aux écrans. Il utilise pour cela la méthode \textit{send(event: String)} fournie par l'EventSourceController.\newline
-Comme précisé dans le chapitre Analyse et Architecture, un système de "bloc-minute" est utilisé pour organiser la diffusion de flux en créant un "bloc-horaire" qui est utilisé par les RunningSchedulesThreads pour déterminer les flux à envoyer selon l'heure courante.
+Comme expliqué dans le chapitre précédent, les \textit{Jobs} servent à construire l'objet FluxEvent qui sera utilisé par les \textit{Listeners} et l'EventManager. Dans l'extrait de code suivant, on peut observer la fonction \textit{execute()} de la classe \textit{SendEventJob} : 
 
-\subsubsection{Bloc-horaire}
-La première implémentation que j'ai faite de ces horaires utilisait une simple liste de flux qui, si elle me permettait de vérifier le bon fonctionnement du programme n'offraient que peu de souplesse pour les différentes fonctionnalités à implémenter. Il a donc été choisi de représenter une plage d'affichage comme un ensemble de bloc et j'ai choisi comme valeur temporelle une minute afin de simplifier le processus et d'offrir une plus grande granularité à l'utilisateur.\newline
-Concrètement, un "bloc-horaire" est une \textit{Map<Integer, Integer>} qui associe à chaque index de bloc l'id du flux programmé à cette heure-ci ou -1 afin de représenter une absence de flux. Il est construit à chaque fois qu'un Schedule est activé à partir de ses données puis fourni au RunningSchedulesThread associé. On peut voir dans la figure suivante la manière dont cet horaire est généré:
+\lstinputlisting[caption=SendEventJob.java, language=Java]{code/sendeventjob.java}
 
-\lstinputlisting[caption=Création du bloc-horaire, language=Java]{code/timetable_creation.java}
+On voit que les trois attributs de la classe sont récupérés du \textit{Trigger} ayant déclenché le \textit{Job}. La \textit{source} sert à savoir quelle entité (Schedule ou Diffuser) a créer ce \textit{Job} et l'\textit{entityId} contient l'ID de cette entité.\newline
 
-On commence par récupérer les flux avec heure de début du Schedule concerné, puis on remplit l'horaire bloc par bloc en vérifiant à chaque fois si un flux est prévu pour le bloc courant. \newline
-Ce système offre principalement deux avantages: 
+Une fois le \textit{Job} effectué, le \textit{Listener} approprié est activé et peut récupérer les valeurs construites dans le \textit{Job}. On peut voir dans l'extrait suivant la fonction \textit{jobWasExecuted()} de la classe \textit{SendEventJobListener} : 
+
+\lstinputlisting[caption=SendEventJobListener.java, language=Java]{code/sendeventjob_listener.java}
+
+Le premier point à noter est la fonction de vérification de flux qui demandera à un service externe si le flux courant a du contenu à afficher. Dans le cas contraire, on transmet quand même l'événement à l'EventManager mais avec un boolean false. Il se chargera ensuite de remplacer le flux par un flux de fallback. \newline
+Jusque là, les deux \textit{Listeners} ont le même comportement, mais celui-ci diffère pour la suite. Dans l'exemple fourni, après avoir traité l'événement, le \textit{Listener} vérifie un FluxLoop est prévu après l'exécution du flux courant (ligne 30). Si oui, un \textit{SendLoopEventJob} est créé. Si non, et si le \textit{Job} venant d'être exécuté représentait le dernier FluxTrigger de la journée, le premier FluxLoop du Schedule est démarré. Si aucun FluxLoop n'existe pour le Schedule, rien ne se passe.
+
+\subsubsection{Création de Jobs}
+
+Comme expliqué précédemment, les \textit{Jobs} sont créés à l'aide d'une classe \textit{JobCreator} associée. On peut voir dans l'extrait suivant une partie du code de la classe SendEventJobCreator :
+
+\lstinputlisting[caption=SendEventJobCreator, language=Java]{code/sendeventjob_creator.java}
+
+On peut observer dans la troisième fonction (ligne 29), la manière dont les \textit{Jobs} et \textit{Triggers} de Quartz sont utilisés. Un SendEventJob est créé avec une identité et surtout un groupe d'appartenance (utile pour les \textit{Listeners}). Il est ensuite associé à un CronTrigger avant d'être "schedulé". Les différentes valeurs nécessaires aux \textit{Jobs} sont insérées dans une DataMap stockée dans le CronTrigger. \newline
+On peut aussi observer la manière dont les \textit{Listeners} fonctionnent. J'ai fait le choix d'en avoir un par type de \textit{Job}. Ils sont donc identifiés par leur nom. \newline
+A la ligne 68, on peut observer l'ajout d'un \textit{Listener} par le Scheduler de Quartz. C'est également à ce moment que l'on choisit quels seront les \textit{Jobs} écoutés par le \textit{Listener} nouvellement créé. Pour ce faire, il suffit de préciser un groupe de \textit{Jobs} (ligne 69). \newline
+Pour le cas de la classe LoopEventJobCreator, le comportement est en partie identique, avec comme différences :
 \begin{itemize}
-	\item Il est très facile de modifier le "bloc-horaire" d'un Schedule actif pour en modifier le comportement (changer de flux, en rajouter ou même en supprimer) sans devoir arrêter le programme.
-	\item La reprise automatique de l'exécution des Schedules actifs est elle aussi très simple: le système inspecte la base de données au démarrage et si elle contient des RunningSchedules, il génère et lance les threads associés.
-\end{itemize}
+	\item Les points d'entrée de la classe, qui cette fois ne dépendent pas de l'entité créant le \textit{Job} car seuls des Schedules peuvent posséder des FluxLoop. Il y en a un qui permet de commencer une boucle (\textit{createFromFluxLoop()}) et l'autre permettant de la continuer (\textit{createFromJob()}).
+	\item La manière dont les valeurs nécessaires à la création des \textit{Jobs} et \textit{Triggers} sont obtenues (récupérées depuis le \textit{Job} précédent par exemple). 
+\end{itemize}  
 
+\subsubsection{EventManager}
 
- 
-\subsubsection{RunningScheduleThread}
-C'est vraiment dans cette classe que la logique de "scheduling" est implémentée. Voici une version simplifiée de sa méthode \textit{run()} mais qui garde la même logique fondamentale:
+L'EventManager est l'entité responsable de regrouper tout les événements générés par les Schedules et Diffusers pour les transmettre au contrôleur chargé de les envoyer aux écrans. C'est un Singleton qui est créé par injection de dépendance au démarrage de l'application et dont les contrôleurs ou autres objets peuvent obtenir une référence, par injection de dépendance à nouveau. Il reçoit des Events des différents Listeners actifs et les traite ensuite. C'est lui qui vérifie si un Diffuser est actif pour les écrans concernés par un événement et qui envoie les flux appropriés.\newline
 
-\lstinputlisting[caption=Eventsource Java, language=Java]{code/runninschedulethread_run.java}
+C'est donc dans cette classe que la logique de "scheduling" est présente et que le choix du flux à afficher est effectué par le système. Quand l'EventManager reçoit un nouvel événement, il en vérifie avant tout la source (Schedule ou Diffuser) afin de le traiter correctement. Présenté ci-dessous, sa fonction \textit{handleEvent()}, qui sert de point d'accès à la classe :tet
 
-Lorsqu'il débute, le thread récupère l'heure actuelle et vérifie qu'il est dans les bornes de la plage horaire. Si oui, il récupère l'indice du bloc courant puis commence son exécution. Dans le code ci-dessus ne figure pas toutes les opérations effectuées normalement (par soucis de concision), mais il donne une assez bonne idée de son fonctionnement. 
+\lstinputlisting[caption=Gestion des événements - EventManager.java, language=Java]{code/handle_event.java}
+
+Si l'origine de l'événement est un Schedule, on passe par la fonction de la ligne 14. Elle se charge de vérifier que si le flux est localisé, les écrans concernés par l'événement soient sur le même site. Pour tout ceux étant localisés sur un site différent, un flux de fallback leur est envoyé à la place. Dans le cas où aucun flux de fallback n'a été choisi pour le Schedule, rien ne se passe pour ces écrans (ils continueront à afficher le dernier flux reçu).
+
+Si le job vient d'un Diffuser, on passe cette fois directement dans la fonction \textit{sendFluxEvent()} à la ligne 18. Elle sert de "pré-point de sortie" de la classe, où les écrans ayant un Diffuser actif se voient envoyer le flux diffusé et les autres le flux prévu. 
+
+\lstinputlisting[caption=Détection d'un Diffuser actif lors de l'envoi de Flux - EventManager.java, language=Java]{code/diffuser_detection.java}
+
+Au lieu de modifier les Schedules avec les Diffusers, l'application peut  détecter qu'un RunningDiffuser est actif pour un écran auquel il s'apprêtait à envoyer un flux (vérification faites à la ligne 6 par la méthode \textit{sendDiffusedFluxToConcernedScreens()}) et ainsi modifier son comportement pour envoyer le flux diffusé et non le flux prévu. On peut observer cette méthode dans la figure suivante.
+
+\lstinputlisting[caption=Envoi du flux diffusé aux écrans concernés - EventManager.java, language=Java]{code/send_diffused_flux.java}
+
+On peut observer à la ligne 28 l'envoi du flux diffusé aux écrans concernés. Aux lignes 32 et 42, on construit petit à petit la String contenant les IDs des écrans non-concernés par un Diffuser. 
+
 \newpage
-On peut résumer l'algorithme de choix de flux ainsi:
-
-\begin{figure}[h]
-	\centering	
-	\includegraphics[width=0.8\linewidth]{schemas/runningschedulethread_algo.png}%
-	\caption{Algorithme de scheduling des flux}
-\end{figure}
-
-Un Schedule voudra toujours afficher en priorité un flux ayant une heure de début. Le RunningScheduleThread va donc vérifier si le bloc courant a un flux associé. Si oui, cela veut dire qu'un ScheduleFlux existe pour cette heure-ci et le flux associé est envoyé aux écrans. Si non, le thread essaie de "caser" un des flux sans heure de début dans l'espace restant dans le bloc-horaire jusqu'au prochain ScheduledFlux. S'il n'y arrive pas, il envoie soit un des flux de fallback (si le Schedule en possède), soit un flux prédéterminé qui informe l'écran qu'il recevra bientôt des informations.\newline
-On peut observer à la ligne 18 du Listing 2 un appel à la fonction \textit{sendFluxEventAsGeneralOrLocated()}. Elle sert de point d'envoi des Events au FluxManager et s'assure que les différents flux envoyés soient correctement dispatchés aux écrans selon leur contenu. Par exemple, lors de l'envoi d'un flux localisé, tout les écrans n'étant pas sur ce site mais faisant partie du Schedule vont recevoir soit un des flux de fallback s'il en existe, soit un flux d'erreur.
-
-
-\subsubsection{FluxManager}
-
-Le FluxManager est l'entité responsable de regrouper tout les Events générés par les Schedule pour les transmettre au contrôleur chargé de les envoyer aux écrans. C'est un Runnable Singleton qui est créé par injection de dépendance au démarrage de l'application et dont les contrôleurs ou autres objets peuvent obtenir une référence, par injection de dépendance à nouveau.
-Pour représenter l'événement d'un flux, j'utilise un objet FluxEvent, qui est composé d'un flux et de la liste des adresses MAC des écrans concernés par cet événement. \newline
-C'est également le FluxManager qui construit le contenu de l'Event qui sera envoyé aux écrans (voir chapitre Analyse et Architecture, section Events).
-Présenté ci-dessous, sa fonction \textit{run()} simplifiée:
-
-\lstinputlisting[caption=FluxManager, language=Java]{code/fluxmanager_run.java}
-
-La logique de cette classe est elle aussi plutôt simple; le FluxManager itère sur sa liste de FluxEvents et pour chacun d'entre eux, il donne l'ordre au contrôleur d'envoyer un Event aux écrans. Dans le cas où il n'a pas de FluxEvent à traiter, il \textit{sleep} pendant quelques instants avant de recommencer la procédure.
-
 \subsubsection{AutomatedScheduleStarter}
 
-Le code de cette classe est appelé au démarrage du programme afin de régénérer des RunningScheduleThreads pour chaque RunningSchedule dans la base de données. Grâce au système de blocs, il devient très facile de reprendre l'exécution après un arrêt ou une maintenance du serveur car il suffit de récupérer l'heure courante, de la faire correspondre à un numéro de bloc et d'utiliser ce numéro comme point de départ pour le RunningScheduleThread nouvellement créé. La manière de faire étant la même que pour l'activation d'un Schedule, il n'y a pas d'exemple fourni.
+Grâce à Quartz, il devient très facile de reprendre l'exécution après un arrêt ou une maintenance du serveur car il suffit de re-générer les Jobs et Triggers de chaque Schedule actif et de les démarrer ensuite. Le code de cette classe est donc appelé au démarrage du programme (grâce aux annotations de Play) pour chaque RunningSchedule dans la base de données. La manière de faire étant la même que pour l'activation d'un Schedule, il n'y a pas d'exemple fourni.
 
-\newpage
 \subsubsection{FluxChecker}
 
 Le code présenté dans cette section n'a pas été testé car le service ou micro-serveur n'existe pas. Il s'agit uniquement d'une ébauche visant à mieux expliquer mon idée pour cette fonctionnalité.
 
-\lstinputlisting[caption=FluxManager, language=Java]{code/fluxchecker.java}
+\lstinputlisting[caption=FluxChecker, language=Java]{code/fluxchecker.java}
 
-Cette fonction sera utilisée par les RunningSchedulesThreads mais elle ne doit être appelée non pas au moment d'afficher un flux. Comme  la requête pourrait potentiellement prendre du temps ou échouer, ils doivent effectuer cette vérification en amont, par exemple pour le prochain flux prévu.
+Cette classe sera utilisée par les \textit{Listeners} avant de transmettre l'événement à l'EventManager. Il avait été discuté avec mon mentor de vérifier les flux en amont, par exemple en vérifiant le prochain flux à chaque envoi de flux. Cependant, après réflexion, je suis venu à la conclusion que le programme et le micro-service s'exécuteront sur le même serveur. Le temps de réponse sera donc extrêmement bas (en dessous de la seconde) et le décalage sera donc minime et non perceptible. Il faudra bien sûr s'assurer de plusieurs choses pour faire cette hypothèse :
+\begin{itemize}
+	\item Le micro-service devra être rapide et sans-faute. Idéalement, il devrait garder à jour plusieurs listes de flux n'ayant potentiellement rien à afficher, une par type de vérification (voir chapitre \textbf{Analyse et Architecture}, section 4.3.1).
+	\item La vérification depuis le programme devra être non-bloquante. Si le micro-service ne répond pas ou si un problème de connexion survient, l'envoi du flux devrait se poursuivre et l'exécution du programme ne devrait pas être interrompue.
+\end{itemize}
  
 \newpage
 \subsection{Contrôleurs}
@@ -495,7 +608,7 @@ Ci-dessous une version simplifiée de l'ancien code Java:
 
 \lstinputlisting[caption=Eventsource Java - EventSourceController.java, language=Java]{code/eventsource.java}
 
-L'idée de ce contrôleur était de mettre à jour une source à chaque fois qu'un Event était envoyé grâce au patron de conception \textit{Observer}. 
+L'idée de ce contrôleur était de mettre à jour une source à chaque fois qu'un événement était envoyé grâce au patron de conception \textit{Observer}. 
 \newpage
 
 Après un peu de recherche sur les différents moyen d'implémenter une utilisation des Eventsource en Scala, j'ai choisi une solution basée sur les Akka Actor. Elle semblait la plus simple et la plus adaptée à mon problème, car elle permet de représenter chaque écran par un acteur. \newline
@@ -503,7 +616,7 @@ Le contrôleur équivalent en Scala:
 
 \lstinputlisting[caption=Eventsource Scala - EventSourceController.scala, language=Scala]{code/eventsource.scala}
 
-On peut voir que ce contrôleur est au final très simple. Il offre deux actions principales: la possibilité pour un écran de s'enregistrer auprès du manager grâce à la méthode \textit{events()} et un moyen pour le système d'envoyer un Event aux écrans avec la méthode \textit{send(event: String)}. \newline
+On peut voir que ce contrôleur est au final très simple. Il offre deux actions principales: la possibilité pour un écran de s'enregistrer auprès du manager grâce à la méthode \textit{events()} et un moyen pour le système d'envoyer un événement aux écrans avec la méthode \textit{send(event: String)}. \newline
 Il utilise pour ce faire un ActorSystem, construit à l'aide d'une sous-classe d'Actor, créée dans le cadre du projet. En voici l'implémentation:
 
 \lstinputlisting[caption=Akka Actor Scala - EventSourceController.scala, language=Scala]{code/actors.scala}
@@ -520,9 +633,12 @@ On s'aperçoit que son fonctionnement est assez simple: si l'écran n'a pas enco
 
 \paragraph{Désactivation}
 
-Il pourrait arriver de vouloir arrêter l'affichage sur un écran en particulier sans pour autant stopper le Schedule associé et continuer l'affichage sur les autres écrans. J'ai donc du mettre au point une manière d'enlever un écran de la liste des écrans concernés par un Schedule. En cherchant des moyen de faire ceci, j'ai réalisé que j'avais des problèmes dans mon code que je n'avais pas remarqué jusqu'a cet instant. Pour des raisons que je n'ai pas tout a fait comprises, lorsque je mettais à jour des attributs de mes threads pour en modifier le comportement, les changements n'étaient pas immédiats ou alors temporaires. Il a donc fallu trouver une autre solution. J'ai décidé qu'au lieu de changer les threads courants, j'allais les arrêter puis en créer des nouveaux avec les nouvelles valeurs et démarrer ceux-ci. A nouveau, mon système de blocs m'a bien rendu service car la reprise par le nouveau thread de l'exécution du Schedule se fait très simplement. La fonction permettant ceci est disponible dans une version simplifiée ci-dessous:
+Il pourrait arriver de vouloir arrêter l'affichage sur un écran en particulier sans pour autant stopper le Schedule associé et continuer l'affichage sur les autres écrans. J'ai donc du mettre au point une manière d'enlever un écran de la liste des écrans concernés par un Schedule. La fonction permettant ceci est disponible dans une version simplifiée ci-dessous: 
 
+\newpage
 \lstinputlisting[caption=Désactivation des écrans - ScreenController.java, language=Java]{code/screen_deactivation.java}
+
+Elle revient à simplement enlever l'écran visé de la liste des écrans concernés par le Schedule. Cette fonctionnalité manque de tests et il est donc possible d'avoir des comportements curieux. Actuellement, elle ne fonctionne que pour les FluxLoop.
 
 \subsubsection{ScheduleController}
 
@@ -530,16 +646,20 @@ Ce contrôleur, en plus d'offrir des opérations CRUD sur les Schedules, permet 
 
 \paragraph{Activation}
 
-L'activation d'un Schedule se fait en deux étapes principales. On crée d'abord un objet RunningSchedule à partir du Schedule à activer. On itère aussi à travers les écrans concernés par ce Schedule afin mettre à jour quelques valeurs. Dans la deuxième partie (ligne 25), ce RunningSchedule sert ensuite à créer un RunningScheduleThread qui est directement lancé par le manager.
+L'activation d'un Schedule se fait en deux étapes principales. On crée d'abord un objet RunningSchedule à partir du Schedule à activer. On itère aussi à travers les écrans concernés par ce Schedule afin mettre à jour quelques valeurs. Dans la deuxième partie (ligne 25), les \textit{Jobs} et \textit{Triggers} de Quartz sont créés et lancés.
 
 \lstinputlisting[caption=Activation d'un Schedule - ScheduleController.java, language=Java]{code/schedule_activation.java}
+
+La fonction \textit{createJobsForSchedule()} récupère de la base de données les FluxTriggers du Schedule à activer et pour chacun d'entre eux schedule un \textit{SendEventJob}. Elle vérifie aussi si la première entrée du Schedule est un FluxLoop et, le cas échéant, schedule également un \textit{SendLoopEventJob}.
 
 
 \paragraph{Désactivation}
 
-La désactivation est quant à elle bien plus simple, car elle se résume à stopper le thread correspondant ainsi qu'à supprimer de la base de données le RunningSchedule visé.
+La désactivation est quant à elle bien plus simple, car elle se résume à supprimer de la base de données le RunningSchedule visé et à supprimer les \textit{Jobs} et \textit{Triggers} de Quartz créés pour ce Schedule (effectué par la méthode \textit{deleteJobsOfSchedule()} à la ligne 11).
 
 \lstinputlisting[caption=Désactivation d'un Schedule - ScheduleController.java, language=Java]{code/schedule_deactivation.java}
+
+La fonction \textit{deleteJobsOfSchedule} parcourt à nouveau la base de données pour récupérer les FluxTriggers du Schedule et pour chacun d'eux, supprimer le \textit{Job} associé. Elle supprime également un potentiel \textit{SendLoopEvenJob}. 
 
 
 \subsubsection{DiffuserController}
@@ -548,38 +668,22 @@ Ce contrôleur offre des opération CRUD sur les Diffusers et permet de les acti
 L'activation d'un Diffuser à été une des fonctionnalités les plus dures à implémenter. Je voulais en effet les connecter entièrement avec mes Schedules et les faire utiliser le même système d'horaire. Une fois celui-ci défini et testé avec les Schedules, j'ai commencé à réfléchir aux Diffusers. Je me suis aperçu qu'il fallait les différencier en deux types: standard et urgent. Pour le type standard, le flux diffusé est rajouté dans l'horaire du Schedule associé à l'écran si possible et pour l'urgent, le flux est diffusé immédiatement puis l'exécution reprend son cours habituel. \newline
 C'est en tout cas ce que j'ai fait avant de réaliser que mon système ne fonctionnait pas. En effet, pendant la rédaction de ce rapport, j'ai remarqué qu'un Schedule peut être activé sur plusieurs écrans et donc modifier tout un Schedule pour un écran générera des effets de bords en modifiant l'affichage sur des écrans non-choisis. Mes deux types de Diffusers utilisant la même logique sous-jacente (à savoir modifier l'horaire d'un Schedule actif), ils sont donc tout les deux inutiles. Je suis passé à côté de ce détail pendant tout le semestre car pendant mes tests je travaillais avec des Schedule contenant peu d'écrans et ce cas de figure n'était jamais arrivé.\newline
 Ma logique initiale était fausse; je n'aurais pas du essayer de mixer les Schedules et Diffusers, trop de problèmes sont survenus à cause de cela. Afin de palier un peu à ce problème, j'ai effectué des modifications de dernière minute afin d'avoir quand même un Diffuser fonctionnel, en tout cas une première implémentation. \newline
-L'activation d'un Diffuser est désormais représentée par l'ajout dans la base de donnée d'un RunningDiffuser. A chaque fois qu'un RunningScheduleThread envoie des Events aux écrans, il vérifie si un RunningDiffuser existe pour ces écrans. Si oui, il leur envoie le flux diffusé et si non, il continue l'exécution normale de son Schedule. Grâce à cela, une séparation est faite entre Diffuser et Schedule, le premier étant prioritaire sur l'autre.
+L'activation d'un Diffuser est désormais représentée par l'ajout dans la base de donnée d'un RunningDiffuser. A chaque fois qu'un événement est envoyé aux écrans, le système vérifie si un RunningDiffuser existe pour ces écrans. Si oui, il leur envoie le flux diffusé et si non, il continue l'exécution normale de son Schedule. Grâce à cela, une séparation est faite entre Diffuser et Schedule, le premier étant prioritaire sur l'autre. Dans le cas où l'écran choisit pour le Diffuser n'est pas assigné à un Schedule actif, un \textit{Job} est créé pour diffuser le flux à la bonne heure.
 
 
 \paragraph{Activation/désactivation}
 
-Dans l'extrait de code suivant figurent des versions simplifiées des nouvelles fonctions d'activation et désactivation des Diffusers. Comme précisé précédemment, elles consistent uniquement à ajouter ou retirer un object RunningDiffuser de la base de données.
+Dans l'extrait de code suivant figurent des versions simplifiées des fonctions d'activation et désactivation des Diffusers :
 
-
+\newpage
 \lstinputlisting[caption=Activation d'un Diffuser - DiffuserController.java, language=Java]{code/diffuser_activation.java}
 
-\paragraph{Détection d'un Diffuser actif}
-
-Au lieu de modifier les Schedules avec les Diffusers, l'application peut maintenant détecter qu'un RunningDiffuser est actif pour un écran auquel il s'apprêtait à envoyer un flux et ainsi modifier son comportement pour envoyer le flux diffusé et non le flux prévu.  
-
-\lstinputlisting[caption=Détection d'un Diffuser actif lors de l'envoi de Flux - RunningScheduleThread.java, language=Java]{code/diffuser_detection.java}
-
-Cette fonction est le point de sortie final de la classe RunningScheduleThread, où le FluxEvent est envoyé au FluxManager.
-
-
+On peut voir dans la partie \textit{activation}, aux lignes 24 à 35, la création d'un \textit{Job} pour les écrans n'ayant pas de Schedule actif. On peut aussi voir dans la deuxième partie que la désactivation d'un Diffuser revient à supprimer de la base de données le RunningDiffuser associé et supprimer les \textit{Jobs} du Scheduler de Quartz (ligne 51).
 
 \newpage
 \subsection{DAOs}
 
-Dans cette section sera décrite l'implémentation des services d'accès à la base de données, ou \textbf{DAO} (pour DataAccessObject). Voici un schéma simple en décrivant l'architecture:
-
-\begin{figure}[h]
-	\centering	
-	\includegraphics[width=0.8\linewidth]{schemas/dao_schema.png}%
-	\caption{Schéma des services d'accès aux données}
-\end{figure}
-
-Dans cette figure, l'objet \textit{ObjectService} représente le service utilisé pour effectuer des opérations de base de données. Utiliser cette structure pour les DAO est recommandée par Play car elle regroupe la logique des fonctions d'accès aux données au même endroit et elle facilite grandement la mise en place de tests à base de mocks. 
+Dans cette section sera décrite l'implémentation des services d'accès à la base de données, ou \textbf{DAO} (pour DataAccessObject). 
 
 \subsubsection{Requêtes SQL}
 
@@ -610,7 +714,8 @@ Plusieurs choses sont à noter:
 	\item Il faut fournir un constructeur sans paramètres.
 \end{itemize}
 
-\newpage
+Egalement à noter : pour certain objets représentant une table ne possédant pas d'ID propre mais d'un ID composite, une classe représentant cette composition doit être implémentée et l'ID de l'objet en question doit être du type de cette classe.
+
 \subsection{Restriction d'accès}
 
 Certaines vues ou fonctionnalités peuvent être limitées à une ou plusieurs catégories d'utilisateurs. Ces restrictions ont été implémentées en utilisant des Actions. Une Action est basiquement une fonction qui analyse les paramètres d'une requête et produit un résultat qui est renvoyé au client. Comme il s'agit d'une fonction, il est très facile de composer plusieurs actions ensemble. On peut dès lors construire une action qui va vérifier les paramètres de la requête pour récupérer un cookie d'authentification et selon la valeur de ce cookie, passer à l'Action suivante ou être redirigé ailleurs. Comme un exemple est bien plus parlant, voici l'Action vérifiant si l'utilisateur courant est un admin :
@@ -619,11 +724,11 @@ Certaines vues ou fonctionnalités peuvent être limitées à une ou plusieurs c
 
 On peut voir que la méthode principale de cette classe, \textit{call()}, vérifie simplement si le cookie "email" existe, et dans l'affirmative, s'il correspond à l'email d'un admin. Si oui, il continue son exécution et passe la main (délègue) à l'Action suivante. Si non, il renvoie à la page de login avec un message d'erreur. Cette Action est ensuite utilisée de la manière suivante :
 
+\newpage
 \lstinputlisting[caption=Utilisation d'une Action custom, language=Java]{code/action_usage.java}
 
 L'annotation \textbf{@With} permet de spécifier que l'on souhaite passer par une autre Action avant d'exécuter le contenu de la méthode \textit{index()}.
 
-\newpage
 \subsection{Triggers}
 
 Comme la majorité des tables intermédiaires (par exemple team\_fluxes) ont des références non nulles vers des lignes d'autres tables, la suppression de l'une de ces lignes entrainait des erreurs de transaction et l'annulation de l'opération en cours. J'ai donc du mettre en place des triggers SQL qui s'occupent d'effacer les lignes des tables intermédiaires lorsque nécessaire. Les entités concernées sont toutes celles possédant une clé étrangère non nulle. Ces triggers étant sensiblement tous les mêmes, un seul exemple est fourni:
@@ -777,9 +882,14 @@ La page la plus compliquée que j'ai eu à réaliser fût celle permettant la cr
 	\caption{Schedules page}
 \end{figure} 
 
-On peut observer deux parties à cette page, une pour l'ajout de flux (avec heure de début ou non) ainsi qu'une pour le choix des flux de fallback du Schedule. En cliquant sur le bouton \textit{Add new}, une nouvelle ligne apparait dans le tableau. Dans la colonne \textit{Name}, on peut choisir parmi les flux disponibles pour la Team courante et dans la colonne \textit{Time} on peut rentrer une heure sous ce format : hh:mm. Si aucune heure n'est rentrée, cela signifie que le flux est sans heure de début.\newline
-Dans le deuxième tableau, on peut choisir quels seront (s'il y en a) les flux de fallback du Schedule. L'option \textit{Keep order} permet de choisir si l'ordre des flux sans heure de début doit être aléatoire ou toujours le même (donc équivalent à l'ordre dans lequel ils ont été ajoutés au Schedule).
-
+On peut observer trois parties à cette page :
+\begin{itemize}
+	\item Une pour le choix des jours d'activité du Schedule (si aucune valeur n'est sélectionnée, cela veut dire qu'il sera actif tout les jours de la semaine).
+	\item Une pour l'ajout de flux (avec heure de début ou non) au Schedule.
+	\item Une pour le choix des flux de fallback du Schedule.
+\end{itemize}
+En cliquant sur le bouton \textit{Add new}, une nouvelle ligne apparait dans le tableau. Dans la colonne \textit{Name}, on peut choisir parmi les flux disponibles pour la Team courante et dans la colonne \textit{Time} on peut rentrer une heure sous ce format : hh:mm. Si aucune heure n'est rentrée, cela signifie que le flux est sans heure de début et fera partie du FluxLoop délimité par les flux avec heure de début. \newline
+Dans le deuxième tableau, on peut choisir quels seront (s'il y en a) les flux de fallback du Schedule. te
 \subsection{Diffusers}
 
 Cette page est très similaire à celle des Schedules, car elle permet d'effectuer les mêmes actions (un Diffuser pouvant également être activé/désactivé). La seule différence se trouve dans la page de création qui est bien plus simple que celle des Schedules car très standard.
@@ -809,6 +919,24 @@ Il n'y a donc aucun tests en plus des tests unitaires.
 \newpage
 \section{Commentaires et conclusion}
 
+\subsection{Résultat}
+
+\subsubsection{Modélisation}
+
+La modélisation de mon architecture a beaucoup évolué pendant le semestre. Si quelques éléments étaient "justes" dès le départ (je pense notamment au fait d'avoir les Teams au centre de tout), au fil des rendez-vous et discussions avec mon mentor j'ai pu améliorer mon schéma et aussi mieux comprendre les attentes pour ce projet. Par exemple, faire figurer dans la base de données les flux d'un Schedule avec leur heure de début. Ayant peu d'expérience dans ce domaine, j'ai beaucoup appris.\newline
+Dans l'ensemble, je dirais que la modélisation proposée répond aux exigences du travail. Il y a très certainement des amélioration ou optimisations à faire mais comme ce travail sert en partie de recherche pour une solution de diffusion de flux, il me semble suffisant.
+
+\subsubsection{Code}
+
+J'ai abordé ce projet avec l'intention de travailler en itérations. Je voulais avoir à chaque fois une version fonctionnelle de ce sur quoi je travaillais actuellement. Cela m'a permis d'avoir très vite des versions 0.1 des mes diverses fonctionnalités et de directement les connecter entre elles (je ne voulais pas me retrouver à devoir tout connecter à la fin). \newline
+Comme expliqué à quelques endroits dans le rapport, il y a quand même certaines fonctionnalités que je n'ai pas réussi ou pas eu le temps d'implémenter. Ce ne sont toutefois pas des parties trop importantes de l'application mais plutôt des détails qui simplifiait son utilisation. Les bases essentielles pour le fonctionnement du programme sont présentes et fonctionnent en grande partie. \newline
+Je reviendrais quand même sur les Diffusers, car c'est eux qui m'ont posé le plus de problèmes. J'avais très vite défini ce que serait mes Diffusers, soit des entités modifiant les Schedules des écrans visés, et pendant longtemps je n'ai pas beaucoup plus réfléchi au problème. En rédigeant le chapitre \textbf{Réalisation}, je me suis aperçu de mon erreur et ai dû modifier presque totalement le fonctionnement des Diffusers. J'ai eu de la chance dans mon malheur car le reste de mon architecture était suffisamment bien organisé pour que ce rajout ne pose pas de problèmes; en quelques heures c'était corrigé. Il m'est arrivé une chose similaire quand j'ai commencé à rédigé mes tests et que j'ai réalisé qu'il fallait que j'implémente des services au lieu d'utiliser directement des dépôts. Ces erreurs m'ont appris à ne pas foncer tête baissée dans le code dès qu'on pense avoir trouvé une solution mais de la comparer avec d'autres possibilités. \newline 
+
+\subsection{Conclusion}
+
+Travailler sur ce projet m'a appris énormément de choses, et ce dans plein de domaines différents. J'ai pu découvrir Play, que j'ai beaucoup apprécié pour sa facilité de prise en main et la puissance de son framework. J'avais également peu d'expérience en SQL, ou en tout cas une compréhension pas toujours exacte, et ne connaissais pas PostrgeSQL. Je n'avais aussi pratiquement jamais fait de \textit{frontend} en HTML/Javascript.\newline
+ Il s'agissait de ma première expérience en solitaire pour un projet aussi important, et j'éprouve donc quelques difficultés à évaluer mon travail, n'ayant pas de référence. Ce programme n'est pas utilisable tel quel, surtout au niveau de l'interface utilisateur, mais il fournit, à mon avis, des bases solides pour l'architecture d'un programme de diffusion de flux (en tout cas dans le cadre de l'HEIG-VD). 
+ 
 \newpage
 \begin{appendices}
 \chapter{}
@@ -931,11 +1059,11 @@ Le travail sera divisé en 4 parties :
 	\item \textbf{Analyse et Modélisation} (2 semaines) \newline
 	Analyse des contraintes et besoins du travail et modélisation d'un système parvenant à y répondre. Recherches sur les différentes solutions possibles pour répondre aux exigences du projet. C'est pendant cette phase que les contours principaux du programme seront définis.
 	\item \textbf{Architecture} (1 semaine) \newline
-	Création d'une architecture de code permettant la réalisation du programme et mise au point des différents algorithmes nécessaires. Par exemple l'algorithme de scheduling des flux ou le protocole de connexion des écrans au serveur.
+	Création d'une architecture de code permettant la réalisation du programme et mise au point des différents algorithmes nécessaires. Par exemple l'algorithme de scheduling des flux et le protocole de connexion des écrans au serveur.
 	\item \textbf{Développement et Tests} (7 semaines) \newline
+	Création de la base de données.
 	Codage de l'application, en commençant par le serveur et en finissant avec le frontend. 
-	Création de la base de données en parallèle.
-	Tests unitaires et fonctionnels
+	Rédaction des tests unitaires et fonctionnels.
 	\item \textbf{Rapport et Documentation} (3 semaines) \newline
 	\end{itemize}
 	
@@ -1278,6 +1406,11 @@ Exemple de table Bootstrap dynamique:
 Documentation sur les Eventsource:
 \\\texttt{https://developer.mozilla.org/en-US/docs/Web/API/EventSource}
 \\\texttt{https://developer.mozilla.org/en-US/docs/Web/API/Server-sent\_events/Using\_server-sent\_events}
+
+\bibitem{quartz} 
+Documentation de Quartz: 
+\\\texttt{http://www.quartz-scheduler.org/documentation/}
+
 
 \end{thebibliography}
 

@@ -26,7 +26,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 
-import static services.BlockUtils.blockNumber;
 
 /**
  * This class implements a controller for the Fluxes.

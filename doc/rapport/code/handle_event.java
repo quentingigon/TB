@@ -8,7 +8,6 @@ public void handleEvent (EventJob job, boolean fluxHasNothingToDisplay) {
             event = new FluxEvent(fallback.getId(), event.getScreenIds());
         }
     }
-
     // si le job vient d'un schedule
     if (job.isJobFromSchedule()) {
         sendFluxEventAsGeneralOrLocated(event, job.getEntityId());

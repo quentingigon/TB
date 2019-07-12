@@ -57,10 +57,6 @@ public class FluxService {
 		return fluxRepository.getGeneralFluxByFluxId(id);
 	}
 
-	public ScheduledFlux createScheduled(ScheduledFlux flux) {
-		return fluxRepository.addScheduledFlux(flux);
-	}
-
 	public FluxTrigger createFluxTrigger(FluxTrigger ft) {
 		return fluxRepository.addFluxTrigger(ft);
 	}

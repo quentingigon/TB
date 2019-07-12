@@ -14,15 +14,12 @@ public Result activate(Http.Request request) {
 		rs.addToScreens(screen.getId());
 		screen.setRunningscheduleId(rs.getId());
 		screen.setActive(true);
-
 		screens.add(screen);
-
 		screenService.update(screen);
 	}
 	scheduleService.update(rs);
 
 	// creation des jobs et triggers necessaires
 	createJobsForSchedule(scheduleToActivate, screens);
-
 	return index(request);
 }

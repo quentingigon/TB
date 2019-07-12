@@ -10,15 +10,27 @@ private String sendDiffusedFluxToConcernedScreens(FluxEvent event, Integer sched
             Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
             // l'ecran a un Schedule actif
             if (scheduleId != null) {
-                Schedule schedule = servicePicker.getScheduleService().getScheduleById(scheduleId);
+                Schedule schedule = 
+                        servicePicker.getScheduleService().getScheduleById(scheduleId);
 
                 // si l'heure de diffusion du Diffuser est maintenant
                 if (schedule != null &&
-                    (checkIfScheduleAndDiffuserDaysOverlap(schedule, diffuser)
-                    && checkIfScheduleAndDiffuserTimeOverlap(schedule, diffuser))) {
-                    send(servicePicker.getFluxService().getFluxById(diffuser.getFlux()),
-                        getMacAddresses(event.getScreenIds()));
-                }
+                        (checkIfScheduleAndDiffuserDaysOverlap(schedule, diffuser)
+                        && checkIfScheduleAndDiffuserTimeOverlap(schedule, diffuser))) {
+                        // recuperation des ids concernes par le Diffuser
+                        StringBuilder screenIds = new StringBuilder(); 
+                        for (Integer id: diffuserService.getScreenIdsOfRunningDiffuserById(rd.getId())) {
+                            screenIds.append(id).append(",");
+                        }
+                        if (!screenIds.toString().isEmpty()) {
+                            screenIds.deleteCharAt(screenIds.length() - 1);
+                        }
+                        send(servicePicker.getFluxService().getFluxById(diffuser.getFlux()),
+                            getMacAddresses(screenIds.toString()));
+                    }
+                    else {
+                        screenIdsWithNoDiffuser.append(s.getId()).append(",");
+                    }
             }
             // pas de Schedule, juste un Diffuser actif
             else {

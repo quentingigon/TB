@@ -72,14 +72,6 @@ public class JPAScheduleRepository implements ScheduleRepository {
 	}
 
 	@Override
-	public ScheduledFlux addScheduledFlux(ScheduledFlux scheduledFlux) {
-		jpaApi.withTransaction(entityManager -> {
-			entityManager.persist(scheduledFlux);
-		});
-		return scheduledFlux;
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	public List<Schedule> getAll() {
 		return jpaApi.withTransaction(entityManager -> {

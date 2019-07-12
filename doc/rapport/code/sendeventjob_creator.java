@@ -33,7 +33,7 @@ private void createJob(String source, String name, Integer entityId, String cron
     // creation du job
     JobDetail job = newJob(SendEventJob.class)
         .withIdentity(JOB_NAME_TRIGGER + flux.getName() + "#" + cronCmd,
-            SEND_EVENT_GROUP + "." + source + "." + name)
+            SEND_EVENT_GROUP)
         .build();
     // creation du trigger
     CronTrigger trigger = newTrigger()
@@ -66,7 +66,7 @@ private void createJob(String source, String name, Integer entityId, String cron
                 servicePicker);
             // creation et demarrage du listener pour les jobs faisant partie du bon groupe
             scheduler.getListenerManager().addJobListener(listener,
-                GroupMatcher.jobGroupContains(SEND_EVENT_GROUP + "." + source));
+                GroupMatcher.jobGroupContains(SEND_EVENT_GROUP));
         }
     } catch (SchedulerException e) {
         e.printStackTrace();

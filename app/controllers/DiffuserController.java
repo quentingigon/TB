@@ -25,7 +25,6 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
-import static services.BlockUtils.getBlockNumberOfTime;
 
 /**
  * This class implements a controller for the Diffusers.
