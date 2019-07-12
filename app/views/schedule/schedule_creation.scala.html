@@ -123,7 +123,6 @@
                             '                }\n' +
                             '                </select></td>' +
                             '<td>  <input type="text" class="form-control new-row-time" name="flux_time" >\n</td>' +
-                            '<td> <input name="repeat" type="checkbox" class="form-control new-row-repeat"> </td>' +
                             '<td>' + actions + '</td>' +
                             '</tr>';
                     $("table").append(row);
@@ -134,9 +133,7 @@
                 $(document).on("click", ".add", function(){
                     var time_empty = false;
                     var flux_empty = false;
-                    var repeat_empty = false;
                     var input_text = $(this).parents("tr").find('input[type="text"]');
-                    var input_checkbox = $(this).parents("tr").find('input[type="checkbox"]');
                     var select = $(this).parents("tr").find('select[type="text"]');
                     var hiddenValue = "";
                     select.each(function(){
@@ -161,18 +158,6 @@
                             hiddenValue += $(this).val();
                             $(this).parent("td").html($(this).val());
                         });
-                    }
-                    hiddenValue += "#";
-                    if (!repeat_empty) {
-                        input_checkbox.each(function(){
-                            if ($(this).is(":checked")) {
-                                hiddenValue += "true";
-                            }
-                            else {
-                                hiddenValue += "false";
-                            }
-                            $(this).parent("td").html($(this).is(":checked"));
-                        })
                     }
                     $(this).parents("tr").find(".add, .edit").toggle();
                     $(".add-new").removeAttr("disabled");
@@ -237,7 +222,6 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Time</th>
-                                <th>Repeat</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>

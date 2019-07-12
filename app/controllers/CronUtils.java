@@ -22,6 +22,8 @@ public class CronUtils {
 	public static final String TRIGGER_NAME = "trigger#";
 	public static final String TRIGGER_NAME_LOOP = "triggerLoop#";
 
+	public static final String ALL_DAYS = "MON,TUE,WED,THU,FRI,SAT,SUN";
+
 
 	public static final int startHour = 8;
 	public static final int endHour = 23;
@@ -120,8 +122,8 @@ public class CronUtils {
 		return output;
 	}
 
-	// return always true for now
-	public static boolean checkIfFluxHasSomethingToDisplay(EventManager eventManager, Flux flux) {
+	// return always true for now. once the micro-service is implemented
+	public static boolean checkIfFluxHasSomethingToDisplayByDateTime(EventManager eventManager, Flux flux) {
 
 		boolean output = true;
 		FluxChecker fluxChecker = eventManager.getFluxChecker();

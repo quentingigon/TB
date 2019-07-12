@@ -9,6 +9,10 @@ import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSBodyWritables;
 import play.libs.ws.WSClient;
 
+/**
+ * This class is used to check if a certain flux has something to display or not.
+ * Potentially, many types of checks (by date, etc) could be implemented.
+ */
 public class FluxChecker implements WSBodyReadables, WSBodyWritables {
 
 	private final WSClient ws;

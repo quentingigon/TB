@@ -143,7 +143,7 @@ public class ScheduleController extends Controller {
 				return indexWithErrorMessage(request, "This schedule is already activated");
 			}
 
-
+			// add screens to running schedule
 			List<Screen> screens = new ArrayList<>();
 			for (String screenMac : data.getScreens()) {
 				Screen screen = screenService.getScreenByMacAddress(screenMac);
@@ -238,11 +238,16 @@ public class ScheduleController extends Controller {
 
 			// set active days
 			StringBuilder days = new StringBuilder();
-			for (String day: data.getDays()) {
-				days.append(day).append(",");
+			if (data.getDays() == null) {
+				schedule.setDays(ALL_DAYS);
 			}
-			days.deleteCharAt(days.length() - 1);
-			schedule.setDays(days.toString());
+			else {
+				for (String day: data.getDays()) {
+					days.append(day).append(",");
+				}
+				days.deleteCharAt(days.length() - 1);
+				schedule.setDays(days.toString());
+			}
 			schedule.setStartTime(data.getStartTime());
 
 			// get fallbacks
@@ -289,11 +294,17 @@ public class ScheduleController extends Controller {
 		else {
 
 			StringBuilder days = new StringBuilder();
-			for (String day: data.getDays()) {
-				days.append(day).append(",");
+			if (data.getDays() == null) {
+				schedule.setDays(ALL_DAYS);
 			}
-			days.deleteCharAt(days.length() - 1);
-			schedule.setDays(days.toString());
+			else {
+				for (String day: data.getDays()) {
+					days.append(day).append(",");
+				}
+				days.deleteCharAt(days.length() - 1);
+				schedule.setDays(days.toString());
+			}
+
 			schedule.setStartTime(data.getStartTime());
 
 			Result error = checkFluxesIntegrity(data, request);
@@ -466,7 +477,11 @@ public class ScheduleController extends Controller {
 			for (String fluxData: data.getFluxes()) {
 
 				String fluxName = fluxData.split("#")[0];
-				String fluxTime = fluxData.split("#")[1];
+				String fluxTime = "";
+				if (fluxData.split("#").length == 2) {
+					fluxTime = fluxData.split("#")[1];
+				}
+
 
 				Flux flux = servicePicker.getFluxService().getFluxByName(fluxName);
 
@@ -495,7 +510,10 @@ public class ScheduleController extends Controller {
 				index++;
 
 				String fluxName = fluxData.split("#")[0];
-				String fluxTime = fluxData.split("#")[1];
+				String fluxTime = "";
+				if (fluxData.split("#").length == 2) {
+					fluxTime = fluxData.split("#")[1];
+				}
 
 				Flux flux = servicePicker.getFluxService().getFluxByName(fluxName);
 

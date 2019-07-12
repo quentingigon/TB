@@ -20,6 +20,10 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+/**
+ * This class is used to create SendLoopEventJobs, that represents a loop of flux in a Schedule.
+ * It offers 2 functions: one to initate a Loop (createFromFluxLoop()) and one to continue a Loop (createFromJob()).
+ */
 public class LoopEventJobCreator {
 
 	private ServicePicker servicePicker;
@@ -37,6 +41,12 @@ public class LoopEventJobCreator {
 		this.eventManager = eventManager;
 	}
 
+	/**
+	 * This function checks if there is the time between now and the next bound (FluxTrigger).
+	 * If so, it creates a SendLoopEventJob and schedules it.
+	 * Some of the values used to create a new Job are recovered from the last Job of the loop
+	 * @param triggerDataMap contains values of the last Job of the loop
+	 */
 	public void createFromJob(JobDataMap triggerDataMap) {
 		// create next trigger here
 		SchedulerFactory sf = new StdSchedulerFactory();
@@ -102,6 +112,10 @@ public class LoopEventJobCreator {
 		}
 	}
 
+	/**
+	 * This function is used to initiate a FluxLoop in a Schedule.
+	 * @param loop FluxLoop from which the SendLoopEventJob is created
+	 */
 	public void createFromFluxLoop(FluxLoop loop) {
 
 		JobDetail job = newJob(SendLoopEventJob.class)

@@ -5,6 +5,9 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+/**
+ * This class represents a Job associated with a FluxTrigger.
+ */
 public class SendEventJob implements EventJob {
 
 	private FluxEvent event;
@@ -15,6 +18,11 @@ public class SendEventJob implements EventJob {
 
 	}
 
+	/**
+	 * Main function of the job, executed when the associated Trigger fires up.
+	 * @param context context from which a DataMap is recovered
+	 * @throws JobExecutionException
+	 */
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 

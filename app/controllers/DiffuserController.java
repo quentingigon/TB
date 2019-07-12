@@ -20,7 +20,7 @@ import views.html.diffuser.diffuser_update;
 import javax.inject.Inject;
 import java.util.*;
 
-import static controllers.CronUtils.getCronCmdDiffuser;
+import static controllers.CronUtils.*;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -170,11 +170,10 @@ public class DiffuserController extends Controller {
 				}
 			}
 
+
 			// creates job, trigger and listener for all screens that are not associated to a running schedule
 			if (!screensWithNoRunningSchedule.isEmpty()) {
-
 				SendEventJobCreator jobCreator = new SendEventJobCreator(servicePicker, eventManager);
-
 				jobCreator.createJobForDiffuser(diffuser, diffusedFlux, screensWithNoRunningSchedule);
 			}
 
@@ -203,10 +202,9 @@ public class DiffuserController extends Controller {
 
 			try {
 				scheduler = sf.getScheduler();
-				scheduler.getListenerManager().removeJobListener(diffuser.getName());
 
 				Flux flux = fluxService.getFluxById(diffuser.getFlux());
-				String jobName = "sendEventJob#" + flux.getName() + "#" + getCronCmdDiffuser(diffuser, diffuser.getTime());
+				String jobName = JOB_NAME_TRIGGER + flux.getName() + "#" + getCronCmdDiffuser(diffuser, diffuser.getTime());
 				scheduler.deleteJob(new JobKey(jobName, diffuser.getName()));
 			} catch (SchedulerException e) {
 				e.printStackTrace();
@@ -240,7 +238,10 @@ public class DiffuserController extends Controller {
 
 			// set active days
 			StringBuilder days = new StringBuilder();
-			if (data.getDays() != null) {
+			if (data.getDays() == null) {
+				diffuser.setDays(ALL_DAYS);
+			}
+			else {
 				for (String day: data.getDays()) {
 					days.append(day).append(",");
 				}

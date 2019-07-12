@@ -12,6 +12,10 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+/**
+ * This class is used to create SendEventJob. It offers to entry-points: on for the Schedules
+ * and one for the Diffusers
+ */
 public class SendEventJobCreator {
 
 	private ServicePicker servicePicker;
@@ -23,6 +27,12 @@ public class SendEventJobCreator {
 		this.eventManager = eventManager;
 	}
 
+	/**
+	 * Creates a SendEventJob with a Diffuser as source
+	 * @param diffuser Source Diffuser
+	 * @param diffusedFlux diffused flux
+	 * @param screens screens concerned
+	 */
 	public void createJobForDiffuser(Diffuser diffuser,
 									 Flux diffusedFlux,
 									 List<Screen> screens) {
@@ -36,6 +46,12 @@ public class SendEventJobCreator {
 			JOBS_LISTENER);
 	}
 
+	/**
+	 * Creates a SendEventJob with a Schedule as source
+	 * @param schedule source Schedule
+	 * @param fluxTrigger FluxTrigger associated with the Job
+	 * @param screens screens concerned
+	 */
 	public void createJobForSchedule(Schedule schedule,
 									 FluxTrigger fluxTrigger,
 									 List<Screen> screens) {
@@ -49,6 +65,17 @@ public class SendEventJobCreator {
 			JOBS_LISTENER);
 	}
 
+	/**
+	 * Create a SendEventJob. If no Listener exist for the SendEventJobs, creates one.
+	 * @param source schedule or diffuser
+	 * @param name name of Schedule or Diffuser
+	 * @param entityId id of Schedule or Diffuser
+	 * @param cronCmd CRON command of the Job
+	 * @param time time of the Job
+	 * @param fluxId id of the associated flux
+	 * @param screens screens concerned
+	 * @param jobListenerName name of the listener
+	 */
 	private void createJob(String source, String name, Integer entityId, String cronCmd,
 						   String time, Integer fluxId, List<Screen> screens, String jobListenerName) {
 		FluxService fluxService = servicePicker.getFluxService();

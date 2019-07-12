@@ -15,9 +15,13 @@ import org.quartz.JobExecutionException;
 import java.util.Comparator;
 import java.util.List;
 
-import static controllers.CronUtils.checkIfFluxHasSomethingToDisplay;
+import static controllers.CronUtils.checkIfFluxHasSomethingToDisplayByDateTime;
 import static controllers.CronUtils.mustFluxLoopBeStarted;
 
+/**
+ * This class implements a Listener for all SendEventJobs. After a Job was executed,
+ * it transmits the event to the EventManager and then verify if a SendLoopEventJob must be started or not.
+ */
 public class SendEventJobsListener implements EventJobListener {
 
 	private EventManager eventManager;
@@ -56,6 +60,12 @@ public class SendEventJobsListener implements EventJobListener {
 
 	}
 
+	/**
+	 * Called after a Job was executed. Verify that the flux has something to display and in any case, calls
+	 * the handleEvent() function of the EventManager. It then verify if a FluxLoop must be started or not.
+	 * @param context context from which a DataMap is recovered containing the Job details
+	 * @param jobException a potential exception
+	 */
 	@Override
 	public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
 		JobDataMap triggerDataMap = context.getTrigger().getJobDataMap();
@@ -111,13 +121,15 @@ public class SendEventJobsListener implements EventJobListener {
 
 	private void checkFlux(String jobName, SendEventJob job) {
 		System.out.println("Checking job: " + jobName);
-		currentFluxHasNothingToDisplay = !checkIfFluxHasSomethingToDisplay(eventManager,
+		currentFluxHasNothingToDisplay = !checkIfFluxHasSomethingToDisplayByDateTime(eventManager,
 			servicePicker.getFluxService().getFluxById(job.getEvent().getFluxId()));
 		System.out.println("Job : " + jobName + " has nothing to display ? -> " + currentFluxHasNothingToDisplay);
 	}
 
 	@Override
 	public void resendLastEvent() {
-		eventManager.handleEvent(lastJob, lastFluxHadNothingToDisplay);
+		if (lastJob != null) {
+			eventManager.handleEvent(lastJob, lastFluxHadNothingToDisplay);
+		}
 	}
 }

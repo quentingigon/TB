@@ -1,11 +1,7 @@
 public Result deactivate(Http.Request request, String mac) {
-    Screen screen = servicePicker.getScreenService().getScreenByMacAddress(mac);
-    ScheduleService scheduleService = servicePicker.getScheduleService();
-    ScreenService screenService = servicePicker.getScreenService();
-
+    Screen screen = screenService.getScreenByMacAddress(mac);
     Integer rsId = scheduleService.getRunningScheduleOfScreenById(screen.getId());
     RunningSchedule rs = scheduleService.getRunningScheduleById(rsId);
-
     // si l'ecran est actif
     if (rs != null) {
         // supprime l'ecran de la liste des ecrans concernes par le schedule
@@ -14,6 +10,5 @@ public Result deactivate(Http.Request request, String mac) {
         rs.setScreens(screenIds);
     }
     scheduleService.update(rs);
-    
     return index(request);
 }

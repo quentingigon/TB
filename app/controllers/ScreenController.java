@@ -124,18 +124,8 @@ public class ScreenController extends Controller {
 			// Timer task used to force a resend of current flux for the screen
 			TimerTask task = new TimerTask() {
 				public void run() {
-				if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null) {
-					RunningDiffuser rd = diffuserService.getRunningDiffuserById(
-						diffuserService.getRunningDiffuserIdByScreenId(screen.getId()));
-					Diffuser diffuser = diffuserService.getDiffuserById(rd.getDiffuserId());
-
-					resendLastEvent();
-				}
-				else if (scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
-					RunningSchedule rs = scheduleService.getRunningScheduleById(
-						scheduleService.getRunningScheduleOfScreenById(screen.getId()));
-					Schedule schedule = scheduleService.getScheduleById(rs.getScheduleId());
-
+				if (diffuserService.getRunningDiffuserIdByScreenId(screen.getId()) != null ||
+					scheduleService.getRunningScheduleOfScreenById(screen.getId()) != null) {
 					resendLastEvent();
 				}
 				}
